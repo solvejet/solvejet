@@ -1,0 +1,91 @@
+{
+  "capabilities": {
+    "title": "Capabilities",
+    "services": {
+      "webDevelopment": {
+        "title": "Web Development",
+        "description": "Custom web solutions for modern businesses",
+        "highlights": [
+          "Responsive Design",
+          "Progressive Web Apps",
+          "E-commerce Solutions",
+          "Enterprise Platforms",
+          "CMS Development"
+        ]
+      },
+      "mobileDevelopment": {
+        "title": "Mobile Development",
+        "description": "Native and cross-platform mobile apps",
+        "highlights": [
+          "iOS Development",
+          "Android Development",
+          "Cross-platform Solutions",
+          "Mobile UI/UX",
+          "App Store Optimization"
+        ]
+      },
+      "customSoftware": {
+        "title": "Custom Software",
+        "description": "Tailored software solutions",
+        "highlights": [
+          "Enterprise Applications",
+          "Workflow Automation",
+          "Integration Services",
+          "Legacy System Modernization",
+          "Digital Transformation"
+        ]
+      },
+      "staffAugmentation": {
+        "title": "Staff Augmentation",
+        "description": "Expert developers for your team",
+        "highlights": [
+          "Skilled Developers",
+          "Flexible Engagement",
+          "Seamless Integration",
+          "Agile Practices",
+          "Knowledge Transfer"
+        ]
+      },
+      "aiDevelopment": {
+        "title": "AI Development",
+        "description": "Intelligent solutions for complex problems",
+        "highlights": [
+          "Machine Learning",
+          "Natural Language Processing",
+          "Computer Vision",
+          "Predictive Analytics",
+          "AI Integration",
+          "Generative AI"
+        ]
+      },
+      "cloudServices": {
+        "title": "Cloud Services",
+        "description": "Cloud infrastructure and solutions",
+        "highlights": [
+          "Cloud Migration",
+          "DevOps Services",
+          "Cloud Security",
+          "Scalable Architecture",
+          "Performance Optimization",
+          "Serverless Solutions"
+        ]
+      }
+    },
+    "featured": {
+      "title": "Featured Projects",
+      "viewAll": "View All Projects",
+      "items": [
+        {
+          "title": "E-commerce Platform",
+          "description": "Modern shopping experience with AI-powered recommendations",
+          "stats": "2M+ Monthly Users"
+        },
+        {
+          "title": "Healthcare Portal",
+          "description": "Integrated patient management system",
+          "stats": "500+ Healthcare Providers"
+        }
+      ]
+    }
+  }
+}

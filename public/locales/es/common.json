@@ -2,7 +2,9 @@
   "toggleTheme": "Cambiar Tema",
   "email": "contact@solvejet.com",
   "phone": "+1 (234) 567-890",
-  "chatNow": "Chatear Ahora",
+  "buttons": {
+    "chatNow": "Chatear Ahora"
+  },
   "mobileMenu": {
     "open": "Abrir menú",
     "close": "Cerrar menú"

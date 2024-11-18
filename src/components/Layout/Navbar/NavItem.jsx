@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 export default function NavItem({
   navigationKey,
@@ -9,83 +10,59 @@ export default function NavItem({
   onHover = () => {},
   onLeave = () => {},
   megaMenu,
+  href,
 }) {
-  const { t } = useTranslation("navigation");
+  const { t } = useTranslation();
 
   return (
     <div
-      className="relative h-20 flex items-center"
+      className="relative flex items-center h-full"
       onMouseEnter={onHover}
-      onMouseLeave={(e) => {
-        const toElement = e.relatedTarget;
-        const isToMegaMenu = toElement?.closest(".mega-menu-container");
-        const isToNavItem = toElement?.closest(".nav-item");
-
-        if (!isToMegaMenu && !isToNavItem) {
-          onLeave();
-        }
-      }}
+      onMouseLeave={onLeave}
     >
       {/* Navigation Button */}
-      <motion.button
-        className="nav-item group flex items-center space-x-1.5 px-3 py-2 h-full"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        <span
-          className="text-gray-900 dark:text-gray-100 font-medium 
-          group-hover:text-primary-600 dark:group-hover:text-primary-400 
-          transition-colors"
+      <Link to={href}>
+        <motion.button
+          className="nav-item group flex items-center space-x-2 h-full"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          {t(`${navigationKey}.title`)}
-        </span>
-        <motion.div
-          animate={{ rotate: active ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <ChevronDown
-            className="w-4 h-4 text-gray-400 group-hover:text-primary-600 
-            dark:text-gray-500 dark:group-hover:text-primary-400"
-          />
-        </motion.div>
-      </motion.button>
+          <span
+            className="text-gray-900 dark:text-gray-100 font-medium text-sm
+            group-hover:text-primary-600 dark:group-hover:text-primary-400 
+            transition-colors"
+          >
+            {t(`${navigationKey}.title`)}
+          </span>
+          <motion.div
+            animate={{ rotate: active ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ChevronDown
+              className="w-4 h-4 text-gray-400 group-hover:text-primary-600 
+              dark:text-gray-500 dark:group-hover:text-primary-400"
+            />
+          </motion.div>
+        </motion.button>
+      </Link>
 
-      {/* Mega Menu */}
+      {/* Mega Menu Container */}
       <AnimatePresence>
         {active && (
-          <>
-            {/* Safe hover area */}
-            <div
-              className="absolute h-4 -bottom-4 left-0 right-0 z-50 mega-menu-margin"
-              onMouseEnter={onHover}
-            />
-
-            {/* Mega Menu Container */}
+          <div className="absolute top-full left-0 right-0 z-40">
+            <div className="h-2" /> {/* Spacer to prevent hover gap */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{
-                duration: 0.3,
-                type: "spring",
-                stiffness: 300,
-                damping: 30,
-              }}
-              className="fixed left-0 right-0 mega-menu-container shadow-xl"
-              style={{ top: "5rem" }}
-              onMouseLeave={(e) => {
-                const toElement = e.relatedTarget;
-                const isToNavItem = toElement?.closest(".nav-item");
-
-                if (!isToNavItem) {
-                  onLeave();
-                }
-              }}
+              transition={{ duration: 0.2 }}
+              className="fixed left-0 right-0 z-40"
               onMouseEnter={onHover}
+              onMouseLeave={onLeave}
             >
               {megaMenu}
             </motion.div>
-          </>
+          </div>
         )}
       </AnimatePresence>
     </div>
@@ -93,14 +70,10 @@ export default function NavItem({
 }
 
 NavItem.propTypes = {
-  navigationKey: PropTypes.oneOf([
-    "capabilities",
-    "industries",
-    "technologies",
-    "company",
-  ]).isRequired,
+  navigationKey: PropTypes.string.isRequired,
   active: PropTypes.bool,
   onHover: PropTypes.func,
   onLeave: PropTypes.func,
   megaMenu: PropTypes.node,
+  href: PropTypes.string.isRequired,
 };

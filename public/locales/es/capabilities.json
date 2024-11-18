@@ -1,0 +1,103 @@
+{
+  "capabilities": {
+    "title": "Capacidades",
+    "description": "Explora nuestra gama completa de servicios",
+    "services": {
+      "webDevelopment": {
+        "title": "Desarrollo Web",
+        "description": "Soluciones web personalizadas para empresas modernas",
+        "highlights": [
+          "Diseño Responsivo",
+          "Aplicaciones Web Progresivas",
+          "Soluciones E-commerce",
+          "Plataformas Empresariales",
+          "Desarrollo CMS"
+        ]
+      },
+      "mobileDevelopment": {
+        "title": "Desarrollo Móvil",
+        "description": "Aplicaciones móviles nativas y multiplataforma",
+        "highlights": [
+          "Desarrollo iOS",
+          "Desarrollo Android",
+          "Soluciones Multiplataforma",
+          "UI/UX Móvil",
+          "Optimización App Store"
+        ]
+      },
+      "customSoftware": {
+        "title": "Software a Medida",
+        "description": "Soluciones de software personalizadas",
+        "highlights": [
+          "Aplicaciones Empresariales",
+          "Automatización de Flujos",
+          "Servicios de Integración",
+          "Modernización de Sistemas",
+          "Transformación Digital"
+        ]
+      },
+      "staffAugmentation": {
+        "title": "Ampliación de Personal",
+        "description": "Desarrolladores expertos para tu equipo",
+        "highlights": [
+          "Desarrolladores Calificados",
+          "Compromiso Flexible",
+          "Integración Sin Problemas",
+          "Prácticas Ágiles",
+          "Transferencia de Conocimiento"
+        ]
+      },
+      "aiDevelopment": {
+        "title": "Desarrollo de IA",
+        "description": "Soluciones inteligentes para problemas complejos",
+        "highlights": [
+          "Machine Learning",
+          "Procesamiento de Lenguaje Natural",
+          "Visión por Computadora",
+          "Análisis Predictivo",
+          "Integración de IA",
+          "IA Generativa"
+        ]
+      },
+      "cloudServices": {
+        "title": "Servicios en la Nube",
+        "description": "Infraestructura y soluciones cloud",
+        "highlights": [
+          "Migración a la Nube",
+          "Servicios DevOps",
+          "Seguridad Cloud",
+          "Arquitectura Escalable",
+          "Optimización de Rendimiento",
+          "Migración de Datos"
+        ]
+      }
+    },
+    "featured": {
+      "title": "Proyectos Destacados",
+      "viewAll": "Ver Todos los Proyectos",
+      "items": [
+        {
+          "title": "Plataforma E-commerce",
+          "description": "Experiencia de compra moderna con recomendaciones basadas en IA",
+          "stats": "2M+ Usuarios Mensuales"
+        },
+        {
+          "title": "Portal de Salud",
+          "description": "Sistema integrado de gestión de pacientes",
+          "stats": "500+ Proveedores de Salud"
+        }
+      ]
+    },
+    "stats": {
+      "experience": "Años de Experiencia",
+      "clients": "Clientes Globales",
+      "projects": "Proyectos Completados",
+      "satisfaction": "Satisfacción del Cliente"
+    },
+    "cta": {
+      "contact": "Contáctanos",
+      "learn": "Más Información",
+      "schedule": "Programar Consulta"
+    }
+  }
+}

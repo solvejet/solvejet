@@ -1,0 +1,83 @@
+{
+    "technologies": {
+      "title": "Tecnologías",
+      "description": "Explora nuestra experiencia técnica",
+      "categories": {
+        "frontend": {
+          "title": "Frontend",
+          "description": "Desarrollo de interfaces modernas",
+          "technologies": {
+            "react": "React",
+            "vuejs": "Vue.js",
+            "angular": "Angular",
+            "nextjs": "Next.js",
+            "typescript": "TypeScript",
+            "tailwind": "Tailwind CSS"
+          }
+        },
+        "backend": {
+          "title": "Backend",
+          "description": "Soluciones del lado del servidor",
+          "technologies": {
+            "nodejs": "Node.js",
+            "python": "Python",
+            "java": "Java",
+            "golang": "Go",
+            "dotnet": ".NET",
+            "php": "PHP"
+          }
+        },
+        "mobile": {
+          "title": "Móvil",
+          "description": "Desarrollo multiplataforma",
+          "technologies": {
+            "reactnative": "React Native",
+            "flutter": "Flutter",
+            "swift": "iOS/Swift",
+            "kotlin": "Android/Kotlin",
+            "xamarin": "Xamarin",
+            "ionic": "Ionic"
+          }
+        },
+        "database": {
+          "title": "Bases de Datos",
+          "description": "Soluciones de almacenamiento",
+          "technologies": {
+            "postgresql": "PostgreSQL",
+            "mongodb": "MongoDB",
+            "mysql": "MySQL",
+            "redis": "Redis",
+            "elasticsearch": "Elasticsearch",
+            "cassandra": "Cassandra"
+          }
+        },
+        "cloud": {
+          "title": "Cloud y DevOps",
+          "description": "Infraestructura en la nube",
+          "technologies": {
+            "aws": "AWS",
+            "azure": "Azure",
+            "gcp": "Google Cloud",
+            "kubernetes": "Kubernetes",
+            "docker": "Docker",
+            "terraform": "Terraform"
+          }
+        }
+      },
+      "cta": {
+        "title": "¿Necesitas un stack tecnológico personalizado?",
+        "description": "Hablemos sobre los requisitos de tu proyecto",
+        "button": "Contacta a Nuestros Expertos"
+      },
+      "featured": {
+        "title": "Tecnologías Destacadas",
+        "viewAll": "Ver Todas las Tecnologías"
+      },
+      "stats": {
+        "title": "Impacto Tecnológico",
+        "experts": "Expertos Tech",
+        "projects": "Proyectos Entregados",
+        "technologies": "Tecnologías"
+      }
+    }
+  }

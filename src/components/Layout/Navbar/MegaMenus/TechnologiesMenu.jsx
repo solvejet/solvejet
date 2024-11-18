@@ -1,4 +1,3 @@
-// src/components/Layout/Navbar/MegaMenus/TechnologiesMenu.jsx
 import { motion } from "framer-motion";
 import {
   Layout,
@@ -20,27 +19,112 @@ const categoryIcons = {
   cloud: Cloud,
 };
 
+// Default technologies data as fallback
+const DEFAULT_TECHNOLOGIES = {
+  frontend: {
+    title: "Frontend",
+    technologies: {
+      react: "React",
+      vuejs: "Vue.js",
+      angular: "Angular",
+      nextjs: "Next.js",
+      typescript: "TypeScript",
+      tailwind: "Tailwind CSS",
+    },
+  },
+  backend: {
+    title: "Backend",
+    technologies: {
+      nodejs: "Node.js",
+      python: "Python",
+      java: "Java",
+      golang: "Go",
+      dotnet: ".NET",
+      php: "PHP",
+    },
+  },
+  mobile: {
+    title: "Mobile",
+    technologies: {
+      reactnative: "React Native",
+      flutter: "Flutter",
+      swift: "iOS/Swift",
+      kotlin: "Android/Kotlin",
+      xamarin: "Xamarin",
+      ionic: "Ionic",
+    },
+  },
+  database: {
+    title: "Databases",
+    technologies: {
+      postgresql: "PostgreSQL",
+      mongodb: "MongoDB",
+      mysql: "MySQL",
+      redis: "Redis",
+      elasticsearch: "Elasticsearch",
+      cassandra: "Cassandra",
+    },
+  },
+  cloud: {
+    title: "Cloud & DevOps",
+    technologies: {
+      aws: "AWS",
+      azure: "Azure",
+      gcp: "Google Cloud",
+      kubernetes: "Kubernetes",
+      docker: "Docker",
+      terraform: "Terraform",
+    },
+  },
+};
+
 export default function TechnologiesMenu() {
-  const { t } = useTranslation("navigation");
+  const { t, i18n } = useTranslation("technologies");
   const categories = Object.keys(categoryIcons);
 
+  // Get technologies with fallback
   const getTechnologies = (categoryKey) => {
     try {
-      return Object.entries(
-        t(`technologies.categories.${categoryKey}.technologies`, {
+      const technologies = t(
+        `technologies.categories.${categoryKey}.technologies`,
+        {
           returnObjects: true,
-        })
+        }
       );
+
+      // Check if we got a valid object back
+      if (
+        technologies &&
+        typeof technologies === "object" &&
+        !Array.isArray(technologies)
+      ) {
+        return Object.entries(technologies);
+      }
+
+      // Fallback to default data if translation fails or returns invalid data
+      return Object.entries(DEFAULT_TECHNOLOGIES[categoryKey].technologies);
     } catch (error) {
-      console.error(`Error getting technologies for ${categoryKey}:`, error);
-      return [];
+      console.warn(`Using fallback data for ${categoryKey}:`, error);
+      return Object.entries(DEFAULT_TECHNOLOGIES[categoryKey].technologies);
+    }
+  };
+
+  // Get category title with fallback
+  const getCategoryTitle = (categoryKey) => {
+    try {
+      const title = t(`technologies.categories.${categoryKey}.title`);
+      return title !== `technologies.categories.${categoryKey}.title`
+        ? title
+        : DEFAULT_TECHNOLOGIES[categoryKey].title;
+    } catch (error) {
+      return DEFAULT_TECHNOLOGIES[categoryKey].title;
     }
   };
 
   return (
-    <MegaMenuBackground>
-      <div className="max-w-7xl mx-auto p-8">
-        <div className="grid grid-cols-5 gap-8">
+    <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-lg">
+      <div className="max-w-[1720px] mx-auto px-24 py-6">
+        <div className="grid grid-cols-5 gap-6">
           {categories.map((categoryKey, idx) => {
             const Icon = categoryIcons[categoryKey];
             const technologies = getTechnologies(categoryKey);
@@ -54,48 +138,48 @@ export default function TechnologiesMenu() {
                 className="relative"
               >
                 {/* Category Header */}
-                <div className="flex items-center space-x-2 mb-4">
-                  <Icon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    {t(`technologies.categories.${categoryKey}.title`)}
+                <div className="flex items-center space-x-2 mb-3">
+                  <div className="p-1.5 rounded-lg bg-primary-50 dark:bg-primary-900/50">
+                    <Icon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                  </div>
+                  <h3 className="font-medium text-gray-900 dark:text-white text-sm">
+                    {getCategoryTitle(categoryKey)}
                   </h3>
                 </div>
 
                 {/* Technologies List */}
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {technologies.map(([key, name], techIdx) => (
                     <motion.div
                       key={key}
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.1 + techIdx * 0.1 }}
+                      transition={{ delay: idx * 0.1 + techIdx * 0.05 }}
                     >
                       <Link
-                        to={`/technologies/${categoryKey}/${key}`}
+                        to={`/${i18n.language}/technologies/${categoryKey}/${key}`}
                         className="group block"
                       >
                         <div
-                          className="relative overflow-hidden rounded-lg py-2.5 px-3
-                        bg-gray-50 dark:bg-gray-800/50 hover:bg-primary-50 
-                        dark:hover:bg-primary-900/20 transition-colors"
+                          className="relative overflow-hidden rounded-lg py-2 px-3
+                          bg-white dark:bg-gray-800 hover:bg-primary-50 
+                          dark:hover:bg-primary-900/20 border border-gray-100 
+                          dark:border-gray-700/50 transition-all duration-300"
                         >
-                          <h4
-                            className="font-medium text-gray-900 dark:text-white 
-                          group-hover:text-primary-600 dark:group-hover:text-primary-400 
-                          transition-colors text-sm"
-                          >
-                            {name}
-                          </h4>
-
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: "100%" }}
-                            transition={{
-                              delay: idx * 0.1 + techIdx * 0.1,
-                              duration: 0.5,
-                            }}
-                            className="absolute bottom-0 left-0 h-0.5 bg-primary-500/20"
-                          />
+                          <div className="flex items-center justify-between">
+                            <h4
+                              className="font-medium text-gray-600 dark:text-gray-300 
+                              group-hover:text-primary-600 dark:group-hover:text-primary-400 
+                              transition-colors text-sm"
+                            >
+                              {name}
+                            </h4>
+                            <ArrowRight
+                              className="w-4 h-4 text-primary-500 dark:text-primary-400 
+                              opacity-0 group-hover:opacity-100 group-hover:translate-x-1 
+                              transition-all duration-300"
+                            />
+                          </div>
                         </div>
                       </Link>
                     </motion.div>
@@ -111,23 +195,30 @@ export default function TechnologiesMenu() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="mt-8 p-4 rounded-xl bg-gradient-to-r from-primary-50 to-primary-100 
-          dark:from-primary-900/20 dark:to-primary-800/20 border border-primary-200/50 
-          dark:border-primary-700/50 flex items-center justify-between"
+          className="mt-6 p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-100 
+            dark:border-gray-700/50 flex items-center justify-between shadow-sm"
         >
-          <div className="text-primary-600 dark:text-primary-400">
-            <h4 className="font-medium">{t("technologies.cta.title")}</h4>
-            <p className="text-sm">{t("technologies.cta.description")}</p>
+          <div className="text-gray-900 dark:text-white">
+            <h4 className="font-medium">
+              {t("technologies.cta.title", "Need a custom technology stack?")}
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              {t(
+                "technologies.cta.description",
+                "Let's discuss your project requirements"
+              )}
+            </p>
           </div>
           <Link
-            to="/contact"
-            className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-full 
-            transition-colors shadow-lg shadow-primary-600/20 hover:shadow-primary-600/40"
+            to={`/${i18n.language}/contact`}
+            className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white 
+              rounded-full transition-colors shadow-lg shadow-primary-600/20 
+              hover:shadow-primary-600/40"
           >
-            {t("technologies.cta.button")}
+            {t("technologies.cta.button", "Contact Our Experts")}
           </Link>
         </motion.div>
       </div>
-    </MegaMenuBackground>
+    </div>
   );
 }

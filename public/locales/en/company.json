@@ -1,0 +1,84 @@
+{
+    "company": {
+        "title": "Company",
+        "description": "Learn about our journey and values",
+        "sections": {
+            "about": {
+                "title": "About Us",
+                "description": "Our journey of innovation since 2010",
+                "stats": {
+                    "experience": "Years Experience",
+                    "clients": "Global Clients",
+                    "team": "Team Members"
+                },
+                "links": {
+                    "story": "Our Story",
+                    "leadership": "Leadership",
+                    "mission": "Mission & Vision"
+                }
+            },
+            "careers": {
+                "title": "Careers",
+                "description": "Join our innovative team",
+                "openings": {
+                    "developer": "Senior React Developer",
+                    "designer": "UI/UX Designer",
+                    "manager": "Product Manager",
+                    "engineer": "DevOps Engineer"
+                },
+                "locations": {
+                    "remote": "Remote",
+                    "newyork": "New York",
+                    "london": "London",
+                    "singapore": "Singapore"
+                },
+                "viewAll": "View All Positions"
+            },
+            "partnerships": {
+                "title": "Partnerships",
+                "description": "Grow with us",
+                "types": {
+                    "hr": {
+                        "title": "HR Partnership",
+                        "description": "Build your dream team with our talent solutions",
+                        "benefits": [
+                            "Expert talent matching",
+                            "Flexible hiring models",
+                            "Dedicated support",
+                            "Quality assurance"
+                        ]
+                    },
+                    "sales": {
+                        "title": "Sales Partnership",
+                        "description": "Expand your business with our solutions",
+                        "benefits": [
+                            "Market expansion",
+                            "Revenue sharing",
+                            "Technical support",
+                            "Joint marketing"
+                        ]
+                    }
+                },
+                "buttons": {
+                    "learnMore": "Learn More",
+                    "contact": "Contact Us",
+                    "start": "Get Started"
+                }
+            },
+            "culture": {
+                "title": "Our Culture",
+                "values": [
+                    "Innovation First",
+                    "Client Success",
+                    "Team Excellence",
+                    "Continuous Learning"
+                ]
+            }
+        },
+        "cta": {
+            "careers": "Join Our Team",
+            "contact": "Get in Touch",
+            "partnership": "Partner with Us"
+        }
+    }
+}

@@ -19,8 +19,11 @@ export default function LanguageSelector() {
 
   const handleLanguageChange = async (langCode) => {
     try {
+      console.log("Changing language to:", langCode);
       await i18n.changeLanguage(langCode);
       localStorage.setItem("i18nextLng", langCode);
+      console.log("Language changed, current language:", i18n.language);
+      console.log("Available resources:", i18n.services.resourceStore.data);
       setIsOpen(false);
     } catch (error) {
       console.error("Failed to change language:", error);

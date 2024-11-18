@@ -1,0 +1,83 @@
+{
+    "technologies": {
+        "title": "Technologies",
+        "description": "Explore our technical expertise",
+        "categories": {
+            "frontend": {
+                "title": "Frontend",
+                "description": "Modern UI development",
+                "technologies": {
+                    "react": "React",
+                    "vuejs": "Vue.js",
+                    "angular": "Angular",
+                    "nextjs": "Next.js",
+                    "typescript": "TypeScript",
+                    "tailwind": "Tailwind CSS"
+                }
+            },
+            "backend": {
+                "title": "Backend",
+                "description": "Server-side solutions",
+                "technologies": {
+                    "nodejs": "Node.js",
+                    "python": "Python",
+                    "java": "Java",
+                    "golang": "Go",
+                    "dotnet": ".NET",
+                    "php": "PHP"
+                }
+            },
+            "mobile": {
+                "title": "Mobile",
+                "description": "Cross-platform development",
+                "technologies": {
+                    "reactnative": "React Native",
+                    "flutter": "Flutter",
+                    "swift": "iOS/Swift",
+                    "kotlin": "Android/Kotlin",
+                    "xamarin": "Xamarin",
+                    "ionic": "Ionic"
+                }
+            },
+            "database": {
+                "title": "Databases",
+                "description": "Data storage solutions",
+                "technologies": {
+                    "postgresql": "PostgreSQL",
+                    "mongodb": "MongoDB",
+                    "mysql": "MySQL",
+                    "redis": "Redis",
+                    "elasticsearch": "Elasticsearch",
+                    "cassandra": "Cassandra"
+                }
+            },
+            "cloud": {
+                "title": "Cloud & DevOps",
+                "description": "Cloud infrastructure",
+                "technologies": {
+                    "aws": "AWS",
+                    "azure": "Azure",
+                    "gcp": "Google Cloud",
+                    "kubernetes": "Kubernetes",
+                    "docker": "Docker",
+                    "terraform": "Terraform"
+                }
+            }
+        },
+        "cta": {
+            "title": "Need a custom technology stack?",
+            "description": "Let's discuss your project requirements",
+            "button": "Contact Our Experts"
+        },
+        "featured": {
+            "title": "Featured Technologies",
+            "viewAll": "View All Technologies"
+        },
+        "stats": {
+            "title": "Technology Impact",
+            "experts": "Tech Experts",
+            "projects": "Projects Delivered",
+            "technologies": "Technologies"
+        }
+    }
+}

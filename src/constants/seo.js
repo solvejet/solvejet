@@ -1,7 +1,7 @@
 // src/constants/seo.js
 export const DEFAULT_SEO = {
   title: "SolveJet",
-  titleTemplate: "%s | SolveJet",
+  titleTemplate: "%s",
   description: "Advanced solution for your needs",
   openGraph: {
     type: "website",

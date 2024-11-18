@@ -1,329 +1,56 @@
 {
-  "capabilities": {
-    "title": "Capacidades",
-    "services": {
-      "webDevelopment": {
-        "title": "Desarrollo Web",
-        "description": "Soluciones web personalizadas para empresas modernas",
-        "highlights": [
-          "Diseño Responsivo",
-          "Aplicaciones Web Progresivas",
-          "Soluciones E-commerce",
-          "Plataformas Empresariales",
-          "Desarrollo CMS"
-        ]
-      },
-      "mobileDevelopment": {
-        "title": "Desarrollo Móvil",
-        "description": "Aplicaciones móviles nativas y multiplataforma",
-        "highlights": [
-          "Desarrollo iOS",
-          "Desarrollo Android",
-          "Soluciones Multiplataforma",
-          "UI/UX Móvil",
-          "Optimización App Store"
-        ]
-      },
-      "customSoftware": {
-        "title": "Software Personalizado",
-        "description": "Soluciones de software a medida",
-        "highlights": [
-          "Aplicaciones Empresariales",
-          "Automatización de Flujos",
-          "Servicios de Integración",
-          "Modernización de Sistemas",
-          "Transformación Digital"
-        ]
-      },
-      "staffAugmentation": {
-        "title": "Ampliación de Personal",
-        "description": "Desarrolladores expertos para tu equipo",
-        "highlights": [
-          "Desarrolladores Calificados",
-          "Compromiso Flexible",
-          "Integración Perfecta",
-          "Prácticas Ágiles",
-          "Transferencia de Conocimiento"
-        ]
-      },
-      "aiDevelopment": {
-        "title": "Desarrollo de IA",
-        "description": "Soluciones inteligentes para problemas complejos",
-        "highlights": [
-          "Aprendizaje Automático",
-          "Procesamiento de Lenguaje Natural",
-          "Visión por Computadora",
-          "Análisis Predictivo",
-          "Integración de IA"
-        ]
-      },
-      "cloudServices": {
-        "title": "Servicios en la Nube",
-        "description": "Infraestructura y soluciones cloud",
-        "highlights": [
-          "Migración a la Nube",
-          "Servicios DevOps",
-          "Seguridad en la Nube",
-          "Arquitectura Escalable",
-          "Optimización de Rendimiento"
-        ]
-      }
-    },
-    "featured": {
-      "title": "Proyectos Destacados",
-      "viewAll": "Ver Todos los Proyectos",
-      "items": [
-        {
-          "title": "Plataforma E-commerce",
-          "description": "Experiencia de compra moderna con recomendaciones basadas en IA",
-          "stats": "2M+ Usuarios Mensuales"
-        },
-        {
-          "title": "Portal de Salud",
-          "description": "Sistema integrado de gestión de pacientes",
-          "stats": "500+ Proveedores de Salud"
-        }
-      ]
-    }
-  },
-  "industries": {
-    "title": "Industrias",
-    "sections": {
-      "ecommerce": {
-        "title": "E-commerce y Retail",
-        "description": "Soluciones digitales para el comercio moderno",
-        "highlights": [
-          "Marketplaces Online",
-          "Sistemas de Inventario",
-          "Soluciones de Pago",
-          "Análisis y Reportes",
-          "Experiencia del Cliente"
-        ]
-      },
-      "healthcare": {
-        "title": "Salud",
-        "description": "Soluciones digitales de salud",
-        "highlights": [
-          "Telemedicina",
-          "Sistemas EHR",
-          "IoT Médico",
-          "Portales de Pacientes",
-          "Análisis de Salud"
-        ]
-      },
-      "finance": {
-        "title": "Banca y Finanzas",
-        "description": "Soluciones tecnológicas financieras seguras",
-        "highlights": [
-          "Banca Digital",
-          "Sistemas de Pago",
-          "Gestión de Riesgos",
-          "Cumplimiento Normativo",
-          "Soluciones Blockchain"
-        ]
-      },
-      "education": {
-        "title": "Educación",
-        "description": "Soluciones modernas de aprendizaje",
-        "highlights": [
-          "Gestión del Aprendizaje",
-          "Aulas Virtuales",
-          "Análisis Estudiantil",
-          "Herramientas de Evaluación",
-          "Contenido Educativo"
-        ]
-      },
-      "logistics": {
-        "title": "Logística y Cadena de Suministro",
-        "description": "Soluciones integrales de cadena de suministro",
-        "highlights": [
-          "Gestión de Flotas",
-          "Seguimiento de Inventario",
-          "Optimización de Rutas",
-          "Gestión de Almacenes",
-          "Análisis de Cadena de Suministro"
-        ]
-      },
-      "manufacturing": {
-        "title": "Manufactura",
-        "description": "Soluciones de fabricación inteligente",
-        "highlights": [
-          "Integración IoT",
-          "Automatización de Procesos",
-          "Control de Calidad",
-          "Mantenimiento Predictivo",
-          "Planificación de Recursos"
-        ]
-      }
-    },
-    "caseStudies": {
-      "title": "Casos de Éxito",
-      "viewAll": "Ver Todos los Casos",
-      "items": [
-        {
-          "title": "Transformación Sanitaria",
-          "description": "Evolución digital de una cadena hospitalaria",
-          "stat": "+156% Satisfacción del Paciente"
-        },
-        {
-          "title": "Revolución del Retail",
-          "description": "Sistema de gestión de inventario con IA",
-          "stat": "-32% Desperdicio de Stock"
-        }
-      ]
-    }
-  },
-  "technologies": {
-    "title": "Tecnologías",
-    "categories": {
-      "frontend": {
-        "title": "Frontend",
-        "technologies": {
-          "react": "React",
-          "vuejs": "Vue.js",
-          "angular": "Angular",
-          "nextjs": "Next.js"
-        }
-      },
-      "backend": {
-        "title": "Backend",
-        "technologies": {
-          "nodejs": "Node.js",
-          "python": "Python",
-          "java": "Java",
-          "go": "Go"
-        }
-      },
-      "mobile": {
-        "title": "Móvil",
-        "technologies": {
-          "reactnative": "React Native",
-          "flutter": "Flutter",
-          "swift": "Swift",
-          "kotlin": "Kotlin"
-        }
-      },
-      "database": {
-        "title": "Bases de Datos",
-        "technologies": {
-          "postgresql": "PostgreSQL",
-          "mongodb": "MongoDB",
-          "redis": "Redis",
-          "elasticsearch": "Elasticsearch"
-        }
-      },
-      "cloud": {
-        "title": "Cloud y DevOps",
-        "technologies": {
-          "aws": "AWS",
-          "docker": "Docker",
-          "kubernetes": "Kubernetes",
-          "terraform": "Terraform"
-        }
-      }
-    },
-    "cta": {
-      "title": "¿Necesitas un stack tecnológico personalizado?",
-      "description": "Discutamos los requisitos de tu proyecto",
-      "button": "Obtener Asesoría Experta"
-    }
-  },
-  "company": {
-    "title": "Empresa",
-    "sections": {
-      "about": {
-        "title": "Sobre Nosotros",
-        "description": "Pioneros en soluciones tecnológicas desde 2010",
-        "stats": {
-          "experience": "Años de Experiencia",
-          "clients": "Clientes Globales",
-          "team": "Miembros del Equipo"
-        },
-        "links": {
-          "story": "Nuestra Historia",
-          "leadership": "Liderazgo",
-          "mission": "Misión y Visión"
-        }
-      },
-      "careers": {
-        "title": "Carreras",
-        "description": "Únete a nuestro equipo de innovadores",
-        "culture": {
-          "title": "Nuestra Cultura",
-          "highlights": [
-            "Innovación Primero",
-            "Entorno Global",
-            "Aprendizaje Continuo",
-            "Balance Vida-Trabajo",
-            "Trabajo Remoto"
-          ]
-        },
-        "openings": {
-          "developer": "Desarrollador Senior React",
-          "designer": "Diseñador UI/UX",
-          "manager": "Gerente de Producto"
-        },
-        "locations": {
-          "remote": "Remoto",
-          "newyork": "Nueva York",
-          "london": "Londres",
-          "singapore": "Singapur"
-        }
-      },
-      "partnerships": {
-        "title": "Alianzas",
-        "types": {
-          "hr": {
-            "title": "Alianza de RRHH",
-            "description": "Únete a nuestra red de talento"
-          },
-          "sales": {
-            "title": "Alianza Comercial",
-            "description": "Crezcamos juntos en el negocio"
-          }
+    "navigation": {
+        "common": {
+            "menu": "Menú",
+            "close": "Cerrar",
+            "back": "Volver",
+            "viewAll": "Ver Todo",
+            "learnMore": "Más Información"
         },
         "buttons": {
-          "learnMore": "Saber Más"
+            "chatNow": "Chatear Ahora",
+            "getStarted": "Comenzar",
+            "contactUs": "Contáctanos"
+        },
+        "capabilities": {
+            "title": "Capacidades",
+            "description": "Nuestros servicios integrales",
+            "viewAllServices": "Ver Todos los Servicios"
+        },
+        "industries": {
+            "title": "Industrias",
+            "description": "Sectores en los que nos especializamos",
+            "viewAllIndustries": "Ver Todas las Industrias"
+        },
+        "technologies": {
+            "title": "Tecnologías",
+            "description": "Nuestra experiencia técnica",
+            "viewAllTech": "Ver Todas las Tecnologías"
+        },
+        "company": {
+            "title": "Empresa",
+            "description": "Conócenos más",
+            "sections": {
+                "about": {
+                    "title": "Sobre Nosotros",
+                    "description": "Nuestra historia y valores"
+                },
+                "careers": {
+                    "title": "Carreras",
+                    "description": "Únete a nuestro equipo"
+                },
+                "contact": {
+                    "title": "Contacto",
+                    "description": "Ponte en contacto"
+                }
+            }
+        },
+        "megaMenu": {
+            "featured": "Destacados",
+            "popular": "Populares",
+            "new": "Nuevos",
+            "trending": "Tendencias",
+            "allCategories": "Todas las Categorías"
         }
-      },
-      "global": {
-        "title": "Presencia Global",
-        "description": "Sirviendo a clientes en todo el mundo",
-        "viewOffices": "Ver Oficinas Globales",
-        "regions": [
-          "América del Norte",
-          "Europa",
-          "Asia Pacífico",
-          "Medio Oriente"
-        ]
-      }
     }
-  },
-  "common": {
-    "viewAll": "Ver Todo",
-    "learnMore": "Saber Más",
-    "getStarted": "Comenzar",
-    "contactUs": "Contáctanos",
-    "loading": "Cargando...",
-    "error": "Algo salió mal",
-    "retry": "Reintentar",
-    "toggleTheme": "Cambiar tema",
-    "languageSelector": {
-      "title": "Seleccionar idioma",
-      "languages": {
-        "en": "English",
-        "es": "Español"
-      }
-    },
-    "navigation": {
-      "menu": "Menú",
-      "close": "Cerrar",
-      "back": "Atrás"
-    },
-    "buttons": {
-      "chatNow": "Chatear Ahora",
-      "viewMore": "Ver Más",
-      "viewLess": "Ver Menos"
-    }
-  }
 }

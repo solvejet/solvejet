@@ -1,0 +1,84 @@
+{
+    "company": {
+        "title": "Empresa",
+        "description": "Conoce nuestra trayectoria y valores",
+        "sections": {
+            "about": {
+                "title": "Sobre Nosotros",
+                "description": "Nuestra trayectoria de innovación desde 2010",
+                "stats": {
+                    "experience": "Años de Experiencia",
+                    "clients": "Clientes Globales",
+                    "team": "Miembros del Equipo"
+                },
+                "links": {
+                    "story": "Nuestra Historia",
+                    "leadership": "Liderazgo",
+                    "mission": "Misión y Visión"
+                }
+            },
+            "careers": {
+                "title": "Carreras",
+                "description": "Únete a nuestro equipo innovador",
+                "openings": {
+                    "developer": "Desarrollador Senior React",
+                    "designer": "Diseñador UI/UX",
+                    "manager": "Gerente de Producto",
+                    "engineer": "Ingeniero DevOps"
+                },
+                "locations": {
+                    "remote": "Remoto",
+                    "newyork": "Nueva York",
+                    "london": "Londres",
+                    "singapore": "Singapur"
+                },
+                "viewAll": "Ver Todas las Posiciones"
+            },
+            "partnerships": {
+                "title": "Alianzas",
+                "description": "Crece con nosotros",
+                "types": {
+                    "hr": {
+                        "title": "Alianza de RRHH",
+                        "description": "Construye tu equipo ideal con nuestras soluciones de talento",
+                        "benefits": [
+                            "Coincidencia experta de talento",
+                            "Modelos flexibles de contratación",
+                            "Soporte dedicado",
+                            "Garantía de calidad"
+                        ]
+                    },
+                    "sales": {
+                        "title": "Alianza de Ventas",
+                        "description": "Expande tu negocio con nuestras soluciones",
+                        "benefits": [
+                            "Expansión de mercado",
+                            "Participación en ingresos",
+                            "Soporte técnico",
+                            "Marketing conjunto"
+                        ]
+                    }
+                },
+                "buttons": {
+                    "learnMore": "Más Información",
+                    "contact": "Contáctanos",
+                    "start": "Comenzar"
+                }
+            },
+            "culture": {
+                "title": "Nuestra Cultura",
+                "values": [
+                    "Innovación Primero",
+                    "Éxito del Cliente",
+                    "Excelencia en Equipo",
+                    "Aprendizaje Continuo"
+                ]
+            }
+        },
+        "cta": {
+            "careers": "Únete a Nuestro Equipo",
+            "contact": "Contáctanos",
+            "partnership": "Asóciate con Nosotros"
+        }
+    }
+}

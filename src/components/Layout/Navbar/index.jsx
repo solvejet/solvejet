@@ -1,192 +1,199 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+// src/components/Layout/Navbar/index.jsx
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { ErrorBoundary } from "react-error-boundary";
 import Logo from "./Logo";
 import NavItem from "./NavItem";
-import MobileMenu from "../MobileMenu/index";
+import MobileMenu from "../MobileMenu";
 import CapabilitiesMenu from "./MegaMenus/CapabilitiesMenu";
 import IndustriesMenu from "./MegaMenus/IndustriesMenu";
 import TechnologiesMenu from "./MegaMenus/TechnologiesMenu";
 import CompanyMenu from "./MegaMenus/CompanyMenu";
 import ChatNowButton from "./ChatNowButton";
-import { useTranslation } from "react-i18next";
+import HamburgerButton from "./HamburgerButton";
+
+// Navbar Error Fallback Component
+const NavbarErrorFallback = () => (
+  <div className="fixed top-0 left-0 right-0 bg-red-50 dark:bg-red-900 p-4 text-center z-50">
+    <p className="text-red-600 dark:text-red-400">
+      Something went wrong with the navigation. Please try refreshing the page.
+    </p>
+  </div>
+);
 
 const navItems = [
   {
     key: "capabilities",
     component: CapabilitiesMenu,
+    path: "/capabilities",
   },
   {
     key: "industries",
     component: IndustriesMenu,
+    path: "/industries",
   },
   {
     key: "technologies",
     component: TechnologiesMenu,
+    path: "/technologies",
   },
   {
     key: "company",
     component: CompanyMenu,
+    path: "/company",
   },
 ];
 
-export default function Navbar() {
+function Navbar() {
   const [activeMenu, setActiveMenu] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { t, i18n } = useTranslation("navigation");
+  const { t, i18n } = useTranslation(["navigation", "common"]);
+  const location = useLocation();
 
-  // Handle scroll effects
+  // Enhanced scroll handler with throttling
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 0);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on resize
+  // Route change handler
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Close menus when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isClickOutside(event)) {
-        setActiveMenu(null);
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    const isClickOutside = (event) => {
-      const isNavbarClick = event.target.closest(".navbar-container");
-      const isMegaMenuClick = event.target.closest(".mega-menu-container");
-      const isMobileMenuClick = event.target.closest(".mobile-menu-container");
-
-      return !isNavbarClick && !isMegaMenuClick && !isMobileMenuClick;
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Handle menu toggle
-  const handleMobileMenuToggle = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-    // Close any open mega menus when mobile menu is opened
-    if (!isMobileMenuOpen) {
-      setActiveMenu(null);
-    }
-  };
-
-  // Handle mobile link click
-  const handleMobileLinkClick = (path) => {
     setIsMobileMenuOpen(false);
     setActiveMenu(null);
-  };
+  }, [location.pathname]);
+
+  // Handle body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.paddingRight = "var(--scrollbar-width)";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
+    };
+  }, [isMobileMenuOpen]);
+
+  // Calculate scrollbar width on mount
+  useEffect(() => {
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+    document.documentElement.style.setProperty(
+      "--scrollbar-width",
+      `${scrollbarWidth}px`
+    );
+  }, []);
+
+  // Memoized path localization
+  const getLocalizedPath = useCallback(
+    (path) => `/${i18n.language}${path}`,
+    [i18n.language]
+  );
+
+  // Memoized localized nav items
+  const localizedNavItems = useMemo(
+    () =>
+      navItems.map((item) => ({
+        ...item,
+        title: t(`navigation.${item.key}.title`),
+        description: t(`navigation.${item.key}.description`),
+        path: getLocalizedPath(item.path),
+      })),
+    [t, getLocalizedPath]
+  );
 
   return (
-    <>
+    <ErrorBoundary FallbackComponent={NavbarErrorFallback}>
       <nav
-        className={`fixed top-8 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? "backdrop-blur-lg shadow-lg" : ""
-        }`}
+        className={`fixed top-10 left-0 right-0 z-40 transition-all duration-300 
+          bg-white dark:bg-gray-900 ${isScrolled ? "shadow-lg" : ""} 
+          w-full overflow-x-hidden`}
       >
-        <div
-          className={`navbar-container bg-white/80 dark:bg-gray-900/80 backdrop-blur-md 
-            border-b border-gray-200 dark:border-gray-800 transition-all duration-300 
-            ${isScrolled ? "py-2" : "py-4"}`}
-        >
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-between">
+        <div className="border-b border-gray-200 dark:border-gray-800">
+          <div className="max-w-[1720px] mx-auto px-4 lg:px-24">
+            <div className="flex items-center justify-between h-20">
               {/* Logo */}
-              <Logo />
+              <div className="flex-shrink-0">
+                <Logo />
+              </div>
 
               {/* Desktop Navigation */}
-              <div className="hidden lg:flex lg:items-stretch lg:space-x-2">
+              <div className="hidden lg:flex lg:items-center lg:space-x-16">
                 {navItems.map((item) => (
                   <NavItem
                     key={item.key}
-                    navigationKey={item.key}
+                    navigationKey={`navigation.${item.key}`}
                     active={activeMenu === item.key}
                     onHover={() => setActiveMenu(item.key)}
                     onLeave={() => setActiveMenu(null)}
                     megaMenu={<item.component />}
+                    href={getLocalizedPath(item.path)}
                   />
                 ))}
-                <div className="flex items-center pl-4">
-                  <ChatNowButton />
+
+                {/* Chat Now Button */}
+                <div className="pl-16 border-l border-gray-200 dark:border-gray-700">
+                  <ChatNowButton>
+                    {t("navigation.buttons.chatNow")}
+                  </ChatNowButton>
                 </div>
               </div>
 
               {/* Mobile Menu Button */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleMobileMenuToggle}
-                className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 
-                  dark:text-gray-300 dark:hover:text-white focus:outline-none"
-                aria-label={
-                  isMobileMenuOpen
-                    ? t("common.navigation.close")
-                    : t("common.navigation.menu")
-                }
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
-              </motion.button>
+              <div className="lg:hidden">
+                <HamburgerButton
+                  isOpen={isMobileMenuOpen}
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Mobile Menu Integration */}
+        {/* Mobile Menu */}
         <MobileMenu
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
-          items={navItems}
-          onLinkClick={handleMobileLinkClick}
-          className="lg:hidden mobile-menu-container"
+          items={localizedNavItems}
         />
+
+        {/* Mega Menu Container */}
+        <div className="z-30">
+          {activeMenu &&
+            navItems.find((item) => item.key === activeMenu)?.component()}
+        </div>
       </nav>
 
-      {/* Semi-transparent overlay for mega menus on desktop */}
-      <AnimatePresence>
-        {activeMenu && !isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/20 dark:bg-black/40 z-40 hidden lg:block"
-            onClick={() => setActiveMenu(null)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Semi-transparent overlay for mobile menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-40 lg:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-    </>
+      {/* Overlay for mobile menu */}
+      {isMobileMenuOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-30"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+    </ErrorBoundary>
   );
 }
+
+export default Navbar;

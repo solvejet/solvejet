@@ -1,324 +1,56 @@
 {
-  "capabilities": {
-    "title": "Capabilities",
-    "services": {
-      "webDevelopment": {
-        "title": "Web Development",
-        "description": "Custom web solutions for modern businesses",
-        "highlights": [
-          "Responsive Design",
-          "Progressive Web Apps",
-          "E-commerce Solutions",
-          "Enterprise Platforms",
-          "CMS Development"
-        ]
-      },
-      "mobileDevelopment": {
-        "title": "Mobile Development",
-        "description": "Native and cross-platform mobile apps",
-        "highlights": [
-          "iOS Development",
-          "Android Development",
-          "Cross-platform Solutions",
-          "Mobile UI/UX",
-          "App Store Optimization"
-        ]
-      },
-      "customSoftware": {
-        "title": "Custom Software",
-        "description": "Tailored software solutions",
-        "highlights": [
-          "Enterprise Applications",
-          "Workflow Automation",
-          "Integration Services",
-          "Legacy System Modernization",
-          "Digital Transformation"
-        ]
-      },
-      "staffAugmentation": {
-        "title": "Staff Augmentation",
-        "description": "Expert developers for your team",
-        "highlights": [
-          "Skilled Developers",
-          "Flexible Engagement",
-          "Seamless Integration",
-          "Agile Practices",
-          "Knowledge Transfer"
-        ]
-      },
-      "aiDevelopment": {
-        "title": "AI Development",
-        "description": "Intelligent solutions for complex problems",
-        "highlights": [
-          "Machine Learning",
-          "Natural Language Processing",
-          "Computer Vision",
-          "Predictive Analytics",
-          "AI Integration"
-        ]
-      },
-      "cloudServices": {
-        "title": "Cloud Services",
-        "description": "Cloud infrastructure and solutions",
-        "highlights": [
-          "Cloud Migration",
-          "DevOps Services",
-          "Cloud Security",
-          "Scalable Architecture",
-          "Performance Optimization"
-        ]
-      }
-    },
-    "featured": {
-      "title": "Featured Projects",
-      "viewAll": "View All Projects",
-      "items": [
-        {
-          "title": "E-commerce Platform",
-          "description": "Modern shopping experience with AI-powered recommendations",
-          "stats": "2M+ Monthly Users"
-        },
-        {
-          "title": "Healthcare Portal",
-          "description": "Integrated patient management system",
-          "stats": "500+ Healthcare Providers"
-        }
-      ]
-    }
-  },
-  "industries": {
-    "title": "Industries",
-    "sections": {
-      "ecommerce": {
-        "title": "E-commerce & Retail",
-        "description": "Digital solutions for modern retail",
-        "highlights": [
-          "Online Marketplaces",
-          "Inventory Systems",
-          "Payment Solutions",
-          "Analytics & Reporting",
-          "Customer Experience"
-        ]
-      },
-      "healthcare": {
-        "title": "Healthcare",
-        "description": "Digital health solutions",
-        "highlights": [
-          "Telemedicine",
-          "EHR Systems",
-          "Medical IoT",
-          "Patient Portals",
-          "Healthcare Analytics"
-        ]
-      },
-      "finance": {
-        "title": "Banking & Finance",
-        "description": "Secure financial technology solutions",
-        "highlights": [
-          "Digital Banking",
-          "Payment Systems",
-          "Risk Management",
-          "Regulatory Compliance",
-          "Blockchain Solutions"
-        ]
-      },
-      "education": {
-        "title": "Education",
-        "description": "Modern learning solutions",
-        "highlights": [
-          "Learning Management",
-          "Virtual Classrooms",
-          "Student Analytics",
-          "Assessment Tools",
-          "Educational Content"
-        ]
-      },
-      "logistics": {
-        "title": "Logistics & Supply Chain",
-        "description": "End-to-end supply chain solutions",
-        "highlights": [
-          "Fleet Management",
-          "Inventory Tracking",
-          "Route Optimization",
-          "Warehouse Management",
-          "Supply Chain Analytics"
-        ]
-      },
-      "manufacturing": {
-        "title": "Manufacturing",
-        "description": "Smart manufacturing solutions",
-        "highlights": [
-          "IoT Integration",
-          "Process Automation",
-          "Quality Control",
-          "Predictive Maintenance",
-          "Resource Planning"
-        ]
-      }
-    },
-    "caseStudies": {
-      "title": "Success Stories",
-      "viewAll": "View All Case Studies",
-      "items": [
-        {
-          "title": "Healthcare Transformation",
-          "description": "Digital evolution of a major hospital chain",
-          "stat": "+156% Patient Satisfaction"
-        },
-        {
-          "title": "Retail Revolution",
-          "description": "AI-powered inventory management system",
-          "stat": "-32% Stock Wastage"
-        }
-      ]
-    }
-  },
-  "technologies": {
-    "title": "Technologies",
-    "categories": {
-      "frontend": {
-        "title": "Frontend",
-        "technologies": {
-          "react": "React",
-          "vuejs": "Vue.js",
-          "angular": "Angular",
-          "nextjs": "Next.js"
-        }
-      },
-      "backend": {
-        "title": "Backend",
-        "technologies": {
-          "nodejs": "Node.js",
-          "python": "Python",
-          "java": "Java",
-          "go": "Go"
-        }
-      },
-      "mobile": {
-        "title": "Mobile",
-        "technologies": {
-          "reactnative": "React Native",
-          "flutter": "Flutter",
-          "swift": "Swift",
-          "kotlin": "Kotlin"
-        }
-      },
-      "database": {
-        "title": "Databases",
-        "technologies": {
-          "postgresql": "PostgreSQL",
-          "mongodb": "MongoDB",
-          "redis": "Redis",
-          "elasticsearch": "Elasticsearch"
-        }
-      },
-      "cloud": {
-        "title": "Cloud & DevOps",
-        "technologies": {
-          "aws": "AWS",
-          "docker": "Docker",
-          "kubernetes": "Kubernetes",
-          "terraform": "Terraform"
-        }
-      }
-    },
-    "cta": {
-      "title": "Need a custom technology stack?",
-      "description": "Let's discuss your project requirements",
-      "button": "Get Expert Advice"
-    }
-  },
-  "company": {
-    "title": "Company",
-    "sections": {
-      "about": {
-        "title": "About Us",
-        "description": "Pioneering technology solutions since 2010",
-        "stats": {
-          "experience": "Years Experience",
-          "clients": "Global Clients",
-          "team": "Team Members"
-        },
-        "links": {
-          "story": "Our Story",
-          "leadership": "Leadership",
-          "mission": "Mission & Vision"
-        }
-      },
-      "careers": {
-        "title": "Careers",
-        "description": "Join our team of innovators",
-        "culture": {
-          "title": "Our Culture",
-          "highlights": [
-            "Innovation First",
-            "Global Environment",
-            "Continuous Learning",
-            "Work-Life Balance",
-            "Remote-Friendly"
-          ]
-        },
-        "openings": {
-          "developer": "Senior React Developer",
-          "designer": "UI/UX Designer",
-          "manager": "Product Manager"
-        },
-        "locations": {
-          "remote": "Remote",
-          "newyork": "New York",
-          "london": "London",
-          "singapore": "Singapore"
-        }
-      },
-      "partnerships": {
-        "title": "Partnerships",
-        "types": {
-          "hr": {
-            "title": "HR Partnership",
-            "description": "Join our talent network"
-          },
-          "sales": {
-            "title": "Sales Partnership",
-            "description": "Grow business together"
-          }
+    "navigation": {
+        "common": {
+            "menu": "Menu",
+            "close": "Close",
+            "back": "Back",
+            "viewAll": "View All",
+            "learnMore": "Learn More"
         },
         "buttons": {
-          "learnMore": "Learn More"
+            "chatNow": "Chat Now",
+            "getStarted": "Get Started",
+            "contactUs": "Contact Us"
+        },
+        "capabilities": {
+            "title": "Capabilities",
+            "description": "Our comprehensive service offerings",
+            "viewAllServices": "View All Services"
+        },
+        "industries": {
+            "title": "Industries",
+            "description": "Sectors we specialize in",
+            "viewAllIndustries": "View All Industries"
+        },
+        "technologies": {
+            "title": "Technologies",
+            "description": "Our technical expertise",
+            "viewAllTech": "View All Technologies"
+        },
+        "company": {
+            "title": "Company",
+            "description": "Learn more about us",
+            "sections": {
+                "about": {
+                    "title": "About Us",
+                    "description": "Our story and values"
+                },
+                "careers": {
+                    "title": "Careers",
+                    "description": "Join our team"
+                },
+                "contact": {
+                    "title": "Contact",
+                    "description": "Get in touch"
+                }
+            }
+        },
+        "megaMenu": {
+            "featured": "Featured",
+            "popular": "Popular",
+            "new": "New",
+            "trending": "Trending",
+            "allCategories": "All Categories"
         }
-      },
-      "global": {
-        "title": "Global Presence",
-        "description": "Serving clients worldwide",
-        "viewOffices": "View Global Offices",
-        "regions": ["North America", "Europe", "Asia Pacific", "Middle East"]
-      }
     }
-  },
-  "common": {
-    "viewAll": "View All",
-    "learnMore": "Learn More",
-    "getStarted": "Get Started",
-    "contactUs": "Contact Us",
-    "loading": "Loading...",
-    "error": "Something went wrong",
-    "retry": "Retry",
-    "toggleTheme": "Toggle theme",
-    "languageSelector": {
-      "title": "Select language",
-      "languages": {
-        "en": "English",
-        "es": "Español"
-      }
-    },
-    "navigation": {
-      "menu": "Menu",
-      "close": "Close",
-      "back": "Back"
-    },
-    "buttons": {
-      "chatNow": "Chat Now",
-      "viewMore": "View More",
-      "viewLess": "View Less"
-    }
-  }
 }

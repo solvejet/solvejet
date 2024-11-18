@@ -1,0 +1,80 @@
+{
+    "industries": {
+        "sections": {
+            "ecommerce": {
+                "title": "Comercio Electrónico",
+                "description": "Soluciones y plataformas de venta digital",
+                "highlights": [
+                    "Tiendas Online",
+                    "Mercados",
+                    "Sistemas de Pago"
+                ]
+            },
+            "healthcare": {
+                "title": "Salud",
+                "description": "Soluciones digitales de salud y medicina",
+                "highlights": [
+                    "Telemedicina",
+                    "Sistemas EHR",
+                    "Análisis de Salud"
+                ]
+            },
+            "finance": {
+                "title": "Finanzas",
+                "description": "Soluciones de tecnología financiera",
+                "highlights": [
+                    "Banca",
+                    "Seguros",
+                    "Inversión"
+                ]
+            },
+            "education": {
+                "title": "Educación",
+                "description": "Plataformas de tecnología educativa",
+                "highlights": [
+                    "E-Learning",
+                    "LMS",
+                    "EdTech"
+                ]
+            },
+            "logistics": {
+                "title": "Logística",
+                "description": "Soluciones de cadena de suministro y entrega",
+                "highlights": [
+                    "Gestión de Flotas",
+                    "Seguimiento",
+                    "Optimización"
+                ]
+            },
+            "manufacturing": {
+                "title": "Fabricación",
+                "description": "Soluciones de Industria 4.0",
+                "highlights": [
+                    "IoT",
+                    "Automatización",
+                    "Control de Calidad"
+                ]
+            }
+        },
+        "stats": {
+            "projects": "Proyectos Completados",
+            "satisfaction": "Satisfacción del Cliente"
+        },
+        "caseStudies": {
+            "title": "Casos de Éxito Destacados",
+            "viewAll": "Ver Todos los Casos",
+            "items": {
+                "healthcare": {
+                    "title": "Transformación Digital en Salud",
+                    "description": "Revolucionando la atención al paciente con plataforma de telemedicina",
+                    "stat": "+156% Satisfacción del Paciente"
+                },
+                "ecommerce": {
+                    "title": "Innovación en E-commerce",
+                    "description": "Implementación de motor de recomendación con IA",
+                    "stat": "+43% Crecimiento en Ingresos"
+                }
+            }
+        }
+    }
+}

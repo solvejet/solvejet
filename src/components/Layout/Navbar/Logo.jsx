@@ -3,23 +3,9 @@ import { Link } from "react-router-dom";
 
 export default function Logo() {
   return (
-    <Link to="/" className="flex-shrink-0">
-      <motion.div
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="w-48" // Adjust width as needed while maintaining aspect ratio
-      >
-        <motion.svg
-          viewBox="0 0 1800 600"
-          xmlns="http://www.w3.org/2000/svg"
-          whileHover={{
-            rotate: [0, -5, 5, 0],
-            transition: {
-              duration: 0.5,
-              ease: "easeInOut",
-            },
-          }}
-        >
+    <Link to="/" className="block">
+      <div className="w-48">
+        <svg viewBox="0 0 1800 600" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <clipPath clipPathUnits="userSpaceOnUse" id="cp1">
               <path d="m0 0h1800v600h-1800z" />
@@ -103,8 +89,8 @@ export default function Logo() {
               </g>
             </g>
           </g>
-        </motion.svg>
-      </motion.div>
+        </svg>
+      </div>
     </Link>
   );
 }

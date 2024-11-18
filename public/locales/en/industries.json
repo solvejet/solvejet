@@ -1,0 +1,80 @@
+{
+    "industries": {
+        "sections": {
+            "ecommerce": {
+                "title": "E-commerce",
+                "description": "Digital retail solutions and platforms",
+                "highlights": [
+                    "Online Stores",
+                    "Marketplaces",
+                    "Payment Systems"
+                ]
+            },
+            "healthcare": {
+                "title": "Healthcare",
+                "description": "Digital health and medical solutions",
+                "highlights": [
+                    "Telemedicine",
+                    "EHR Systems",
+                    "Health Analytics"
+                ]
+            },
+            "finance": {
+                "title": "Finance",
+                "description": "Financial technology solutions",
+                "highlights": [
+                    "Banking",
+                    "Insurance",
+                    "Investment"
+                ]
+            },
+            "education": {
+                "title": "Education",
+                "description": "Educational technology platforms",
+                "highlights": [
+                    "E-Learning",
+                    "LMS",
+                    "EdTech"
+                ]
+            },
+            "logistics": {
+                "title": "Logistics",
+                "description": "Supply chain and delivery solutions",
+                "highlights": [
+                    "Fleet Management",
+                    "Tracking",
+                    "Optimization"
+                ]
+            },
+            "manufacturing": {
+                "title": "Manufacturing",
+                "description": "Industry 4.0 solutions",
+                "highlights": [
+                    "IoT",
+                    "Automation",
+                    "Quality Control"
+                ]
+            }
+        },
+        "stats": {
+            "projects": "Projects Completed",
+            "satisfaction": "Client Satisfaction"
+        },
+        "caseStudies": {
+            "title": "Featured Case Studies",
+            "viewAll": "View All Case Studies",
+            "items": {
+                "healthcare": {
+                    "title": "Healthcare Digital Transformation",
+                    "description": "Revolutionizing patient care with telemedicine platform",
+                    "stat": "+156% Patient Satisfaction"
+                },
+                "ecommerce": {
+                    "title": "E-commerce Innovation",
+                    "description": "AI-powered recommendation engine implementation",
+                    "stat": "+43% Revenue Growth"
+                }
+            }
+        }
+    }
+}
