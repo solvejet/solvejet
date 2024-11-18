@@ -1,9 +1,9 @@
-// src/components/Layout/Navbar/index.jsx
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { ErrorBoundary } from "react-error-boundary";
+import PropTypes from "prop-types";
 import Logo from "./Logo";
 import NavItem from "./NavItem";
 import MobileMenu from "../MobileMenu";
@@ -14,14 +14,30 @@ import CompanyMenu from "./MegaMenus/CompanyMenu";
 import ChatNowButton from "./ChatNowButton";
 import HamburgerButton from "./HamburgerButton";
 
-// Navbar Error Fallback Component
-const NavbarErrorFallback = () => (
+// Navbar-specific error fallback
+const NavbarErrorFallback = ({ error, resetErrorBoundary }) => (
   <div className="fixed top-0 left-0 right-0 bg-red-50 dark:bg-red-900 p-4 text-center z-50">
     <p className="text-red-600 dark:text-red-400">
-      Something went wrong with the navigation. Please try refreshing the page.
+      Navigation Error: {error?.message || "Something went wrong"}
     </p>
+    {resetErrorBoundary && (
+      <button
+        onClick={resetErrorBoundary}
+        className="mt-2 px-3 py-1 text-sm bg-red-600 text-white rounded
+          hover:bg-red-700 transition-colors"
+      >
+        Reset
+      </button>
+    )}
   </div>
 );
+
+NavbarErrorFallback.propTypes = {
+  error: PropTypes.shape({
+    message: PropTypes.string,
+  }),
+  resetErrorBoundary: PropTypes.func,
+};
 
 const navItems = [
   {
@@ -47,6 +63,7 @@ const navItems = [
 ];
 
 function Navbar() {
+  const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -102,6 +119,13 @@ function Navbar() {
     );
   }, []);
 
+  // Error boundary reset handler
+  const handleErrorReset = useCallback(() => {
+    setActiveMenu(null);
+    setIsMobileMenuOpen(false);
+    navigate("/");
+  }, [navigate]);
+
   // Memoized path localization
   const getLocalizedPath = useCallback(
     (path) => `/${i18n.language}${path}`,
@@ -121,11 +145,17 @@ function Navbar() {
   );
 
   return (
-    <ErrorBoundary FallbackComponent={NavbarErrorFallback}>
+    <ErrorBoundary
+      FallbackComponent={NavbarErrorFallback}
+      onReset={handleErrorReset}
+      onError={(error, errorInfo) => {
+        console.error("Navigation Error:", error);
+        console.error("Error Info:", errorInfo);
+      }}
+    >
       <nav
-        className={`fixed top-10 left-0 right-0 z-40 transition-all duration-300 
-          bg-white dark:bg-gray-900 ${isScrolled ? "shadow-lg" : ""} 
-          w-full overflow-x-hidden`}
+        className={`fixed top-10 left-0 right-0 z-30 transition-all duration-300 
+          bg-white dark:bg-gray-900 ${isScrolled ? "shadow-lg" : ""}`}
       >
         <div className="border-b border-gray-200 dark:border-gray-800">
           <div className="max-w-[1720px] mx-auto px-4 lg:px-24">
@@ -158,7 +188,7 @@ function Navbar() {
               </div>
 
               {/* Mobile Menu Button */}
-              <div className="lg:hidden">
+              <div className="flex lg:hidden">
                 <HamburgerButton
                   isOpen={isMobileMenuOpen}
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -176,22 +206,27 @@ function Navbar() {
         />
 
         {/* Mega Menu Container */}
-        <div className="z-30">
-          {activeMenu &&
-            navItems.find((item) => item.key === activeMenu)?.component()}
-        </div>
+        <AnimatePresence>
+          {activeMenu && (
+            <div className="z-30">
+              {navItems.find((item) => item.key === activeMenu)?.component()}
+            </div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Overlay for mobile menu */}
-      {isMobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-30"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm z-20"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </ErrorBoundary>
   );
 }
