@@ -1,3 +1,4 @@
+// src/components/forms/contact-form.tsx
 'use client'
 
 import React from 'react'
@@ -17,6 +18,8 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAnalytics } from '@/hooks/use-analytics'
+import { toast } from 'sonner'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ACCEPTED_FILE_TYPES = [
@@ -55,10 +58,27 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
+interface ContactResponse {
+  success: boolean
+  message?: string
+  data?: {
+    id: string
+    createdAt: string
+  }
+  error?: string
+  details?: Array<{
+    code: string
+    message: string
+    path: string[]
+  }>
+}
+
 export function ContactForm() {
+  const { trackGTMEvent } = useAnalytics()
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -75,12 +95,90 @@ export function ContactForm() {
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null)
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
 
+  // Utility function to convert File to base64
+  const fileToBase64 = (file: File | Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = (error) => reject(error)
+    })
+  }
+
   const onSubmit = async (data: FormData) => {
     try {
-      // Add your form submission logic here
-      console.log('Form data:', data)
+      // Track form submission attempt
+      trackGTMEvent({
+        event: 'contact_form_submit_attempt',
+        formData: {
+          hasFiles: files.length > 0,
+          hasVoiceNote: !!audioBlob,
+        },
+      })
+
+      // Process files if present
+      const processedFiles = await Promise.all(
+        files.map(async (file) => ({
+          name: file.name,
+          type: file.type,
+          data: await fileToBase64(file),
+        }))
+      )
+
+      // Process voice note if present
+      let processedVoiceNote
+      if (audioBlob) {
+        const voiceNoteData = await fileToBase64(audioBlob)
+        processedVoiceNote = { data: voiceNoteData }
+      }
+
+      // Submit to API
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...data,
+          files: files.length > 0 ? processedFiles : undefined,
+          voiceNote: processedVoiceNote,
+          consent: true,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const result: ContactResponse = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to submit form')
+      }
+
+      // Track successful submission
+      trackGTMEvent({
+        event: 'contact_form_submit_success',
+        formData: {
+          id: result.data?.id,
+          hasFiles: files.length > 0,
+          hasVoiceNote: !!audioBlob,
+        },
+      })
+
+      // Show success message and reset form
+      toast.success("Form submitted successfully! We'll be in touch soon.")
+      reset()
+      setFiles([])
+      setAudioBlob(null)
     } catch (error) {
       console.error('Error submitting form:', error)
+
+      // Track submission error
+      trackGTMEvent({
+        event: 'contact_form_submit_error',
+        formData: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      })
+
+      toast.error('Failed to submit form. Please try again.')
     }
   }
 
@@ -95,12 +193,22 @@ export function ContactForm() {
           ACCEPTED_FILE_TYPES.includes(file.type as AcceptedFileType)
       )
       setFiles((prev) => [...prev, ...validFiles])
+
+      // Track file selection
+      trackGTMEvent({
+        event: 'contact_form_file_upload',
+        fileData: {
+          count: validFiles.length,
+          types: validFiles.map((file) => file.type),
+        },
+      })
     }
   }
 
   // Handle file removal
   const handleFileRemove = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index))
+    trackGTMEvent({ event: 'contact_form_file_remove' })
   }
 
   // Recording functions
@@ -118,18 +226,27 @@ export function ContactForm() {
         const blob = new Blob(chunks, { type: 'audio/wav' })
         setAudioBlob(blob)
         stream.getTracks().forEach((track) => track.stop())
+
+        trackGTMEvent({
+          event: 'contact_form_voice_recorded',
+          recordingData: {
+            duration: recordingTime,
+            size: blob.size,
+          },
+        })
       }
 
       mediaRecorderRef.current = mediaRecorder
       mediaRecorder.start()
       setIsRecording(true)
+      trackGTMEvent({ event: 'contact_form_voice_start' })
 
-      // Start timer
       timerRef.current = setInterval(() => {
         setRecordingTime((prev) => prev + 1)
       }, 1000) as unknown as NodeJS.Timeout
     } catch (error) {
       console.error('Error accessing microphone:', error)
+      toast.error('Failed to access microphone. Please check your permissions.')
     }
   }
 
@@ -325,7 +442,7 @@ export function ContactForm() {
                         size="sm"
                         onClick={() => handleFileRemove(index)}
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-4w-4" />
                       </Button>
                     </motion.div>
                   ))}
@@ -337,6 +454,7 @@ export function ContactForm() {
       </div>
 
       <div className="flex flex-col items-end gap-4">
+        {/* Privacy Policy Link */}
         <p className="text-sm text-muted-foreground">
           By clicking Send, you agree to our{' '}
           <a href="/privacy" className="text-primary hover:underline">
@@ -344,6 +462,7 @@ export function ContactForm() {
           </a>
         </p>
 
+        {/* Submit Button */}
         <Button type="submit" disabled={isSubmitting} className="min-w-[120px]">
           {isSubmitting ? (
             <>
