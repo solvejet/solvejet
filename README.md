@@ -1,36 +1,201 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SolveJet - Modern Software Development Company Website
 
-## Getting Started
+A modern, responsive website built with Next.js 14, TypeScript, Tailwind CSS, and various other cutting-edge technologies. This project implements best practices for performance, accessibility, and developer experience.
 
-First, run the development server:
+![SolveJet Preview](/public/solvejet.png)
+
+## 🚀 Features
+
+- ⚡️ **Next.js 14** - Latest features from Next.js
+- 📦 **TypeScript** - Type safety and better developer experience
+- 🎨 **Tailwind CSS** - Utility-first CSS framework
+- 🌗 **Dark Mode** - Elegant theme switching with next-themes
+- 📱 **Responsive Design** - Mobile-first approach
+- 🎭 **Animations** - Smooth animations with Framer Motion
+- 🧩 **Components** - Reusable and modular components
+- 🔍 **SEO Optimized** - Meta tags and Open Graph
+- 📊 **Analytics Ready** - Google Analytics and GTM integration
+- 🔒 **ISO 27001:2022** - Security certified
+
+## 📋 Prerequisites
+
+- Node.js 18+
+- pnpm (recommended) or npm
+- Git
+
+## 🛠️ Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/solvejet.git
+cd solvejet
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Create a .env file:
 
-## Learn More
+```bash
+cp .env.example .env.local
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Start the development server:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🏗️ Project Structure
 
-## Deploy on Vercel
+```
+solvejet/
+├── app/                   # Next.js 14 app directory
+├── components/            # React components
+│   ├── layout/           # Layout components
+│   ├── ui/               # UI components
+│   └── providers/        # Context providers
+├── config/               # Configuration files
+├── data/                 # Static data
+├── lib/                  # Utility functions
+├── public/               # Static assets
+├── styles/              # Global styles
+└── types/               # TypeScript types
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧩 Components
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Layout Components
+
+- `Header` - Main navigation with mega menu
+- `Footer` - Site footer with newsletter
+- `MobileSidebar` - Mobile navigation menu
+
+### UI Components
+
+- `Button` - Customizable button component
+- `Input` - Form input with label and error
+- `Badge` - Badge/tag component
+- `Logo` - SVG logo with theme support
+- `ThemeToggle` - Dark/light mode toggle
+
+## 🎨 Styling
+
+The project uses Tailwind CSS with a custom configuration:
+
+- Custom color schemes for light/dark modes
+- Responsive breakpoints
+- Animation classes
+- Custom components
+
+### Color Scheme
+
+```typescript
+colors: {
+  primary: {...},
+  secondary: {...},
+  accent: {...},
+  background: {...},
+  foreground: {...}
+}
+```
+
+## 📱 Responsive Design
+
+- Mobile First: < 640px
+- Tablet: 640px - 1024px
+- Desktop: > 1024px
+
+## 🔧 Configuration
+
+### Site Configuration
+
+Edit `config/site.ts`:
+
+```typescript
+export const siteConfig = {
+  name: 'SolveJet',
+  description: '...',
+  // ...
+}
+```
+
+### Analytics Configuration
+
+Edit `config/analytics.ts`:
+
+```typescript
+export const analyticsConfig = {
+  gtm: { id: '...' },
+  ga: { id: '...' },
+}
+```
+
+## 🚀 Deployment
+
+1. Build the project:
+
+```bash
+pnpm build
+```
+
+2. Start production server:
+
+```bash
+pnpm start
+```
+
+### Vercel Deployment
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/solvejet)
+
+## 🧪 Testing
+
+```bash
+# Run Jest tests
+pnpm test
+
+# Run ESLint
+pnpm lint
+
+# Type checking
+pnpm type-check
+```
+
+## 📦 Dependencies
+
+Key dependencies include:
+
+- `next`: 14.1.5
+- `react`: 19.0.0
+- `tailwindcss`: 3.4.1
+- `framer-motion`: Latest
+- `lucide-react`: 0.471.1
+- `next-themes`: 0.4.4
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👥 Authors
+
+- **Your Name** - _Initial work_ - [YourGithub](https://github.com/yourusername)
+
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Vercel](https://vercel.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
