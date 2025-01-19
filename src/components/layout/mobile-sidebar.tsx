@@ -243,12 +243,16 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
               </div>
             </div>
 
-            {/* Sticky Button - Fixed at bottom */}
+            {/* Sticky Button */}
             <div
-              className="sticky bottom-0 left-0 right-0 border-t border-border/50 bg-background/80 p-4 backdrop-blur-md"
+              className="safe-area-bottom fixed bottom-0 left-0 right-0 border-t border-border/50 bg-background/80 p-4 backdrop-blur-lg"
               onClick={stopPropagation}
             >
-              <Button size="lg" className="w-full gap-2">
+              <Button
+                size="lg"
+                className="w-full gap-2 shadow-lg"
+                href="/contact"
+              >
                 <Phone className="h-5 w-5" />
                 Contact Us
               </Button>

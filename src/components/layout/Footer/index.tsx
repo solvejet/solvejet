@@ -3,11 +3,13 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { Logo } from '@/components/ui/Logo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { siteConfig } from '@/config/site'
 import { menuData } from '@/data/menu-data'
+import { memo } from '@/lib/memo'
 import {
   Instagram,
   Twitter,
@@ -21,30 +23,98 @@ import {
   FileText,
 } from 'lucide-react'
 
-const Footer = () => {
-  const currentYear = new Date().getFullYear()
+function Footer() {
+  const footerRef = React.useRef<HTMLDivElement>(null)
   const [email, setEmail] = React.useState('')
+  const currentYear = React.useMemo(() => new Date().getFullYear(), [])
 
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // Parallax effect setup
+  const { scrollYProgress } = useScroll({
+    target: footerRef,
+    offset: ['start end', 'end end'],
+  })
 
-    // Newsletter subscription logic
-  }
+  const y = useTransform(scrollYProgress, [0, 1], [100, 0])
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [0, 1])
+
+  const handleEmailChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setEmail(e.target.value)
+    },
+    []
+  )
+
+  const handleNewsletterSubmit = React.useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      // Newsletter subscription logic
+    },
+    []
+  )
+
+  const socialLinks = React.useMemo(
+    () => [
+      { href: 'https://instagram.com/solvejet', icon: Instagram },
+      { href: siteConfig.social.twitter, icon: Twitter },
+      { href: siteConfig.social.linkedin, icon: Linkedin },
+    ],
+    []
+  )
+
+  const footerLinks = React.useMemo(
+    () => [
+      { href: '/privacy', text: 'Privacy' },
+      { href: '/terms', text: 'Terms' },
+      { href: '/dpa', text: 'DPA' },
+      { href: '/ccpa', text: 'CCPA' },
+    ],
+    []
+  )
 
   return (
-    <footer className="relative w-full overflow-hidden border-t">
-      {/* Gradient Overlays */}
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute -left-[10%] -top-[50%] h-[500px] w-[500px] rounded-full bg-primary/20 blur-[100px] dark:bg-primary/20" />
-        <div className="absolute -right-[10%] top-0 h-[300px] w-[300px] rounded-full bg-purple-500/20 blur-[100px] dark:bg-purple-500/20" />
-        <div className="absolute bottom-0 left-[20%] h-[400px] w-[600px] rounded-full bg-blue-500/20 blur-[100px] dark:bg-blue-500/20" />
-      </div>
+    <footer
+      ref={footerRef}
+      className="relative w-full overflow-hidden border-t"
+    >
+      {/* Parallax Gradient Overlays */}
+      <motion.div
+        style={{ y, opacity }}
+        className="pointer-events-none absolute inset-0 z-0"
+      >
+        <motion.div
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1 }}
+          className="absolute -left-[10%] -top-[50%] h-[500px] w-[500px] rounded-full bg-primary/20 blur-[100px] dark:bg-primary/20"
+        />
+        <motion.div
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="absolute -right-[10%] top-0 h-[300px] w-[300px] rounded-full bg-purple-500/20 blur-[100px] dark:bg-purple-500/20"
+        />
+        <motion.div
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1, delay: 0.4 }}
+          className="absolute bottom-0 left-[20%] h-[400px] w-[600px] rounded-full bg-blue-500/20 blur-[100px] dark:bg-blue-500/20"
+        />
+      </motion.div>
 
-      {/* Main Footer Content */}
-      <div className="relative z-10 mx-auto w-full max-w-screen-2xl px-4 py-16 sm:px-6 lg:px-8">
+      {/* Main Footer Content with Parallax */}
+      <motion.div
+        style={{ y: useTransform(scrollYProgress, [0, 1], [50, 0]) }}
+        className="relative z-10 mx-auto w-full max-w-screen-2xl px-4 py-16 sm:px-6 lg:px-8"
+      >
         <div className="grid gap-8 lg:grid-cols-12">
           {/* Company Info */}
-          <div className="lg:col-span-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="lg:col-span-4"
+          >
             <Logo width={140} height={46} className="mb-6" />
             <p className="mb-4 max-w-sm text-sm text-muted-foreground">
               {siteConfig.description}
@@ -52,11 +122,17 @@ const Footer = () => {
 
             {/* Contact Information */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm">
+              <motion.div
+                whileHover={{ x: 5 }}
+                className="flex items-center gap-2 text-sm"
+              >
                 <MapPin className="h-4 w-4 text-primary" />
                 <span>India & USA</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
+              </motion.div>
+              <motion.div
+                whileHover={{ x: 5 }}
+                className="flex items-center gap-2 text-sm"
+              >
                 <Phone className="h-4 w-4 text-primary" />
                 <a
                   href={`tel:${siteConfig.contacts.India}`}
@@ -64,8 +140,11 @@ const Footer = () => {
                 >
                   {siteConfig.contacts.India}
                 </a>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
+              </motion.div>
+              <motion.div
+                whileHover={{ x: 5 }}
+                className="flex items-center gap-2 text-sm"
+              >
                 <Mail className="h-4 w-4 text-primary" />
                 <a
                   href="mailto:hello@solvejet.net"
@@ -73,8 +152,11 @@ const Footer = () => {
                 >
                   hello@solvejet.net
                 </a>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
+              </motion.div>
+              <motion.div
+                whileHover={{ x: 5 }}
+                className="flex items-center gap-2 text-sm"
+              >
                 <Globe className="h-4 w-4 text-primary" />
                 <a
                   href={siteConfig.author.website}
@@ -82,104 +164,95 @@ const Footer = () => {
                 >
                   {siteConfig.author.website.replace('https://', '')}
                 </a>
-              </div>
+              </motion.div>
             </div>
 
             {/* Social Links */}
             <div className="mt-6 flex gap-4">
-              <Link
-                href="https://instagram.com/solvejet"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-md p-2 hover:bg-accent"
-              >
-                <Instagram className="h-5 w-5" />
-              </Link>
-              <Link
-                href={siteConfig.social.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-md p-2 hover:bg-accent"
-              >
-                <Twitter className="h-5 w-5" />
-              </Link>
-              <Link
-                href={siteConfig.social.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-md p-2 hover:bg-accent"
-              >
-                <Linkedin className="h-5 w-5" />
-              </Link>
+              {socialLinks.map((social) => (
+                <motion.div
+                  key={social.href}
+                  whileHover={{ y: -5 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                >
+                  <Link
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-md p-2 hover:bg-accent"
+                  >
+                    <social.icon className="h-5 w-5" />
+                  </Link>
+                </motion.div>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Navigation Links */}
-          <div className="grid gap-8 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="grid gap-8 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-2"
+          >
+            {/* Services Menu */}
             <div>
               <h3 className="mb-4 text-sm font-semibold">What We Do</h3>
               <ul className="space-y-3 text-sm">
                 {menuData.whatWeDo.services.map((item) => (
-                  <li key={item.href}>
+                  <motion.li
+                    key={item.href}
+                    whileHover={{ x: 5 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                  >
                     <Link
                       href={item.href}
                       className="text-muted-foreground hover:text-primary"
                     >
                       {item.title}
                     </Link>
-                  </li>
+                  </motion.li>
                 ))}
               </ul>
             </div>
+
+            {/* Legal Menu */}
             <div>
               <h3 className="mb-4 text-sm font-semibold">Legal</h3>
               <ul className="space-y-3 text-sm">
-                <li>
-                  <Link
-                    href="/privacy"
-                    className="text-muted-foreground hover:text-primary"
+                {[
+                  'Privacy Policy',
+                  'Terms of Service',
+                  'DPA',
+                  'Cookie Policy',
+                  'GDPR',
+                ].map((item) => (
+                  <motion.li
+                    key={item}
+                    whileHover={{ x: 5 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                   >
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/terms"
-                    className="text-muted-foreground hover:text-primary"
-                  >
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/dpa"
-                    className="text-muted-foreground hover:text-primary"
-                  >
-                    Data Processing Agreement
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/cookie-policy"
-                    className="text-muted-foreground hover:text-primary"
-                  >
-                    Cookie Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/gdpr"
-                    className="text-muted-foreground hover:text-primary"
-                  >
-                    GDPR Compliance
-                  </Link>
-                </li>
+                    <Link
+                      href={`/${item.toLowerCase().replace(' ', '-')}`}
+                      className="text-muted-foreground hover:text-primary"
+                    >
+                      {item}
+                    </Link>
+                  </motion.li>
+                ))}
               </ul>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Newsletter section with consent check */}
-          <div className="lg:col-span-4">
+          {/* Newsletter Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="lg:col-span-4"
+          >
             <h3 className="mb-4 text-sm font-semibold">Stay Updated</h3>
             <p className="mb-4 text-sm text-muted-foreground">
               Subscribe to our newsletter for updates, insights, and tech news.
@@ -189,9 +262,8 @@ const Footer = () => {
                 label="Email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 className="flex-1"
-                error=""
               />
               <Button type="submit" variant="default" className="h-[42px]">
                 <ArrowRight className="h-4 w-4" />
@@ -200,41 +272,50 @@ const Footer = () => {
 
             {/* Security Badges */}
             <div className="mt-8 flex flex-col gap-4">
-              <div className="flex items-center gap-2">
+              <motion.div
+                whileHover={{ x: 5 }}
+                className="flex items-center gap-2"
+              >
                 <Shield className="h-5 w-5 text-primary" />
                 <span className="text-sm">ISO 27001 Certified</span>
-              </div>
-              <div className="flex items-center gap-2">
+              </motion.div>
+              <motion.div
+                whileHover={{ x: 5 }}
+                className="flex items-center gap-2"
+              >
                 <FileText className="h-5 w-5 text-primary" />
                 <span className="text-sm">Secured by SSL</span>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t pt-8 text-sm text-muted-foreground sm:flex-row">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          viewport={{ once: true }}
+          className="mt-16 flex flex-col items-center justify-between gap-4 border-t pt-8 text-sm text-muted-foreground sm:flex-row"
+        >
           <p>
             © {currentYear} {siteConfig.name}. All rights reserved.
           </p>
           <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-primary">
-              Privacy
-            </Link>
-            <Link href="/terms" className="hover:text-primary">
-              Terms
-            </Link>
-            <Link href="/dpa" className="hover:text-primary">
-              DPA
-            </Link>
-            <Link href="/ccpa" className="hover:text-primary">
-              CCPA
-            </Link>
+            {footerLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="hover:text-primary"
+              >
+                {link.text}
+              </Link>
+            ))}
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </footer>
   )
 }
 
-export default Footer
+export default memo(Footer, 'Footer')

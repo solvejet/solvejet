@@ -15,6 +15,7 @@ import {
 } from '../mega-menus'
 import MobileSidebar from '../mobile-sidebar'
 import { MenuProps } from '@/types/mega-menu'
+import { memo } from '@/lib/memo'
 
 interface MenuItemProps {
   text: string
@@ -26,13 +27,13 @@ const MenuItem: React.FC<MenuItemProps> = ({ text, href, children }) => {
   const [isOpen, setIsOpen] = React.useState(false)
   const menuRef = React.useRef<HTMLDivElement>(null)
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = React.useCallback(() => {
     setIsOpen(true)
-  }
+  }, [])
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = React.useCallback(() => {
     setIsOpen(false)
-  }
+  }, [])
 
   if (href) {
     return (
@@ -70,39 +71,46 @@ const MenuItem: React.FC<MenuItemProps> = ({ text, href, children }) => {
   )
 }
 
-const Header = () => {
+const MemoizedMenuItem = memo(MenuItem, 'MenuItem')
+
+function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
-  // Handler for theme toggle clicks
-  const handleThemeToggleClick = (e: React.MouseEvent) => {
+  const handleThemeToggleClick = React.useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-  }
+  }, [])
+
+  const toggleMobileMenu = React.useCallback(() => {
+    setIsMobileMenuOpen((prev) => !prev)
+  }, [])
+
+  const closeMobileMenu = React.useCallback(() => {
+    setIsMobileMenuOpen(false)
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <nav className="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
-          {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Logo width={140} height={46} />
           </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden items-center gap-12 lg:flex">
             <div className="flex items-center gap-4">
-              <MenuItem text="What We Do">
+              <MemoizedMenuItem text="What We Do">
                 <WhatWeDoMenu isOpen={false} onClose={() => {}} />
-              </MenuItem>
-              <MenuItem text="Technologies">
+              </MemoizedMenuItem>
+              <MemoizedMenuItem text="Technologies">
                 <TechnologiesMenu isOpen={false} onClose={() => {}} />
-              </MenuItem>
-              <MenuItem text="Industries">
+              </MemoizedMenuItem>
+              <MemoizedMenuItem text="Industries">
                 <IndustriesMenu isOpen={false} onClose={() => {}} />
-              </MenuItem>
-              <MenuItem text="Company">
+              </MemoizedMenuItem>
+              <MemoizedMenuItem text="Company">
                 <CompanyMenu isOpen={false} onClose={() => {}} />
-              </MenuItem>
-              <MenuItem text="Case Studies" href="/case-studies" />
+              </MemoizedMenuItem>
+              <MemoizedMenuItem text="Case Studies" href="/case-studies" />
             </div>
 
             <div className="flex items-center gap-6">
@@ -127,13 +135,12 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Mobile Menu Button and Theme Toggle */}
           <div className="flex items-center gap-4 lg:hidden">
             <div onClick={handleThemeToggleClick}>
               <ThemeToggle />
             </div>
             <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={toggleMobileMenu}
               className="rounded-md p-2 hover:bg-accent"
               aria-label="Toggle mobile menu"
             >
@@ -147,13 +154,9 @@ const Header = () => {
         </div>
       </nav>
 
-      {/* Mobile Sidebar */}
-      <MobileSidebar
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
+      <MobileSidebar isOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
     </header>
   )
 }
 
-export default Header
+export default memo(Header, 'Header')

@@ -2,6 +2,7 @@
 import React from 'react'
 import { VariantProps, cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 const buttonVariants = cva(
   'relative inline-flex items-center justify-center overflow-hidden text-sm font-medium transition-all duration-500 before:absolute before:inset-0 before:z-0 before:transition-all before:duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -44,13 +45,35 @@ export interface ButtonProps
     VariantProps<typeof buttonVariants> {
   isLoading?: boolean
   fullWidth?: boolean
+  href?: string
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, size, fullWidth, isLoading, children, ...props },
+    {
+      className,
+      variant,
+      size,
+      fullWidth,
+      isLoading,
+      children,
+      href,
+      ...props
+    },
     ref
   ) => {
+    if (href) {
+      return (
+        <Link
+          href={href}
+          className={cn(
+            buttonVariants({ variant, size, fullWidth, className })
+          )}
+        >
+          {children}
+        </Link>
+      )
+    }
     return (
       <button
         className={cn(
