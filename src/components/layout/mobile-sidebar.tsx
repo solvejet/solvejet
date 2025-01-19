@@ -32,18 +32,17 @@ interface MobileSidebarProps {
   onClose: () => void
 }
 
-// Prevent click events from bubbling up
 const stopPropagation = (e: React.MouseEvent) => {
   e.stopPropagation()
 }
 
-const MobileSubmenu: React.FC<MobileSubmenuProps> = ({
+const MobileSubmenu = ({
   title,
   items,
   isOpen,
   onToggle,
   badge,
-}) => {
+}: MobileSubmenuProps) => {
   return (
     <div className="border-b border-border/50" onClick={stopPropagation}>
       <button
@@ -166,7 +165,6 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
     )
   }
 
-  // Handle overlay click
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose()
@@ -193,59 +191,61 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 top-20 z-50 flex h-[calc(100vh-5rem)] w-full flex-col overflow-y-auto bg-background/60 backdrop-blur-xl"
-            onClick={stopPropagation}
+            className="fixed bottom-0 left-0 right-0 top-20 z-50 flex h-[calc(100vh-5rem)] w-full flex-col overflow-hidden bg-background/60 backdrop-blur-xl"
           >
-            <CompanyStats />
+            {/* Main Content - Scrollable */}
+            <div className="flex flex-1 flex-col overflow-y-auto">
+              <CompanyStats />
 
-            <div className="flex-1 pt-2">
-              <MobileSubmenu
-                title="What We Do"
-                items={menuData.whatWeDo.services}
-                isOpen={openMenus.includes('whatWeDo')}
-                onToggle={() => toggleMenu('whatWeDo')}
-                badge="Services"
-              />
-              <MobileSubmenu
-                title="Technologies"
-                items={menuData.technologies}
-                isOpen={openMenus.includes('technologies')}
-                onToggle={() => toggleMenu('technologies')}
-                badge="Stack"
-              />
-              <MobileSubmenu
-                title="Industries"
-                items={menuData.industries}
-                isOpen={openMenus.includes('industries')}
-                onToggle={() => toggleMenu('industries')}
-                badge="Sectors"
-              />
-              <MobileSubmenu
-                title="Company"
-                items={menuData.company}
-                isOpen={openMenus.includes('company')}
-                onToggle={() => toggleMenu('company')}
-                badge="About"
-              />
+              <div className="flex-1">
+                <MobileSubmenu
+                  title="What We Do"
+                  items={menuData.whatWeDo.services}
+                  isOpen={openMenus.includes('whatWeDo')}
+                  onToggle={() => toggleMenu('whatWeDo')}
+                  badge="Services"
+                />
+                <MobileSubmenu
+                  title="Technologies"
+                  items={menuData.technologies}
+                  isOpen={openMenus.includes('technologies')}
+                  onToggle={() => toggleMenu('technologies')}
+                  badge="Stack"
+                />
+                <MobileSubmenu
+                  title="Industries"
+                  items={menuData.industries}
+                  isOpen={openMenus.includes('industries')}
+                  onToggle={() => toggleMenu('industries')}
+                  badge="Sectors"
+                />
+                <MobileSubmenu
+                  title="Company"
+                  items={menuData.company}
+                  isOpen={openMenus.includes('company')}
+                  onToggle={() => toggleMenu('company')}
+                  badge="About"
+                />
 
-              <Link
-                href="/case-studies"
-                className="flex items-center justify-between border-b border-border/50 px-6 py-5"
-                onClick={stopPropagation}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-base font-medium">Case Studies</span>
-                  <Badge variant="outline" className="bg-primary/10 text-xs">
-                    Featured
-                  </Badge>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </Link>
+                <Link
+                  href="/case-studies"
+                  className="flex items-center justify-between border-b border-border/50 px-6 py-5"
+                  onClick={stopPropagation}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-medium">Case Studies</span>
+                    <Badge variant="outline" className="bg-primary/10 text-xs">
+                      Featured
+                    </Badge>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+              </div>
             </div>
 
-            {/* Bottom Actions */}
+            {/* Sticky Button - Fixed at bottom */}
             <div
-              className="border-t border-border/50 p-6"
+              className="sticky bottom-0 left-0 right-0 border-t border-border/50 bg-background/80 p-4 backdrop-blur-md"
               onClick={stopPropagation}
             >
               <Button size="lg" className="w-full gap-2">
