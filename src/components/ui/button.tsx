@@ -18,6 +18,8 @@ const buttonVariants = cva(
           'border border-foreground/20 bg-transparent text-foreground before:scale-x-0 before:bg-foreground hover:border-foreground hover:text-background before:origin-left hover:before:scale-x-100',
         shine:
           'border border-foreground/20 bg-transparent text-foreground before:absolute before:left-0 before:top-0 before:h-full before:w-[3px] before:bg-foreground before:transition-all before:duration-500 after:absolute after:left-0 after:top-0 after:h-[3px] after:w-0 after:bg-foreground after:transition-all after:duration-500 hover:border-foreground hover:before:h-0 hover:after:w-full',
+        destructive:
+          'border-2 border-destructive bg-transparent text-destructive before:-translate-x-full before:bg-destructive hover:text-background hover:before:translate-x-0',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -92,4 +94,5 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     )
   }
 )
+
 Button.displayName = 'Button'
