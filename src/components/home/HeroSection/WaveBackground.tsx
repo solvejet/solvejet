@@ -12,13 +12,14 @@ export default function WaveBackground() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const particlesRef = useRef<THREE.Points | null>(null)
   const animationFrameRef = useRef<number | null>(null)
+  const mouseRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
   const { resolvedTheme } = useTheme()
 
   useEffect(() => {
     const container = containerRef.current
     if (!container || typeof window === 'undefined') return
 
-    // Cleanup function to handle component unmount
+    // Cleanup function
     const cleanup = () => {
       if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current)
@@ -29,7 +30,6 @@ export default function WaveBackground() {
         sceneRef.current.remove(particlesRef.current)
         geometry.dispose()
 
-        // Handle material disposal with proper type checking
         if (Array.isArray(material)) {
           material.forEach((m) => m.dispose())
         } else {
@@ -46,14 +46,11 @@ export default function WaveBackground() {
       const scene = new THREE.Scene()
       sceneRef.current = scene
 
-      // Camera setup
-      const camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        1,
-        10000
-      )
-      camera.position.z = 1000
+      // Camera setup with responsive adjustments
+      const getAspectRatio = () =>
+        container.clientWidth / container.clientHeight
+      const camera = new THREE.PerspectiveCamera(75, getAspectRatio(), 1, 10000)
+      camera.position.z = window.innerWidth < 768 ? 1500 : 1000 // Adjust for mobile
       cameraRef.current = camera
 
       // Renderer setup
@@ -62,16 +59,16 @@ export default function WaveBackground() {
         alpha: true,
         canvas: container.querySelector('canvas') || undefined,
       })
-      renderer.setSize(window.innerWidth, container.clientHeight) // Use container height instead of window height
-      renderer.setPixelRatio(window.devicePixelRatio)
+      renderer.setSize(container.clientWidth, container.clientHeight)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
       renderer.setClearColor(0x000000, 0)
       container.appendChild(renderer.domElement)
       rendererRef.current = renderer
 
-      // Particles setup
-      const SEPARATION = 100
-      const AMOUNTX = 50
-      const AMOUNTY = 50
+      // Responsive particle setup
+      const SEPARATION = window.innerWidth < 768 ? 80 : 100
+      const AMOUNTX = window.innerWidth < 768 ? 40 : 50
+      const AMOUNTY = window.innerWidth < 768 ? 40 : 50
 
       const numParticles = AMOUNTX * AMOUNTY
       const positions = new Float32Array(numParticles * 3)
@@ -92,18 +89,31 @@ export default function WaveBackground() {
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
       geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1))
 
+      // Updated colors for better visibility
       const material = new THREE.ShaderMaterial({
         uniforms: {
           color: {
             value: new THREE.Color(
-              resolvedTheme === 'dark' ? '#186ebc' : '#0066cc'
+              resolvedTheme === 'dark'
+                ? '#60a5fa' // Lighter blue for dark mode
+                : '#93c5fd' // Very light blue for light mode
             ),
           },
+          mousePos: { value: new THREE.Vector2(0, 0) },
         },
         vertexShader: `
           attribute float scale;
+          uniform vec2 mousePos;
+          
           void main() {
-            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vec3 pos = position;
+            
+            // Add mouse influence
+            float distToMouse = length(pos.xz - mousePos * 1000.0);
+            float influence = smoothstep(500.0, 0.0, distToMouse) * 2.0;
+            pos.y += influence * 50.0;
+            
+            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
             gl_PointSize = scale * 10.0 * (300.0 / -mvPosition.z);
             gl_Position = projectionMatrix * mvPosition;
           }
@@ -123,9 +133,38 @@ export default function WaveBackground() {
       scene.add(particles)
       particlesRef.current = particles
 
-      // Animation
-      let count = 0
+      // Mouse movement handler
+      const handleMouseMove = (event: MouseEvent) => {
+        // Convert mouse coordinates to normalized device coordinates (-1 to +1)
+        mouseRef.current.x = (event.clientX / window.innerWidth) * 2 - 1
+        mouseRef.current.y = -(event.clientY / window.innerHeight) * 2 + 1
 
+        if (particles.material instanceof THREE.ShaderMaterial) {
+          particles.material.uniforms.mousePos.value.set(
+            mouseRef.current.x,
+            mouseRef.current.y
+          )
+        }
+      }
+
+      // Touch movement handler
+      const handleTouchMove = (event: TouchEvent) => {
+        if (event.touches.length > 0) {
+          const touch = event.touches[0]
+          mouseRef.current.x = (touch.clientX / window.innerWidth) * 2 - 1
+          mouseRef.current.y = -(touch.clientY / window.innerHeight) * 2 + 1
+
+          if (particles.material instanceof THREE.ShaderMaterial) {
+            particles.material.uniforms.mousePos.value.set(
+              mouseRef.current.x,
+              mouseRef.current.y
+            )
+          }
+        }
+      }
+
+      // Enhanced animation
+      let count = 0
       const animate = () => {
         count += 0.1
 
@@ -150,24 +189,43 @@ export default function WaveBackground() {
         particles.geometry.attributes.position.needsUpdate = true
         particles.geometry.attributes.scale.needsUpdate = true
 
+        // Gentle camera movement based on mouse position
+        camera.position.x +=
+          (mouseRef.current.x * 100 - camera.position.x) * 0.05
+        camera.position.y +=
+          (-mouseRef.current.y * 100 - camera.position.y) * 0.05
+        camera.lookAt(scene.position)
+
         renderer.render(scene, camera)
         animationFrameRef.current = requestAnimationFrame(animate)
       }
 
       animate()
 
-      // Resize handler
+      // Enhanced resize handler for better responsiveness
       const handleResize = () => {
-        camera.aspect = window.innerWidth / container.clientHeight
+        const width = container.clientWidth
+        const height = container.clientHeight
+
+        camera.aspect = width / height
         camera.updateProjectionMatrix()
-        renderer.setSize(window.innerWidth, container.clientHeight)
+
+        renderer.setSize(width, height)
+
+        // Adjust camera position for different screen sizes
+        camera.position.z = width < 768 ? 1500 : 1000
       }
 
+      // Event listeners
       window.addEventListener('resize', handleResize)
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('touchmove', handleTouchMove, { passive: true })
 
-      // Cleanup on unmount
+      // Cleanup
       return () => {
         window.removeEventListener('resize', handleResize)
+        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener('touchmove', handleTouchMove)
         cleanup()
         if (container.contains(renderer.domElement)) {
           container.removeChild(renderer.domElement)
@@ -183,7 +241,7 @@ export default function WaveBackground() {
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0"
+      className="absolute inset-0 transition-opacity duration-500"
       style={{ pointerEvents: 'none', height: '100%' }}
     >
       <canvas />
