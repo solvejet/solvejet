@@ -56,7 +56,7 @@ export const MenuContainer: React.FC<MenuContainerProps> = ({
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="fixed left-0 right-0 top-20 z-50 w-full overflow-hidden bg-transparent shadow-[0_6px_10px_-4px_rgba(0,0,0,0.2)] backdrop-blur-md"
+          className="fixed left-0 right-0 top-20 z-50 w-full overflow-hidden bg-transparent shadow-[0_6px_10px_-4px_rgba(0,0,0,0.2)] backdrop-blur-lg"
           onMouseLeave={onClose}
         >
           <motion.div

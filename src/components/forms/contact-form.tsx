@@ -2,7 +2,7 @@
 'use client'
 
 import React from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Input } from '@/components/ui/input'
@@ -20,6 +20,8 @@ import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAnalytics } from '@/hooks/use-analytics'
 import { toast } from 'sonner'
+import { CustomSelect } from '@/components/ui/select'
+import { countryCodes, subjectOptions } from '@/data/country-codes'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ACCEPTED_FILE_TYPES = [
@@ -36,7 +38,9 @@ const formSchema = z.object({
   name: z.string().min(2, 'Name is required'),
   company: z.string().optional(),
   email: z.string().email('Please enter a valid corporate email'),
+  countryCode: z.string().min(1, 'Country code is required'),
   phone: z.string().min(10, 'Please enter a valid phone number'),
+  subject: z.string().min(1, 'Please select a subject'),
   details: z.string().min(10, 'Please describe your needs'),
   files: z
     .custom<FileList>()
@@ -77,11 +81,16 @@ export function ContactForm() {
   const { trackGTMEvent } = useAnalytics()
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      countryCode: '+1', // Default to US
+      subject: '', // Empty by default
+    },
   })
 
   // File state
@@ -295,12 +304,68 @@ export function ContactForm() {
           {...register('email')}
         />
 
-        <Input
-          label="Phone*"
-          type="tel"
-          error={errors.phone?.message}
-          {...register('phone')}
-        />
+        <div className="flex gap-2">
+          <div className="w-1/3">
+            <Controller
+              name="countryCode"
+              control={control}
+              render={({ field }) => (
+                <CustomSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  options={countryCodes.map(({ code, country }) => ({
+                    value: code,
+                    label: `${country}`, // Only country name in dropdown
+                    displayValue: code, // Only code in input
+                    icon: (
+                      <span className="font-medium text-muted-foreground">
+                        {code}
+                      </span>
+                    ), // Show code in dropdown next to country
+                  }))}
+                  error={!!errors.countryCode}
+                  className="mt-6 h-[42px]"
+                  placeholder="Code"
+                />
+              )}
+            />
+            {errors.countryCode && (
+              <p className="mt-1 text-sm text-destructive">
+                {errors.countryCode.message}
+              </p>
+            )}
+          </div>
+          <div className="flex-1">
+            <Input
+              label="Phone*"
+              type="tel"
+              error={errors.phone?.message}
+              {...register('phone')}
+            />
+          </div>
+        </div>
+
+        <div className="md:col-span-2">
+          <Controller
+            name="subject"
+            control={control}
+            render={({ field }) => (
+              <CustomSelect
+                value={field.value}
+                onChange={field.onChange}
+                options={subjectOptions}
+                error={!!errors.subject}
+                className="h-[42px]"
+                placeholder="Select a subject*"
+              />
+            )}
+          />
+          {errors.subject && (
+            <p className="mt-1 text-sm text-destructive">
+              {errors.subject.message}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -442,7 +507,7 @@ export function ContactForm() {
                         size="sm"
                         onClick={() => handleFileRemove(index)}
                       >
-                        <X className="h-4w-4" />
+                        <X className="h-4 w-4" />
                       </Button>
                     </motion.div>
                   ))}

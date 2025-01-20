@@ -18,7 +18,6 @@ const inter = Inter({
   display: 'swap',
 })
 
-// Export metadata using Next.js generateMetadata function
 export function generateMetadata(): Metadata {
   return generateSEOMetadata({})
 }
@@ -33,8 +32,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <head>
         <JsonLD data={generateOrganizationSchema()} />
       </head>
-      <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
-        <GoogleTagManager gtmId={analyticsConfig.gtm.id} />
+      <body
+        className="flex min-h-screen flex-col bg-background font-sans antialiased"
+        suppressHydrationWarning
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <main className="flex-1">{children}</main>
           <Footer />
         </ThemeProvider>
+        <GoogleTagManager gtmId={analyticsConfig.gtm.id} />
         <GoogleAnalytics gaId={analyticsConfig.ga.id} />
       </body>
     </html>

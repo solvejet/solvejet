@@ -15,6 +15,8 @@ interface EmailData {
   name: string
   email: string
   company?: string
+  subject?: string
+  phone?: string
 }
 
 function generateEmailTemplate(data: EmailData): string {

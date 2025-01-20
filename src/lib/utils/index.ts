@@ -1,4 +1,6 @@
 // lib/utils/index.ts
+"use client"
+
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { useState, useEffect, useCallback, RefObject, useRef } from 'react'

@@ -118,6 +118,7 @@ function Header() {
                 variant="shine"
                 size="lg"
                 className="group relative text-base font-medium"
+                href="/contact"
               >
                 <Phone className="h-5 w-5 transition-all duration-500 ease-out group-hover:scale-110" />
                 <span className="relative ml-2 inline-block overflow-hidden">

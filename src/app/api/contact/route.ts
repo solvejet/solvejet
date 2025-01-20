@@ -1,5 +1,4 @@
 // src/app/api/contact/route.ts
-
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { connectToDatabase } from '@/lib/mongodb'
@@ -7,6 +6,7 @@ import { Contact } from '@/models/Contact'
 import { saveFile, saveBase64File } from '@/lib/storage'
 import { sendThankYouEmail } from '@/lib/email'
 import type { NextRequest } from 'next/server'
+import { subjectOptions } from '@/data/country-codes'
 
 // Types for the contact form data
 interface FileRecord {
@@ -24,6 +24,14 @@ const contactSchema = z.object({
   name: z.string().min(2, 'Name is required'),
   email: z.string().email('Please enter a valid email'),
   company: z.string().optional(),
+  countryCode: z.string().min(1, 'Country code is required'),
+  phone: z.string().min(10, 'Please enter a valid phone number'),
+  subject: z
+    .string()
+    .refine(
+      (value) => subjectOptions.some((option) => option.value === value),
+      'Please select a valid subject'
+    ),
   message: z.string().min(10, 'Please describe your needs'),
   consent: z.boolean().refine((val) => val === true, 'Consent is required'),
   marketingConsent: z.boolean().optional(),
@@ -85,11 +93,18 @@ export async function POST(request: NextRequest) {
       throw new Error('NOTIFICATION_EMAIL environment variable is not defined')
     }
 
+    // Format phone number with country code
+    const formattedPhone = `${validatedData.countryCode}${validatedData.phone.replace(/\D/g, '')}`
+
     // Save to database
     const contact = await Contact.create({
       name: validatedData.name,
       email: validatedData.email,
       company: validatedData.company,
+      countryCode: validatedData.countryCode,
+      phone: validatedData.phone,
+      formattedPhone, // Add formatted phone number
+      subject: validatedData.subject,
       message: validatedData.message,
       consent: validatedData.consent,
       marketingConsent: validatedData.marketingConsent,
@@ -105,6 +120,8 @@ export async function POST(request: NextRequest) {
       name: validatedData.name,
       email: validatedData.email,
       company: validatedData.company,
+      subject: validatedData.subject, // Add subject to email
+      phone: formattedPhone, // Add phone to email
     })
 
     // Send internal notification
@@ -112,6 +129,8 @@ export async function POST(request: NextRequest) {
       name: 'SolveJet Team',
       email: notificationEmail,
       company: validatedData.company,
+      subject: validatedData.subject,
+      phone: formattedPhone,
     })
 
     return NextResponse.json(
@@ -165,11 +184,15 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1')
   const limit = parseInt(searchParams.get('limit') || '10')
   const status = searchParams.get('status')
+  const subject = searchParams.get('subject')
 
   try {
     await connectToDatabase()
 
-    const query = status ? { status } : {}
+    const query = {
+      ...(status && { status }),
+      ...(subject && { subject }),
+    }
     const skip = (page - 1) * limit
 
     const [contacts, total] = await Promise.all([

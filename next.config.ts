@@ -68,7 +68,11 @@ const nextConfig: NextConfig = {
 
   experimental: {
     scrollRestoration: true,
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'solvejet.net'],
+    },
   },
+  optimizeFonts: true,
 }
 
 // Export the composed configuration
