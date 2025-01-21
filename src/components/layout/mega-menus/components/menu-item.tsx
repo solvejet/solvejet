@@ -6,6 +6,7 @@ import { getIconColor, getIconBgColor } from '@/lib/icon-colors'
 
 interface MenuCardProps extends MenuItem {
   index: number
+  headingLevel?: 'h2' | 'h3' | 'h4'
 }
 
 export const MenuCard = ({
@@ -14,7 +15,10 @@ export const MenuCard = ({
   href,
   icon: Icon,
   index = 0,
+  headingLevel = 'h3',
 }: MenuCardProps) => {
+  const Heading = headingLevel
+
   return (
     <Link
       href={href}
@@ -25,9 +29,9 @@ export const MenuCard = ({
       </div>
 
       <div className="space-y-1">
-        <h3 className="text-sm font-medium text-foreground group-hover:text-primary">
+        <Heading className="text-sm font-medium text-foreground group-hover:text-primary">
           {title}
-        </h3>
+        </Heading>
         <p className="text-xs leading-relaxed text-muted-foreground">
           {description}
         </p>

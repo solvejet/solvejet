@@ -17,34 +17,27 @@ export function ThemeToggle({ className, onClick }: ThemeToggleProps) {
   const [mounted, setMounted] = React.useState(false)
   const [isTransitioning, setIsTransitioning] = React.useState(false)
 
-  // Handle mounting
   React.useEffect(() => {
     setMounted(true)
   }, [])
 
   const handleThemeChange = React.useCallback(
     (e: React.MouseEvent) => {
-      // If already transitioning, prevent multiple clicks
       if (isTransitioning) return
 
-      // Call the provided onClick handler if it exists
       onClick?.(e)
-
       setIsTransitioning(true)
 
-      // Use resolvedTheme to get the actual current theme
       const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark'
       setTheme(newTheme)
 
-      // Reset transitioning state after animation
       setTimeout(() => {
         setIsTransitioning(false)
-      }, 300) // Match this with your animation duration
+      }, 300)
     },
     [onClick, setTheme, resolvedTheme, isTransitioning]
   )
 
-  // Render a placeholder button during SSR to prevent layout shift
   if (!mounted) {
     return (
       <button
@@ -67,17 +60,17 @@ export function ThemeToggle({ className, onClick }: ThemeToggleProps) {
         isTransitioning && 'pointer-events-none',
         className
       )}
-      aria-label="Toggle theme"
+      aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} theme`}
       disabled={isTransitioning}
       whileTap={{ scale: 0.95 }}
       transition={{ duration: 0.1 }}
     >
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence>
         <motion.div
           key={resolvedTheme}
-          initial={{ opacity: 0, rotate: -45 }}
-          animate={{ opacity: 1, rotate: 0 }}
-          exit={{ opacity: 0, rotate: 45 }}
+          initial={{ opacity: 0, rotate: -45, scale: 0.8 }}
+          animate={{ opacity: 1, rotate: 0, scale: 1 }}
+          exit={{ opacity: 0, rotate: 45, scale: 0.8 }}
           transition={{ duration: 0.2 }}
         >
           {resolvedTheme === 'dark' ? (

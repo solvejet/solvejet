@@ -1,4 +1,5 @@
 // app/contact/page.tsx
+
 import { Metadata } from 'next'
 import { ContactForm } from '@/components/forms/contact-form'
 import { generateSEOMetadata } from '@/config/seo'
@@ -28,6 +29,7 @@ export default function ContactPage() {
         <div className="grid gap-12 lg:grid-cols-3">
           {/* Contact Information */}
           <div className="space-y-8 lg:pt-8">
+            <h2 className="sr-only">Contact Information</h2>
             {/* Contact Cards */}
             <div className="space-y-4">
               <div className="rounded-lg border bg-background p-4">
@@ -36,7 +38,7 @@ export default function ContactPage() {
                     <Mail className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Email Us</h3>
+                    <h3 className="text-base font-medium">Email Us</h3>
                     <a
                       href="mailto:hello@solvejet.net"
                       className="text-sm text-muted-foreground hover:text-primary"
@@ -53,7 +55,7 @@ export default function ContactPage() {
                     <Phone className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Call Us</h3>
+                    <h3 className="text-base font-medium">Call Us</h3>
                     <a
                       href="tel:+1234567890"
                       className="text-sm text-muted-foreground hover:text-primary"
@@ -70,7 +72,7 @@ export default function ContactPage() {
                     <MapPin className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Visit Us</h3>
+                    <h3 className="text-base font-medium">Visit Us</h3>
                     <p className="text-sm text-muted-foreground">
                       123 Business Avenue,
                       <br />
@@ -86,7 +88,7 @@ export default function ContactPage() {
                     <Clock className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Business Hours</h3>
+                    <h3 className="text-base font-medium">Business Hours</h3>
                     <p className="text-sm text-muted-foreground">
                       Monday - Friday
                       <br />
@@ -101,6 +103,7 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div className="lg:col-span-2">
             <div className="rounded-lg border bg-background p-6 sm:p-8">
+              <h2 className="mb-6 text-2xl font-semibold">Send Us a Message</h2>
               <ContactForm />
             </div>
           </div>

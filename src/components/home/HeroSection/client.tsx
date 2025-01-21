@@ -59,6 +59,7 @@ export function ClientHeroSection() {
       transition: {
         staggerChildren: 0.1,
         delayChildren: 0.2,
+        duration: 0.5,
       },
     },
   }
@@ -76,15 +77,33 @@ export function ClientHeroSection() {
     },
   }
 
-  const cardVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    show: {
-      opacity: 1,
-      scale: 1,
+  // Service card animations
+  const serviceCardVariants = {
+    hidden: {
+      opacity: 0,
+      y: 50,
       transition: {
         type: 'spring',
-        bounce: 0.4,
-        duration: 0.8,
+        damping: 25,
+        stiffness: 200,
+      },
+    },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        type: 'spring',
+        damping: 25,
+        stiffness: 200,
+      },
+    },
+    hover: {
+      y: -5,
+      scale: 1.02,
+      transition: {
+        type: 'spring',
+        damping: 25,
+        stiffness: 200,
       },
     },
   }
@@ -165,16 +184,18 @@ export function ClientHeroSection() {
           </motion.div>
 
           {/* Services Cards */}
-          <motion.div
-            variants={itemVariants}
-            className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            <AnimatePresence mode="wait">
-              {servicesData.map((service) => (
+          <motion.div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <AnimatePresence>
+              {servicesData.map((service, index) => (
                 <motion.div
                   key={service.title}
-                  variants={cardVariants}
-                  whileHover={{ y: -5, scale: 1.02 }}
+                  variants={serviceCardVariants}
+                  initial="hidden"
+                  animate="show"
+                  whileHover="hover"
+                  transition={{
+                    delay: index * 0.1,
+                  }}
                   className="group relative overflow-hidden rounded-2xl border bg-background/50 p-6 backdrop-blur-sm transition-colors hover:border-primary"
                 >
                   <div
@@ -188,7 +209,12 @@ export function ClientHeroSection() {
                   <p className="text-sm text-muted-foreground">
                     {service.description}
                   </p>
-                  <div className="absolute inset-x-0 bottom-0 h-1 scale-x-0 transform bg-gradient-to-r from-primary/40 via-primary to-primary/40 transition-transform duration-300 group-hover:scale-x-100" />
+                  <motion.div
+                    className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/40 via-primary to-primary/40"
+                    initial={{ scaleX: 0 }}
+                    whileHover={{ scaleX: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
                 </motion.div>
               ))}
             </AnimatePresence>

@@ -14,7 +14,6 @@ import {
   Globe,
   Users,
   Mail,
-  LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { MenuItem } from '@/types/mega-menu'
@@ -25,11 +24,13 @@ interface MobileSubmenuProps {
   isOpen: boolean
   onToggle: () => void
   badge?: string
+  id: string
 }
 
 interface MobileSidebarProps {
   isOpen: boolean
   onClose: () => void
+  id?: string
 }
 
 const stopPropagation = (e: React.MouseEvent) => {
@@ -42,12 +43,16 @@ const MobileSubmenu = ({
   isOpen,
   onToggle,
   badge,
+  id,
 }: MobileSubmenuProps) => {
   return (
     <div className="border-b border-border/50" onClick={stopPropagation}>
       <button
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-6 py-5"
+        className="flex w-full items-center justify-between px-6 py-5 outline-none focus-visible:bg-accent"
+        aria-expanded={isOpen}
+        aria-controls={id}
+        id={`${id}-button`}
       >
         <div className="flex items-center gap-2">
           <span className="text-base font-medium">{title}</span>
@@ -62,11 +67,15 @@ const MobileSubmenu = ({
             'h-5 w-5 text-muted-foreground transition-transform duration-200',
             isOpen && 'rotate-180'
           )}
+          aria-hidden="true"
         />
       </button>
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
+            id={id}
+            role="region"
+            aria-labelledby={`${id}-button`}
             initial={{ height: 0 }}
             animate={{ height: 'auto' }}
             exit={{ height: 0 }}
@@ -78,15 +87,19 @@ const MobileSubmenu = ({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="group flex items-start gap-4 rounded-lg p-3 transition-colors hover:bg-accent"
+                  className="group flex items-start gap-4 rounded-lg p-3 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  tabIndex={isOpen ? 0 : -1}
                 >
                   <div className={cn('rounded-md p-2', 'bg-primary/10')}>
-                    <item.icon className="h-5 w-5 text-primary" />
+                    <item.icon
+                      className="h-5 w-5 text-primary"
+                      aria-hidden="true"
+                    />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium group-hover:text-primary">
+                    <h3 className="font-medium group-hover:text-primary">
                       {item.title}
-                    </p>
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       {item.description}
                     </p>
@@ -105,7 +118,10 @@ const MobileSubmenu = ({
                       </div>
                     )}
                   </div>
-                  <ChevronRight className="mt-1 h-5 w-5 text-muted-foreground group-hover:text-primary" />
+                  <ChevronRight
+                    className="mt-1 h-5 w-5 text-muted-foreground group-hover:text-primary"
+                    aria-hidden="true"
+                  />
                 </Link>
               ))}
             </div>
@@ -116,11 +132,7 @@ const MobileSubmenu = ({
   )
 }
 
-const companyStats: Array<{
-  icon: LucideIcon
-  label: string
-  value: string
-}> = [
+const companyStats = [
   {
     icon: Globe,
     label: 'Global',
@@ -142,10 +154,15 @@ const CompanyStats = () => (
   <div
     className="grid grid-cols-3 gap-2 bg-accent/50 px-6 py-4"
     onClick={stopPropagation}
+    role="complementary"
+    aria-label="Company Statistics"
   >
     {companyStats.map((stat) => (
       <div key={stat.label} className="space-y-1 text-center">
-        <stat.icon className="mx-auto h-5 w-5 text-primary" />
+        <stat.icon
+          className="mx-auto h-5 w-5 text-primary"
+          aria-hidden="true"
+        />
         <p className="text-sm font-medium">{stat.label}</p>
         <p className="text-xs text-muted-foreground">{stat.value}</p>
       </div>
@@ -153,9 +170,34 @@ const CompanyStats = () => (
   </div>
 )
 
-const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
+const MobileSidebar: React.FC<MobileSidebarProps> = ({
+  isOpen,
+  onClose,
+  id = 'mobile-menu',
+}) => {
   const [openMenus, setOpenMenus] = React.useState<string[]>([])
   const sidebarRef = React.useRef<HTMLDivElement>(null)
+
+  // Handle Escape key
+  React.useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose()
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape)
+      // Lock scroll
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      // Restore scroll
+      document.body.style.overflow = 'visible'
+    }
+  }, [isOpen, onClose])
 
   const toggleMenu = (menuName: string) => {
     setOpenMenus((prev) =>
@@ -182,6 +224,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-40 dark:bg-black/40"
             onClick={handleOverlayClick}
+            role="presentation"
           />
 
           {/* Sidebar Content */}
@@ -192,18 +235,28 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 20, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 top-20 z-50 flex h-[calc(100vh-5rem)] w-full flex-col overflow-hidden bg-background/60 backdrop-blur-xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`${id}-title`}
+            id={id}
           >
+            {/* Hidden title for screen readers */}
+            <h2 id={`${id}-title`} className="sr-only">
+              Mobile Navigation Menu
+            </h2>
+
             {/* Main Content - Scrollable */}
             <div className="flex flex-1 flex-col overflow-y-auto">
               <CompanyStats />
 
-              <div className="flex-1">
+              <nav className="flex-1" aria-label="Mobile navigation">
                 <MobileSubmenu
                   title="What We Do"
                   items={menuData.whatWeDo.services}
                   isOpen={openMenus.includes('whatWeDo')}
                   onToggle={() => toggleMenu('whatWeDo')}
                   badge="Services"
+                  id={`${id}-what-we-do`}
                 />
                 <MobileSubmenu
                   title="Technologies"
@@ -211,6 +264,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
                   isOpen={openMenus.includes('technologies')}
                   onToggle={() => toggleMenu('technologies')}
                   badge="Stack"
+                  id={`${id}-technologies`}
                 />
                 <MobileSubmenu
                   title="Industries"
@@ -218,6 +272,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
                   isOpen={openMenus.includes('industries')}
                   onToggle={() => toggleMenu('industries')}
                   badge="Sectors"
+                  id={`${id}-industries`}
                 />
                 <MobileSubmenu
                   title="Company"
@@ -225,11 +280,12 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
                   isOpen={openMenus.includes('company')}
                   onToggle={() => toggleMenu('company')}
                   badge="About"
+                  id={`${id}-company`}
                 />
 
                 <Link
                   href="/case-studies"
-                  className="flex items-center justify-between border-b border-border/50 px-6 py-5"
+                  className="flex items-center justify-between border-b border-border/50 px-6 py-5 outline-none focus-visible:bg-accent"
                   onClick={stopPropagation}
                 >
                   <div className="flex items-center gap-2">
@@ -238,9 +294,12 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
                       Featured
                     </Badge>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  <ChevronRight
+                    className="h-5 w-5 text-muted-foreground"
+                    aria-hidden="true"
+                  />
                 </Link>
-              </div>
+              </nav>
             </div>
 
             {/* Sticky Button */}
@@ -253,7 +312,7 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose }) => {
                 className="w-full gap-2 shadow-lg"
                 href="/contact"
               >
-                <Phone className="h-5 w-5" />
+                <Phone className="h-5 w-5" aria-hidden="true" />
                 Contact Us
               </Button>
             </div>

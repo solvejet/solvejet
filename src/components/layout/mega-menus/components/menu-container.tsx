@@ -38,7 +38,6 @@ const contentVariants = {
     opacity: 1,
     transition: {
       duration: 0.2,
-      delay: 0.1, // Slight delay to ensure container is visible first
     },
   },
 }
@@ -49,7 +48,7 @@ export const MenuContainer: React.FC<MenuContainerProps> = ({
   onClose,
 }) => {
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       {isOpen && (
         <motion.div
           variants={menuVariants}
@@ -61,6 +60,8 @@ export const MenuContainer: React.FC<MenuContainerProps> = ({
         >
           <motion.div
             variants={contentVariants}
+            initial="hidden"
+            animate="visible"
             className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8"
           >
             {children}
