@@ -18,7 +18,7 @@ type ThemeProviderProps = {
 
 export function ThemeProvider({
   children,
-  defaultTheme = 'system',
+  defaultTheme = 'light',
   storageKey = 'theme',
   attribute = 'class',
   ...props
