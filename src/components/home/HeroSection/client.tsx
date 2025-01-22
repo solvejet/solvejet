@@ -4,7 +4,7 @@
 import React, { JSX } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
-import { Rocket, Code2, Server, Globe, ArrowRight } from 'lucide-react'
+import { Rocket, Code2, Users, Globe, ArrowRight } from 'lucide-react'
 
 interface ServiceCard {
   icon: React.ElementType
@@ -23,9 +23,9 @@ const servicesData: ServiceCard[] = [
     bg: 'bg-blue-500/10',
   },
   {
-    icon: Server,
-    title: 'Cloud Solutions',
-    description: 'Scalable infrastructure for enterprise applications',
+    icon: Users,
+    title: 'Staff Augmentation',
+    description: 'Expand your team with expert talent on demand.',
     color: 'text-purple-500',
     bg: 'bg-purple-500/10',
   },

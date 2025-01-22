@@ -1,6 +1,8 @@
-// src/app/page.tsx
+// app/page.tsx
 import { Metadata } from 'next'
 import HeroSection from '@/components/home/HeroSection'
+import StatsSection from '@/components/home/StatsSection'
+import WaveBackground from '@/components/home/HeroSection/WaveBackground'
 import { generateSEOMetadata } from '@/config/seo'
 
 export const metadata: Metadata = generateSEOMetadata({
@@ -11,9 +13,13 @@ export const metadata: Metadata = generateSEOMetadata({
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col">
-      <HeroSection />
-      {/* Other sections will be added here */}
-    </main>
+    <>
+      <WaveBackground />
+      <main className="relative flex min-h-screen flex-col">
+        <HeroSection />
+        <StatsSection />
+        {/* Other sections will be added here */}
+      </main>
+    </>
   )
 }

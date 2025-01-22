@@ -171,8 +171,8 @@ const MobileSubmenu = React.memo(function MobileSubmenu({
 
 // Company Stats Component
 const companyStats = [
-  { icon: Globe, label: 'Global', value: '20+ Countries' },
-  { icon: Users, label: 'Team', value: '500+ People' },
+  { icon: Globe, label: 'Global', value: '5+ Countries' },
+  { icon: Users, label: 'Team', value: '20+ People' },
   { icon: Mail, label: 'Support', value: '24/7 Active' },
 ] as const
 
@@ -281,7 +281,7 @@ const MobileSidebar = React.forwardRef<HTMLDivElement, MobileSidebarProps>(
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: OVERLAY_ANIMATION_DURATION }}
-              className="fixed inset-0 z-40 backdrop-blur-sm"
+              className="fixed inset-0 z-40 "
               onClick={handleOverlayClick}
               role="presentation"
               aria-hidden="true"

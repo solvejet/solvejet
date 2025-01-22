@@ -7,6 +7,7 @@ import { Phone, Menu, X } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import {
   WhatWeDoMenu,
   TechnologiesMenu,
@@ -95,8 +96,24 @@ const MenuItem: React.FC<MenuItemProps> = ({ text, href, children }) => {
 const MemoizedMenuItem = memo(MenuItem, 'MenuItem')
 
 function Header() {
+  const [isScrolled, setIsScrolled] = React.useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
   const navRef = React.useRef<HTMLElement>(null)
+
+  // Update scroll state
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+    }
+
+    // Initial check
+    handleScroll()
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
   const handleThemeToggleClick = React.useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
@@ -111,97 +128,114 @@ function Header() {
   }, [])
 
   return (
-    <header
-      className="sticky top-0 z-50 w-full border-b bg-background"
-      role="banner"
-    >
-      <nav
-        ref={navRef}
-        className="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8"
-        role="navigation"
-        aria-label="Main navigation"
+    <div className="fixed left-0 right-0 top-0 z-50">
+      <header
+        className={cn(
+          'w-full transition-all duration-300',
+          'bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/80',
+          isScrolled && 'border-b shadow-sm'
+        )}
+        role="banner"
       >
-        <div className="flex h-20 items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center space-x-2"
-            aria-label="Go to homepage"
+        <nav
+          ref={navRef}
+          className="relative mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8"
+          role="navigation"
+          aria-label="Main navigation"
+        >
+          <div
+            className={cn(
+              'flex items-center justify-between transition-all duration-300',
+              isScrolled ? 'h-16' : 'h-20'
+            )}
           >
-            <Logo width={140} height={46} />
-          </Link>
-
-          <div className="hidden items-center gap-12 lg:flex">
-            <div
-              className="flex items-center gap-4"
-              role="menu"
-              aria-label="Main menu"
+            <Link
+              href="/"
+              className={cn(
+                'flex items-center space-x-2 transition-transform duration-300',
+                isScrolled && 'scale-90'
+              )}
+              aria-label="Go to homepage"
             >
-              <MemoizedMenuItem text="What We Do">
-                <WhatWeDoMenu isOpen={false} onClose={() => {}} />
-              </MemoizedMenuItem>
-              <MemoizedMenuItem text="Technologies">
-                <TechnologiesMenu isOpen={false} onClose={() => {}} />
-              </MemoizedMenuItem>
-              <MemoizedMenuItem text="Industries">
-                <IndustriesMenu isOpen={false} onClose={() => {}} />
-              </MemoizedMenuItem>
-              <MemoizedMenuItem text="Company">
-                <CompanyMenu isOpen={false} onClose={() => {}} />
-              </MemoizedMenuItem>
-              <MemoizedMenuItem text="Case Studies" href="/case-studies" />
+              <Logo width={140} height={46} />
+            </Link>
+
+            <div className="hidden items-center gap-12 lg:flex">
+              <div
+                className="flex items-center gap-4"
+                role="menu"
+                aria-label="Main menu"
+              >
+                <MemoizedMenuItem text="What We Do">
+                  <WhatWeDoMenu isOpen={false} onClose={() => {}} />
+                </MemoizedMenuItem>
+                <MemoizedMenuItem text="Technologies">
+                  <TechnologiesMenu isOpen={false} onClose={() => {}} />
+                </MemoizedMenuItem>
+                <MemoizedMenuItem text="Industries">
+                  <IndustriesMenu isOpen={false} onClose={() => {}} />
+                </MemoizedMenuItem>
+                <MemoizedMenuItem text="Company">
+                  <CompanyMenu isOpen={false} onClose={() => {}} />
+                </MemoizedMenuItem>
+                <MemoizedMenuItem text="Case Studies" href="/case-studies" />
+              </div>
+
+              <div className="flex items-center gap-6">
+                <Button
+                  variant="shine"
+                  size="lg"
+                  className={cn(
+                    'group relative text-base font-medium transition-all duration-300',
+                    isScrolled && 'h-10 text-sm'
+                  )}
+                  href="/contact"
+                  aria-label="Contact us"
+                >
+                  <Phone className="h-5 w-5 transition-all duration-500 ease-out group-hover:scale-110" />
+                  <span className="relative ml-2 inline-block overflow-hidden">
+                    <span className="relative inline-block transition-transform duration-500 group-hover:translate-y-[-100%]">
+                      Get in Touch
+                    </span>
+                    <span className="absolute left-0 inline-block translate-y-[100%] transition-transform duration-500 group-hover:translate-y-0">
+                      Get in Touch
+                    </span>
+                  </span>
+                </Button>
+                <div onClick={handleThemeToggleClick}>
+                  <ThemeToggle />
+                </div>
+              </div>
             </div>
 
-            <div className="flex items-center gap-6">
-              <Button
-                variant="shine"
-                size="lg"
-                className="group relative text-base font-medium"
-                href="/contact"
-                aria-label="Contact us"
-              >
-                <Phone className="h-5 w-5 transition-all duration-500 ease-out group-hover:scale-110" />
-                <span className="relative ml-2 inline-block overflow-hidden">
-                  <span className="relative inline-block transition-transform duration-500 group-hover:translate-y-[-100%]">
-                    Get in Touch
-                  </span>
-                  <span className="absolute left-0 inline-block translate-y-[100%] transition-transform duration-500 group-hover:translate-y-0">
-                    Get in Touch
-                  </span>
-                </span>
-              </Button>
+            <div className="flex items-center gap-4 lg:hidden">
               <div onClick={handleThemeToggleClick}>
                 <ThemeToggle />
               </div>
+              <button
+                onClick={toggleMobileMenu}
+                className="rounded-md p-2 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-menu"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
+              </button>
             </div>
           </div>
+        </nav>
 
-          <div className="flex items-center gap-4 lg:hidden">
-            <div onClick={handleThemeToggleClick}>
-              <ThemeToggle />
-            </div>
-            <button
-              onClick={toggleMobileMenu}
-              className="rounded-md p-2 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={isMobileMenuOpen}
-              aria-controls="mobile-menu"
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <MobileSidebar
-        isOpen={isMobileMenuOpen}
-        onClose={closeMobileMenu}
-        id="mobile-menu"
-      />
-    </header>
+        <MobileSidebar
+          isOpen={isMobileMenuOpen}
+          onClose={closeMobileMenu}
+          id="mobile-menu"
+        />
+      </header>
+    </div>
   )
 }
 

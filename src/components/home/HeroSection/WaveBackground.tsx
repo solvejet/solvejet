@@ -3,43 +3,44 @@
 
 import React, { useEffect, useState, memo } from 'react'
 import dynamic from 'next/dynamic'
-import { useMediaQuery } from '@/lib/utils'
 
-// Separate mobile and desktop scenes for code splitting
-const DesktopWaveScene = dynamic(() => import('./WaveScene'), {
+// Lazy load the heavy Three.js scene
+const WaveScene = dynamic(() => import('./WaveScene'), {
   ssr: false,
-  loading: () => <div className="absolute inset-0 bg-background" />,
-})
-
-const MobileWaveScene = dynamic(() => import('./MobileWaveScene'), {
-  ssr: false,
-  loading: () => <div className="absolute inset-0 bg-background" />,
+  loading: () => <div className="fixed inset-0 bg-background" />,
 })
 
 function WaveBackground() {
   const [mounted, setMounted] = useState(false)
-  const isMobile = useMediaQuery('(max-width: 768px)')
 
   useEffect(() => {
-    setMounted(true)
+    let isSubscribed = true
+    if (isSubscribed) {
+      setMounted(true)
+    }
+    return () => {
+      isSubscribed = false
+    }
   }, [])
 
   if (!mounted) {
-    return <div className="absolute inset-0 bg-background" />
+    return <div className="fixed inset-0 bg-background" />
   }
 
   return (
     <div
       id="wave-container"
-      className="absolute inset-0 transition-opacity duration-500"
+      className="fixed inset-0 -z-10 transition-opacity duration-500"
       style={{
         pointerEvents: 'none',
-        height: '100%',
+        height: '100vh',
+        width: '100vw',
       }}
     >
-      {isMobile ? <MobileWaveScene /> : <DesktopWaveScene />}
+      <WaveScene />
     </div>
   )
 }
 
+// Memoize the component to prevent unnecessary re-renders
 export default memo(WaveBackground)
