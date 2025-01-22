@@ -54,9 +54,13 @@ function Footer() {
 
   const socialLinks = React.useMemo(
     () => [
-      { href: 'https://instagram.com/solvejet', icon: Instagram },
-      { href: siteConfig.social.twitter, icon: Twitter },
-      { href: siteConfig.social.linkedin, icon: Linkedin },
+      {
+        name: 'Instagram',
+        href: 'https://instagram.com/solvejet',
+        icon: Instagram,
+      },
+      { name: 'Twitter', href: siteConfig.social.twitter, icon: Twitter },
+      { name: 'Linkedin', href: siteConfig.social.linkedin, icon: Linkedin },
     ],
     []
   )
@@ -180,8 +184,9 @@ function Footer() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="rounded-md p-2 hover:bg-accent"
+                    aria-label={`Follow us on ${social.name}`} // Add this
                   >
-                    <social.icon className="h-5 w-5" />
+                    <social.icon className="h-5 w-5" aria-hidden="true" />
                   </Link>
                 </motion.div>
               ))}
@@ -265,7 +270,12 @@ function Footer() {
                 onChange={handleEmailChange}
                 className="flex-1"
               />
-              <Button type="submit" variant="default" className="h-[42px]">
+              <Button
+                type="submit"
+                variant="default"
+                className="h-[42px]"
+                aria-label="Subscribe to NewsLetter"
+              >
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </form>

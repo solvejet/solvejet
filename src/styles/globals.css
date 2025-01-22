@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Root configurations for light and dark mode */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -24,6 +25,9 @@
     --input: 240 5.9% 90%;
     --ring: 208 76% 41%;
     --radius: 0.75rem;
+    --scrollbar-compensation: 0px;
+    --page-top-padding: env(safe-area-inset-top, 0px);
+    --page-bottom-padding: env(safe-area-inset-bottom, 0px);
   }
 
   .dark {
@@ -47,25 +51,49 @@
     --input: 240 3.7% 15.9%;
     --ring: 208 76% 41%;
   }
-}
 
-@layer base {
+  /* Base styles */
   * {
-    @apply border-border;
-    @apply box-border;
+    @apply border-border box-border;
+  }
+
+  /* Enhanced focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    @apply antialiased;
   }
 
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Scroll behavior and overscroll */
+  html,
+  body {
+    overscroll-behavior-y: none;
+    overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 }
 
+/* Component styles */
 @layer components {
   .container {
     @apply mx-auto w-full max-w-7xl px-4 md:px-6 lg:px-8;
   }
 
+  /* Button styles */
   .btn {
     @apply inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
   }
@@ -82,12 +110,16 @@
     @apply btn hover:bg-accent hover:text-accent-foreground;
   }
 
+  /* Form input styles */
   .form-input {
     @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
 }
 
+/* Utility styles */
 @layer utilities {
+
+  /* Text wrapping utilities */
   .text-balance {
     text-wrap: balance;
   }
@@ -95,10 +127,84 @@
   .text-pretty {
     text-wrap: pretty;
   }
+
+  /* Safe area utilities */
+  .safe-area-top {
+    padding-top: max(var(--page-top-padding), 1rem);
+  }
+
+  .safe-area-bottom {
+    padding-bottom: max(var(--page-bottom-padding), 1rem);
+  }
+
+  /* Custom scrollbar styling */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.3) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-primary/30 transition-colors hover:bg-primary/50;
+  }
+
+  /* Prevent content shift */
+  .overflow-fix {
+    margin-right: var(--scrollbar-compensation);
+  }
+
+  /* Mobile and touch optimizations */
+  @media (hover: none) and (pointer: coarse) {
+    .custom-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .custom-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Improve touch targets */
+    .touch-target {
+      @apply min-h-[44px] min-w-[44px];
+    }
+  }
+
+  /* Backdrop blur variations */
+  .backdrop-blur-xs {
+    backdrop-filter: blur(2px);
+  }
+
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+
+  .backdrop-blur-md {
+    backdrop-filter: blur(8px);
+  }
+
+  .backdrop-blur-lg {
+    backdrop-filter: blur(12px);
+  }
 }
 
-@layer utilities {
-  .safe-area-bottom {
-    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* High contrast mode improvements */
+@media (forced-colors: active) {
+  .forced-colors-adjust {
+    forced-color-adjust: auto;
   }
 }

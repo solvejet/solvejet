@@ -38,7 +38,6 @@ const servicesData: ServiceCard[] = [
   },
 ]
 
-// Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
@@ -108,7 +107,10 @@ export function ClientHeroSection(): JSX.Element {
           variants={itemVariants}
           className="mb-8 inline-flex items-center gap-2 rounded-full border bg-background/50 px-4 py-2 backdrop-blur-sm"
         >
-          <span className="flex h-2 w-2 rounded-full bg-primary" />
+          <span
+            className="flex h-2 w-2 rounded-full bg-primary"
+            aria-hidden="true"
+          />
           <span className="text-sm font-medium">
             Enterprise Software Solutions
           </span>
@@ -141,55 +143,78 @@ export function ClientHeroSection(): JSX.Element {
             size="lg"
             className="group h-12 gap-2 px-6 text-base shadow-lg"
             href="/contact"
+            aria-label="Start your project with us"
           >
-            <Rocket className="h-5 w-5 transition-transform duration-300 group-hover:-translate-y-1" />
+            <Rocket
+              className="h-5 w-5 transition-transform duration-300 group-hover:-translate-y-1"
+              aria-hidden="true"
+            />
             Start Project
-            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            <ArrowRight
+              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"
+              aria-hidden="true"
+            />
           </Button>
           <Button
             size="lg"
             variant="outline"
             className="group h-12 gap-2 px-6 text-base"
             href="/solutions"
+            aria-label="Explore our solutions"
           >
             Explore Solutions
           </Button>
         </motion.div>
 
-        {/* Services Cards */}
-        <motion.div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence>
-            {servicesData.map((service, index) => (
-              <motion.div
-                key={service.title}
-                variants={serviceCardVariants}
-                initial="hidden"
-                animate="show"
-                whileHover="hover"
-                transition={{
-                  delay: index * 0.1,
-                }}
-                className="group relative overflow-hidden rounded-2xl border bg-background/50 p-6 backdrop-blur-sm transition-colors hover:border-primary"
-              >
-                <div
-                  className={`mb-4 inline-flex rounded-xl ${service.bg} p-3`}
-                >
-                  <service.icon className={`h-6 w-6 ${service.color}`} />
-                </div>
-                <h3 className="mb-2 text-lg font-semibold">{service.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {service.description}
-                </p>
+        {/* Services Section */}
+        <motion.section
+          variants={itemVariants}
+          className="mt-16"
+          aria-labelledby="services-heading"
+        >
+          <h2 id="services-heading" className="sr-only">
+            Our Services
+          </h2>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <AnimatePresence>
+              {servicesData.map((service, index) => (
                 <motion.div
-                  className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/40 via-primary to-primary/40"
-                  initial={{ scaleX: 0 }}
-                  whileHover={{ scaleX: 1 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+                  key={service.title}
+                  variants={serviceCardVariants}
+                  initial="hidden"
+                  animate="show"
+                  whileHover="hover"
+                  transition={{
+                    delay: index * 0.1,
+                  }}
+                  className="group relative overflow-hidden rounded-2xl border bg-background/50 p-6 backdrop-blur-sm transition-colors hover:border-primary"
+                >
+                  <div
+                    className={`mb-4 inline-flex rounded-xl ${service.bg} p-3`}
+                  >
+                    <service.icon
+                      className={`h-6 w-6 ${service.color}`}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <h3 className="mb-2 text-lg font-semibold">
+                    {service.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {service.description}
+                  </p>
+                  <motion.div
+                    className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary/40 via-primary to-primary/40"
+                    initial={{ scaleX: 0 }}
+                    whileHover={{ scaleX: 1 }}
+                    transition={{ duration: 0.3 }}
+                    aria-hidden="true"
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </motion.section>
 
         {/* Technologies Badge */}
         <motion.div
