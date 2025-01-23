@@ -29,10 +29,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               'peer w-full border-b bg-transparent pb-2 pt-6 text-base outline-none transition-all',
               'border-input hover:border-muted-foreground',
               'placeholder-transparent',
-              'focus:border-primary focus:outline-none',
+              'focus:border-primary focus:outline-none focus:ring-0',
               'disabled:cursor-not-allowed disabled:opacity-50',
               error && 'border-destructive focus:border-destructive',
               icon && 'pl-10',
+              // Add these classes to disable autofill background
+              '[&:-webkit-autofill]:bg-transparent',
+              '[&:-webkit-autofill]:shadow-[0_0_0px_1000px_transparent_inset]',
+              '[&:-webkit-autofill]:transition-[background-color_0s_9999999999s]',
               className
             )}
             ref={ref}

@@ -145,7 +145,8 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
+            value:
+              'camera=(), microphone=(self), geolocation=(), interest-cohort=()',
           },
           {
             key: 'Vary',
@@ -157,12 +158,41 @@ const nextConfig: NextConfig = {
         source: '/api/:path*',
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,OPTIONS' },
+          {
+            key: 'Access-Control-Allow-Origin',
+            // In production, replace with actual origins
+            value:
+              process.env.NODE_ENV === 'production'
+                ? 'https://solvejet.net'
+                : '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET,POST,OPTIONS,PUT,DELETE,PATCH',
+          },
           {
             key: 'Access-Control-Allow-Headers',
-            value:
-              'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
+            value: [
+              'X-CSRF-Token',
+              'X-Requested-With',
+              'Accept',
+              'Accept-Version',
+              'Content-Length',
+              'Content-MD5',
+              'Content-Type',
+              'Date',
+              'X-Api-Version',
+              'Authorization',
+            ].join(', '),
+          },
+          // Add security headers for API routes
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
           },
         ],
       },
@@ -184,9 +214,49 @@ const nextConfig: NextConfig = {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
           },
+          {
+            key: 'Accept-CH',
+            value: 'DPR, Viewport-Width, Width',
+          },
+        ],
+      },
+      // Font files
+      {
+        source: '/fonts/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
         ],
       },
     ]
+  },
+
+  // Configure redirects
+  async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+    ]
+  },
+
+  // Configure rewrites for API proxy
+  async rewrites() {
+    return {
+      beforeFiles: [
+        // Add health check endpoint
+        {
+          source: '/health',
+          destination: '/api/health',
+        },
+      ],
+      afterFiles: [],
+      fallback: [],
+    }
   },
 }
 

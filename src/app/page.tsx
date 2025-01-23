@@ -4,6 +4,8 @@ import HeroSection from '@/components/home/HeroSection'
 import StatsSection from '@/components/home/StatsSection'
 import WaveBackground from '@/components/home/HeroSection/WaveBackground'
 import { generateSEOMetadata } from '@/config/seo'
+import ServicesSection from '@/components/home/ServicesSection'
+import ExpertiseSection from '@/components/home/ExpertiseSection'
 
 export const metadata: Metadata = generateSEOMetadata({
   title: 'SolveJet - Custom Software Development Company',
@@ -18,6 +20,8 @@ export default function HomePage() {
       <main className="relative flex min-h-screen flex-col">
         <HeroSection />
         <StatsSection />
+        <ServicesSection />
+        <ExpertiseSection />
         {/* Other sections will be added here */}
       </main>
     </>

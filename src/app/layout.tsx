@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { generateSEOMetadata, generateOrganizationSchema } from '@/config/seo'
 import JsonLD from '@/components/json-ld'
+import { Toaster } from 'sonner'
 import type { Metadata, Viewport } from 'next'
 
 import '@/styles/globals.css'
@@ -75,7 +76,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           storageKey="solvejet-theme"
         >
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1">
+            {children}
+            <Toaster richColors position="top-right" />
+          </main>
           <Footer />
         </ThemeProvider>
 

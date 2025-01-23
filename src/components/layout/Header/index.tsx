@@ -7,7 +7,6 @@ import { Phone, Menu, X } from 'lucide-react'
 import { Logo } from '@/components/ui/Logo'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 import {
   WhatWeDoMenu,
   TechnologiesMenu,
@@ -96,24 +95,8 @@ const MenuItem: React.FC<MenuItemProps> = ({ text, href, children }) => {
 const MemoizedMenuItem = memo(MenuItem, 'MenuItem')
 
 function Header() {
-  const [isScrolled, setIsScrolled] = React.useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
   const navRef = React.useRef<HTMLElement>(null)
-
-  // Update scroll state
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-
-    // Initial check
-    handleScroll()
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
 
   const handleThemeToggleClick = React.useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
@@ -130,11 +113,7 @@ function Header() {
   return (
     <div className="fixed left-0 right-0 top-0 z-50">
       <header
-        className={cn(
-          'w-full transition-all duration-300',
-          'bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/80',
-          isScrolled && 'border-b shadow-sm'
-        )}
+        className="relative w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/80"
         role="banner"
       >
         <nav
@@ -143,18 +122,10 @@ function Header() {
           role="navigation"
           aria-label="Main navigation"
         >
-          <div
-            className={cn(
-              'flex items-center justify-between transition-all duration-300',
-              isScrolled ? 'h-16' : 'h-20'
-            )}
-          >
+          <div className="flex h-20 items-center justify-between">
             <Link
               href="/"
-              className={cn(
-                'flex items-center space-x-2 transition-transform duration-300',
-                isScrolled && 'scale-90'
-              )}
+              className="flex items-center space-x-2"
               aria-label="Go to homepage"
             >
               <Logo width={140} height={46} />
@@ -185,10 +156,7 @@ function Header() {
                 <Button
                   variant="shine"
                   size="lg"
-                  className={cn(
-                    'group relative text-base font-medium transition-all duration-300',
-                    isScrolled && 'h-10 text-sm'
-                  )}
+                  className="group relative text-base font-medium"
                   href="/contact"
                   aria-label="Contact us"
                 >

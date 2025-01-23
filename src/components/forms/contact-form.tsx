@@ -1,12 +1,17 @@
 // src/components/forms/contact-form.tsx
 'use client'
 
-import React from 'react'
+import React, { JSX } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import * as z from 'zod'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { CustomSelect } from '@/components/ui/select'
+import { toast } from 'sonner'
+import { useAnalytics } from '@/hooks/use-analytics'
+import { useCsrf } from '@/hooks/use-csrf'
+import { countryCodes, subjectOptions } from '@/data/country-codes'
 import {
   Mic,
   Upload,
@@ -18,11 +23,8 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useAnalytics } from '@/hooks/use-analytics'
-import { toast } from 'sonner'
-import { CustomSelect } from '@/components/ui/select'
-import { countryCodes, subjectOptions } from '@/data/country-codes'
 
+// Constants and types
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 const ACCEPTED_FILE_TYPES = [
   'application/pdf',
@@ -34,14 +36,16 @@ const ACCEPTED_FILE_TYPES = [
 
 type AcceptedFileType = (typeof ACCEPTED_FILE_TYPES)[number]
 
+// Form schema with strict types
 const formSchema = z.object({
-  name: z.string().min(2, 'Name is required'),
+  name: z.string().min(2, 'Name must be at least 2 characters'),
   company: z.string().optional(),
   email: z.string().email('Please enter a valid corporate email'),
   countryCode: z.string().min(1, 'Country code is required'),
   phone: z.string().min(10, 'Please enter a valid phone number'),
   subject: z.string().min(1, 'Please select a subject'),
-  details: z.string().min(10, 'Please describe your needs'),
+  details: z.string().min(10, 'Please provide more details'),
+  message: z.string().optional(), // Add this
   files: z
     .custom<FileList>()
     .transform((files) => (files ? Array.from(files) : []))
@@ -77,8 +81,10 @@ interface ContactResponse {
   }>
 }
 
-export function ContactForm() {
+export function ContactForm(): JSX.Element {
   const { trackGTMEvent } = useAnalytics()
+  const { csrfToken, isLoading: isLoadingCsrf, error: csrfError } = useCsrf()
+
   const {
     register,
     control,
@@ -88,8 +94,8 @@ export function ContactForm() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      countryCode: '+1', // Default to US
-      subject: '', // Empty by default
+      countryCode: '+1',
+      subject: '',
     },
   })
 
@@ -104,8 +110,17 @@ export function ContactForm() {
   const mediaRecorderRef = React.useRef<MediaRecorder | null>(null)
   const timerRef = React.useRef<NodeJS.Timeout | null>(null)
 
-  // Utility function to convert File to base64
-  const fileToBase64 = (file: File | Blob): Promise<string> => {
+  // Handle CSRF error
+  React.useEffect(() => {
+    if (csrfError) {
+      toast.error(
+        'Failed to initialize form security. Please refresh the page.'
+      )
+    }
+  }, [csrfError])
+
+  // File handling utilities
+  const fileToBase64 = async (file: File | Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
       reader.readAsDataURL(file)
@@ -114,9 +129,132 @@ export function ContactForm() {
     })
   }
 
-  const onSubmit = async (data: FormData) => {
+  // File handlers
+  const handleFileSelect = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = event.target.files
+      if (!selectedFiles) return
+
+      const filesArray = Array.from(selectedFiles)
+      const validFiles = filesArray.filter(
+        (file) =>
+          file.size <= MAX_FILE_SIZE &&
+          ACCEPTED_FILE_TYPES.includes(file.type as AcceptedFileType)
+      )
+
+      setFiles((prev) => [...prev, ...validFiles])
+
+      trackGTMEvent({
+        event: 'contact_form_file_upload',
+        fileData: {
+          count: validFiles.length,
+          types: validFiles.map((file) => file.type),
+        },
+      })
+    },
+    [trackGTMEvent]
+  )
+
+  const handleFileRemove = React.useCallback(
+    (index: number) => {
+      setFiles((prev) => prev.filter((_, i) => i !== index))
+      trackGTMEvent({ event: 'contact_form_file_remove' })
+    },
+    [trackGTMEvent]
+  )
+
+  // Recording handlers
+  const startRecording = async () => {
     try {
-      // Track form submission attempt
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast.error('Your browser does not support audio recording')
+        return
+      }
+
+      // Try to get stream with the correct constraint types
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      })
+
+      const mediaRecorder = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported('audio/webm')
+          ? 'audio/webm'
+          : 'audio/ogg',
+      })
+      const chunks: BlobPart[] = []
+
+      mediaRecorder.ondataavailable = (event) => {
+        chunks.push(event.data)
+      }
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: mediaRecorder.mimeType })
+        setAudioBlob(blob)
+        stream.getTracks().forEach((track) => track.stop())
+
+        trackGTMEvent({
+          event: 'contact_form_voice_recorded',
+          recordingData: {
+            duration: recordingTime,
+            size: blob.size,
+            mimeType: mediaRecorder.mimeType,
+          },
+        })
+      }
+
+      mediaRecorderRef.current = mediaRecorder
+      mediaRecorder.start()
+      setIsRecording(true)
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1)
+      }, 1000) as unknown as NodeJS.Timeout
+    } catch (error) {
+      console.error('Microphone error:', error)
+
+      if (error instanceof Error) {
+        switch (error.name) {
+          case 'NotAllowedError':
+            toast.error('Please allow microphone access when prompted')
+            break
+          case 'NotFoundError':
+            toast.error(
+              'No microphone found. Please check your device settings'
+            )
+            break
+          case 'NotReadableError':
+            toast.error('Microphone is already in use by another application')
+            break
+          default:
+            toast.error('Failed to access microphone. Please try again')
+        }
+      }
+    }
+  }
+
+  const stopRecording = React.useCallback(() => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+      setRecordingTime(0)
+    }
+  }, [isRecording])
+
+  // Form submission
+  const onSubmit = async (data: FormData): Promise<void> => {
+    if (!csrfToken) {
+      toast.error('Security token missing. Please refresh the page.')
+      return
+    }
+
+    try {
       trackGTMEvent({
         event: 'contact_form_submit_attempt',
         formData: {
@@ -125,7 +263,7 @@ export function ContactForm() {
         },
       })
 
-      // Process files if present
+      // Process files
       const processedFiles = await Promise.all(
         files.map(async (file) => ({
           name: file.name,
@@ -134,25 +272,26 @@ export function ContactForm() {
         }))
       )
 
-      // Process voice note if present
+      // Process voice note
       let processedVoiceNote
       if (audioBlob) {
         const voiceNoteData = await fileToBase64(audioBlob)
         processedVoiceNote = { data: voiceNoteData }
       }
 
-      // Submit to API
       const response = await fetch('/api/contact', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
+        },
         body: JSON.stringify({
           ...data,
+          message: data.details, // Add this line
           files: files.length > 0 ? processedFiles : undefined,
           voiceNote: processedVoiceNote,
           consent: true,
         }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
       })
 
       const result: ContactResponse = await response.json()
@@ -161,7 +300,6 @@ export function ContactForm() {
         throw new Error(result.message || 'Failed to submit form')
       }
 
-      // Track successful submission
       trackGTMEvent({
         event: 'contact_form_submit_success',
         formData: {
@@ -171,113 +309,23 @@ export function ContactForm() {
         },
       })
 
-      // Show success message and reset form
       toast.success("Form submitted successfully! We'll be in touch soon.")
       reset()
       setFiles([])
       setAudioBlob(null)
     } catch (error) {
       console.error('Error submitting form:', error)
-
-      // Track submission error
       trackGTMEvent({
         event: 'contact_form_submit_error',
         formData: {
           error: error instanceof Error ? error.message : 'Unknown error',
         },
       })
-
       toast.error('Failed to submit form. Please try again.')
     }
   }
 
-  // Handle file selection
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = event.target.files
-    if (selectedFiles) {
-      const filesArray = Array.from(selectedFiles)
-      const validFiles = filesArray.filter(
-        (file) =>
-          file.size <= MAX_FILE_SIZE &&
-          ACCEPTED_FILE_TYPES.includes(file.type as AcceptedFileType)
-      )
-      setFiles((prev) => [...prev, ...validFiles])
-
-      // Track file selection
-      trackGTMEvent({
-        event: 'contact_form_file_upload',
-        fileData: {
-          count: validFiles.length,
-          types: validFiles.map((file) => file.type),
-        },
-      })
-    }
-  }
-
-  // Handle file removal
-  const handleFileRemove = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index))
-    trackGTMEvent({ event: 'contact_form_file_remove' })
-  }
-
-  // Recording functions
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mediaRecorder = new MediaRecorder(stream)
-      const chunks: BlobPart[] = []
-
-      mediaRecorder.ondataavailable = (event) => {
-        chunks.push(event.data)
-      }
-
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'audio/wav' })
-        setAudioBlob(blob)
-        stream.getTracks().forEach((track) => track.stop())
-
-        trackGTMEvent({
-          event: 'contact_form_voice_recorded',
-          recordingData: {
-            duration: recordingTime,
-            size: blob.size,
-          },
-        })
-      }
-
-      mediaRecorderRef.current = mediaRecorder
-      mediaRecorder.start()
-      setIsRecording(true)
-      trackGTMEvent({ event: 'contact_form_voice_start' })
-
-      timerRef.current = setInterval(() => {
-        setRecordingTime((prev) => prev + 1)
-      }, 1000) as unknown as NodeJS.Timeout
-    } catch (error) {
-      console.error('Error accessing microphone:', error)
-      toast.error('Failed to access microphone. Please check your permissions.')
-    }
-  }
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop()
-      setIsRecording(false)
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
-      }
-      setRecordingTime(0)
-    }
-  }
-
-  // Format time for recording
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
-
-  // Cleanup
+  // Cleanup effect
   React.useEffect(() => {
     return () => {
       if (timerRef.current) {
@@ -286,17 +334,45 @@ export function ContactForm() {
     }
   }, [])
 
+  // Utility function for formatting time
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  if (isLoadingCsrf) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (csrfError) {
+    return (
+      <div className="rounded-lg border border-destructive p-4 text-center">
+        <p className="text-destructive">
+          Failed to initialize form security. Please refresh the page.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="grid gap-6 md:grid-cols-2">
+        {/* Name Input */}
         <Input
           label="Name*"
           error={errors.name?.message}
           {...register('name')}
         />
 
+        {/* Company Input */}
         <Input label="Company" {...register('company')} />
 
+        {/* Email Input */}
         <Input
           label="Corporate email*"
           type="email"
@@ -304,6 +380,7 @@ export function ContactForm() {
           {...register('email')}
         />
 
+        {/* Phone Input Group */}
         <div className="flex gap-2">
           <div className="w-1/3">
             <Controller
@@ -315,13 +392,13 @@ export function ContactForm() {
                   onChange={field.onChange}
                   options={countryCodes.map(({ code, country }) => ({
                     value: code,
-                    label: `${country}`, // Only country name in dropdown
-                    displayValue: code, // Only code in input
+                    label: country,
+                    displayValue: code,
                     icon: (
                       <span className="font-medium text-muted-foreground">
                         {code}
                       </span>
-                    ), // Show code in dropdown next to country
+                    ),
                   }))}
                   error={!!errors.countryCode}
                   className="mt-6 h-[42px]"
@@ -345,6 +422,7 @@ export function ContactForm() {
           </div>
         </div>
 
+        {/* Subject Select */}
         <div className="md:col-span-2">
           <Controller
             name="subject"
@@ -368,6 +446,7 @@ export function ContactForm() {
         </div>
       </div>
 
+      {/* Message Textarea */}
       <div className="space-y-2">
         <textarea
           {...register('details')}
@@ -385,7 +464,7 @@ export function ContactForm() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Voice Recording */}
+        {/* Voice Recording Section */}
         <motion.div
           className="rounded-lg border border-dashed p-6"
           whileHover={{ borderColor: 'hsl(var(--primary))' }}
@@ -442,7 +521,7 @@ export function ContactForm() {
           </div>
         </motion.div>
 
-        {/* File Upload */}
+        {/* File Upload Section */}
         <motion.div
           className="rounded-lg border border-dashed p-6"
           whileHover={{ borderColor: 'hsl(var(--primary))' }}

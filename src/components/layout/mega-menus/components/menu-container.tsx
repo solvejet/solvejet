@@ -55,14 +55,14 @@ export const MenuContainer: React.FC<MenuContainerProps> = ({
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="fixed left-0 right-0 top-20 z-50 w-full overflow-hidden bg-transparent shadow-[0_6px_10px_-4px_rgba(0,0,0,0.2)] backdrop-blur-lg"
+          className="fixed left-0 right-0 top-20 z-50 w-full overflow-hidden border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/80"
           onMouseLeave={onClose}
         >
           <motion.div
             variants={contentVariants}
             initial="hidden"
             animate="visible"
-            className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8"
+            className="w-full"
           >
             {children}
           </motion.div>

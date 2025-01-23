@@ -2,14 +2,33 @@
 import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
+  service: 'gmail',
   host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || '587'),
+  port: parseInt(process.env.SMTP_PORT || '465'),
   secure: process.env.SMTP_SECURE === 'true',
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  requireTLS: true,
+  tls: {
+    ciphers: 'SSLv3',
+    rejectUnauthorized: false,
+  },
 })
+
+transporter.set('debug', true)
+
+// Add connection verification
+async function verifyEmailConfig() {
+  try {
+    await transporter.verify()
+    console.log('SMTP connection verified successfully')
+  } catch (error) {
+    console.error('SMTP connection verification failed:', error)
+    throw error
+  }
+}
 
 interface EmailData {
   name: string
@@ -275,7 +294,7 @@ function generateEmailTemplate(data: EmailData): string {
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://solvejet.net/logo-dark.svg" alt="SolveJet" class="logo" />
+            <img src="https://solvejet.net/solvejet.svg" alt="SolveJet" class="logo" />
           </div>
 
           <div class="content">
@@ -337,6 +356,9 @@ function generateEmailTemplate(data: EmailData): string {
 
 export async function sendThankYouEmail(data: EmailData): Promise<void> {
   try {
+    // Verify connection before sending
+    await verifyEmailConfig()
+
     const html = generateEmailTemplate(data)
 
     await transporter.sendMail({

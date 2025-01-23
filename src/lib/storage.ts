@@ -1,9 +1,19 @@
 // lib/storage.ts
-import { writeFile } from 'fs/promises'
+import { writeFile, mkdir } from 'fs/promises'
 import path from 'path'
 import { randomUUID } from 'crypto'
 
 const UPLOADS_DIR = path.join(process.cwd(), 'public/uploads')
+
+async function ensureUploadsDirectory() {
+  try {
+    await mkdir(UPLOADS_DIR, { recursive: true })
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
+      throw error
+    }
+  }
+}
 
 export async function saveFile(
   file: Buffer,
@@ -11,15 +21,14 @@ export async function saveFile(
   prefix: string = ''
 ): Promise<{ fileName: string; fileUrl: string }> {
   try {
-    // Create unique filename
+    await ensureUploadsDirectory()
+
     const extension = path.extname(originalName)
     const fileName = `${prefix}${randomUUID()}${extension}`
     const filePath = path.join(UPLOADS_DIR, fileName)
 
-    // Save file
     await writeFile(filePath, file)
 
-    // Return file info
     return {
       fileName,
       fileUrl: `/uploads/${fileName}`,

@@ -11,6 +11,10 @@ const config = {
   ],
   prefix: '',
   theme: {
+    backdropFilter: {
+      none: 'none',
+      blur: 'blur(20px)',
+    },
     container: {
       center: true,
       padding: '2rem',
@@ -76,7 +80,6 @@ const config = {
     },
   },
   plugins: [
-    require('tailwindcss-animate'),
     function ({ addBase }: PluginAPI) {
       addBase({
         ':root': {
