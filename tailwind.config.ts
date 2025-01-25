@@ -1,3 +1,4 @@
+// tailwind.config.ts
 import type { Config } from 'tailwindcss'
 import type { PluginAPI } from 'tailwindcss/types/config'
 
@@ -72,10 +73,30 @@ const config = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        drift: {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '50%': { transform: 'translate(5%, 5%)' },
+        },
+        'drift-slow': {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '50%': { transform: 'translate(-5%, 5%)' },
+        },
+        'drift-reverse': {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '50%': { transform: 'translate(-5%, -5%)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        drift: 'drift 10s ease-in-out infinite',
+        'drift-slow': 'drift-slow 15s ease-in-out infinite',
+        'drift-reverse': 'drift-reverse 12s ease-in-out infinite',
+        shimmer: 'shimmer 8s ease-in-out infinite',
       },
     },
   },

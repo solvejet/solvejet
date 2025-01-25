@@ -3,12 +3,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/csrf'
 
 // List of paths that require CSRF protection
-const protectedPaths = ['/api/contact']
+const PROTECTED_PATHS = ['/api/contact', '/api/admin/auth']
 
 export async function middleware(request: NextRequest) {
   // Only check CSRF for protected paths and non-GET requests
   if (
-    !protectedPaths.includes(request.nextUrl.pathname) ||
+    !PROTECTED_PATHS.some((path) =>
+      request.nextUrl.pathname.startsWith(path)
+    ) ||
     request.method === 'GET'
   ) {
     return NextResponse.next()

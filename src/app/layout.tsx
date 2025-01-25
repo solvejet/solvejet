@@ -4,16 +4,14 @@ import Script from 'next/script'
 import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { analyticsConfig } from '@/config/analytics'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
 import { generateSEOMetadata, generateOrganizationSchema } from '@/config/seo'
 import JsonLD from '@/components/json-ld'
 import { Toaster } from 'sonner'
 import type { Metadata, Viewport } from 'next'
 
 import '@/styles/globals.css'
+import MainLayout from '@/components/layout/MainLayout'
 
-// Optimize font loading
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
@@ -21,12 +19,10 @@ const inter = Inter({
   preload: true,
 })
 
-// Add metadata optimization
 export function generateMetadata(): Metadata {
   return generateSEOMetadata({})
 }
 
-// Add viewport configuration
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -51,7 +47,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
       className={`${inter.variable} antialiased`}
     >
       <head>
-        {/* Preconnect to critical domains */}
         <link
           rel="preconnect"
           href="https://fonts.googleapis.com"
@@ -62,8 +57,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-
-        {/* Add schema markup */}
         <JsonLD data={generateOrganizationSchema()} />
       </head>
 
@@ -75,15 +68,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
           disableTransitionOnChange
           storageKey="solvejet-theme"
         >
-          <Header />
-          <main className="flex-1">
-            {children}
-            <Toaster richColors position="top-right" />
-          </main>
-          <Footer />
+          <MainLayout>{children}</MainLayout>
+          <Toaster richColors position="top-right" />
         </ThemeProvider>
 
-        {/* Google Tag Manager */}
+        {/* Analytics Scripts */}
         <Script
           id="gtm-script"
           strategy="afterInteractive"
@@ -98,7 +87,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
 
-        {/* Google Analytics */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${analyticsConfig.ga.id}`}
           strategy="afterInteractive"
@@ -119,7 +107,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
 
-        {/* Noscript fallback for GTM */}
         <noscript>
           <iframe
             src={`https://www.googletagmanager.com/ns.html?id=${analyticsConfig.gtm.id}`}

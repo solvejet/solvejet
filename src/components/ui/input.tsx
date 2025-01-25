@@ -1,6 +1,4 @@
 // components/ui/input.tsx
-'use client'
-
 import React from 'react'
 import { cn } from '@/lib/utils'
 import { AlertCircle } from 'lucide-react'
@@ -9,12 +7,17 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string
   error?: string
   icon?: React.ReactNode
+  iconClassName?: string
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, icon, type = 'text', ...props }, ref) => {
+  (
+    { className, label, error, icon, iconClassName, type = 'text', ...props },
+    ref
+  ) => {
     const [isFocused, setIsFocused] = React.useState(false)
     const [hasValue, setHasValue] = React.useState(false)
+    const id = React.useId()
 
     React.useEffect(() => {
       setHasValue(Boolean(props.value || props.defaultValue))
@@ -22,18 +25,34 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <div className="relative w-full">
+        {/* Input wrapper */}
         <div className="relative">
+          {/* Icon container */}
+          {icon && (
+            <div
+              className={cn(
+                'absolute left-0 flex items-center justify-center',
+                'transition-all duration-200',
+                isFocused || hasValue ? 'top-6' : 'top-4',
+                iconClassName
+              )}
+            >
+              {icon}
+            </div>
+          )}
+
+          {/* Input field */}
           <input
+            id={id}
             type={type}
             className={cn(
-              'peer w-full border-b bg-transparent pb-2 pt-6 text-base outline-none transition-all',
+              'peer w-full border-b bg-transparent transition-colors duration-200',
               'border-input hover:border-muted-foreground',
               'placeholder-transparent',
-              'focus:border-primary focus:outline-none focus:ring-0',
+              'outline-none focus:outline-none focus:ring-0 focus:ring-offset-0',
               'disabled:cursor-not-allowed disabled:opacity-50',
-              error && 'border-destructive focus:border-destructive',
-              icon && 'pl-10',
-              // Add these classes to disable autofill background
+              error && 'border-destructive',
+              icon ? 'px-10 pb-2 pt-6' : 'px-0 pb-2 pt-6',
               '[&:-webkit-autofill]:bg-transparent',
               '[&:-webkit-autofill]:shadow-[0_0_0px_1000px_transparent_inset]',
               '[&:-webkit-autofill]:transition-[background-color_0s_9999999999s]',
@@ -56,26 +75,23 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             }}
           />
 
+          {/* Floating label */}
           <label
+            htmlFor={id}
             className={cn(
-              'pointer-events-none absolute left-0 top-5 origin-[0] text-base text-muted-foreground transition-all duration-200',
-              'peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-muted-foreground',
-              'peer-focus:-top-0.5 peer-focus:scale-75 peer-focus:text-primary',
-              (isFocused || hasValue) && '-top-0.5 scale-75',
-              error && 'text-destructive peer-focus:text-destructive',
-              icon && 'left-10'
+              'pointer-events-none absolute left-0 text-muted-foreground',
+              'transition-all duration-200',
+              icon && 'left-10',
+              isFocused || hasValue ? '-top-2 text-xs' : 'top-4 text-base',
+              isFocused && 'text-primary',
+              error && 'text-destructive'
             )}
           >
             {label}
           </label>
-
-          {icon && (
-            <div className="absolute left-0 top-5 text-muted-foreground">
-              {icon}
-            </div>
-          )}
         </div>
 
+        {/* Error message */}
         {error && (
           <div className="mt-1.5 flex items-center gap-1 text-xs text-destructive">
             <AlertCircle className="h-3 w-3" />
