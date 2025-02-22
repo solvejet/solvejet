@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from 'next/font/google';
 import "./globals.css";
 import type { ReactNode } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -129,6 +130,7 @@ export default function RootLayout({
       <body
         className={`font-poppins antialiased bg-white dark:bg-black`}
       >
+        <SpeedInsights/>
         {children}
       </body>
     </html>
