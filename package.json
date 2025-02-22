@@ -3,25 +3,55 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "clean": "rimraf .next out",
+    "build": "pnpm clean && next build",
     "dev": "next dev",
-    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@eslint/js": "^9.21.0",
+    "@hookform/resolvers": "^4.1.0",
+    "@tanstack/react-query": "^5.66.9",
+    "@tanstack/react-query-devtools": "^5.66.9",
+    "bcryptjs": "^3.0.2",
+    "crypto-js": "^4.2.0",
+    "mongodb": "^6.13.1",
+    "mongoose": "^8.10.1",
+    "next": "15.1.7",
+    "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.1.7"
+    "react-hook-form": "^7.54.2",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "eslint": "^9",
-    "eslint-config-next": "15.1.7",
-    "@eslint/eslintrc": "^3"
+    "@eslint/eslintrc": "^3.3.0",
+    "@next/eslint-plugin-next": "^15.1.7",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/next-pwa": "^5.6.9",
+    "@types/node": "^20.17.19",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@types/webpack": "^5.28.5",
+    "@typescript-eslint/eslint-plugin": "^8.24.1",
+    "@typescript-eslint/parser": "^8.24.1",
+    "autoprefixer": "^10.4.20",
+    "cssnano": "^7.0.6",
+    "eslint": "^9.21.0",
+    "eslint-config-next": "^15.1.7",
+    "file-loader": "^6.2.0",
+    "next-pwa": "^5.6.0",
+    "postcss": "8.5.3",
+    "postcss-import": "^16.1.0",
+    "postcss-preset-env": "^10.1.4",
+    "rimraf": "^6.0.1",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3"
+  },
+  "pnpm": {
+    "ignoredBuiltDependencies": [
+      "sharp"
+    ]
   }
 }

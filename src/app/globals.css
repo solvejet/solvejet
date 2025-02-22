@@ -1,21 +1,100 @@
+/* globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer base {
+  html {
+    font-family: 'Poppins', system-ui, sans-serif;
+    scroll-behavior: smooth !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    @apply bg-white text-black dark:bg-black dark:text-white;
+    @apply min-h-screen;
+  }
+
+  /* Custom Scrollbar - Thin & Light */
+  ::-webkit-scrollbar {
+    @apply w-1.5; /* Thinner scrollbar */
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent; /* Transparent track */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 dark:bg-gray-700; /* Light/dark mode aware */
+    @apply rounded-full;
+    @apply hover:bg-gray-300 dark:hover:bg-gray-600;
+    @apply transition-colors duration-200;
+  }
+
+  /* For Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #E5E7EB transparent;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  .section {
+    @apply py-12 sm:py-16 lg:py-20;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .parallax {
+    @apply transform transition-transform duration-500;
+    perspective: 1000px;
+  }
+
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Remove focus outline for mouse users, keep for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Keep focus outline for keyboard users */
+:focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2;
+}
+
+/* Smooth transition for dark mode */
+.dark {
+  color-scheme: dark;
+}
+
+/* Prevent layout shift when scrollbar appears */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Better responsive text sizing */
+@screen lg {
+  html {
+    font-size: 16.5px;
+  }
+}
+
+@screen 2xl {
+  html {
+    font-size: 17px;
+  }
 }
