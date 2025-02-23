@@ -1,8 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
-import "./globals.css";
-import type { ReactNode } from "react";
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import './globals.css';
+import type { ReactNode } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Providers } from '@/components/Providers';
+import { AnalyticsProvider } from '@/components/Analytics';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -14,7 +17,7 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
   title: {
-    default: 'SolveJet - ISO Certified Custom Software Development Company',
+    default: 'SolveJet - Product-driven Software Development Company',
     template: '%s | SolveJet',
   },
   description:
@@ -112,13 +115,12 @@ export const metadata: Metadata = {
     title: 'SolveJet',
   },
   formatDetection: {
-    telephone: false, // Changed to false to prevent automatic phone number detection
+    telephone: false,
   },
   category: 'technology',
   classification: 'Software Development',
   referrer: 'origin-when-cross-origin',
 };
-
 
 export default function RootLayout({
   children,
@@ -126,12 +128,14 @@ export default function RootLayout({
   children: ReactNode;
 }>): React.JSX.Element {
   return (
-    <html lang="en" className={`${poppins.variable} scroll-smooth`}>
-      <body
-        className={`font-poppins antialiased bg-white dark:bg-black`}
-      >
-        <SpeedInsights/>
-        {children}
+    <html lang="en" className={`${poppins.variable} scroll-smooth bg-primary-light`} suppressHydrationWarning>
+      <body className={`font-poppins antialiased bg-white dark:bg-black`}>
+        <ErrorBoundary>
+          <SpeedInsights />
+          <AnalyticsProvider>
+            <Providers>{children}</Providers>
+          </AnalyticsProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

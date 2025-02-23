@@ -1,37 +1,8 @@
 // next.config.ts
-import type { NextConfig } from 'next'
-import withPWA from 'next-pwa'
-
-const securityHeaders = [
-  {
-    key: 'X-DNS-Prefetch-Control',
-    value: 'on'
-  },
-  {
-    key: 'Strict-Transport-Security',
-    value: 'max-age=63072000; includeSubDomains; preload'
-  },
-  {
-    key: 'X-Frame-Options',
-    value: 'DENY'
-  },
-  {
-    key: 'X-Content-Type-Options',
-    value: 'nosniff'
-  },
-  {
-    key: 'X-XSS-Protection',
-    value: '1; mode=block'
-  },
-  {
-    key: 'Referrer-Policy',
-    value: 'strict-origin-when-cross-origin'
-  },
-  {
-    key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'
-  }
-];
+import type { NextConfig } from 'next';
+import type { Configuration as WebpackConfig } from 'webpack';
+import withPWA from 'next-pwa';
+import { SECURITY_HEADERS } from './src/lib/security/constants';
 
 const nextConfig = {
   reactStrictMode: true,
@@ -54,9 +25,10 @@ const nextConfig = {
   },
 
   // Webpack configuration
-  webpack: (config) => {
-    if (config.module?.rules) {
-      config.module.rules.push({
+  webpack: (config: WebpackConfig): WebpackConfig => {
+    if (typeof config.module?.rules === 'object') {
+      const rules = config.module.rules as unknown[];
+      rules.push({
         test: /\.(pdf|docx?|xlsx?|csv|zip)$/,
         type: 'asset/resource',
         generator: {
@@ -68,23 +40,35 @@ const nextConfig = {
   },
 
   // Security headers configuration
-  async headers() {
-    return [
+  headers: (): Promise<{
+    source: string;
+    headers: {
+      key: string;
+      value: string;
+    }[];
+  }[]> => {
+    return Promise.resolve([
       {
         source: '/:path*',
-        headers: securityHeaders,
+        headers: Object.entries(SECURITY_HEADERS).map(([key, value]) => ({
+          key,
+          value: Array.isArray(value) ? value.join(',') : value
+        })),
       },
       {
         source: '/api/:path*',
         headers: [
-          ...securityHeaders,
+          ...Object.entries(SECURITY_HEADERS).map(([key, value]) => ({
+            key,
+            value: Array.isArray(value) ? value.join(',') : value
+          })),
           {
             key: 'Cache-Control',
             value: 'no-store, max-age=0',
           },
         ],
       },
-    ];
+    ]);
   },
 } satisfies NextConfig;
 

@@ -14,7 +14,7 @@
   }
 
   body {
-    @apply bg-white text-black dark:bg-black dark:text-white;
+    @apply bg-primary-light text-primary-dark dark:bg-primary-dark dark:text-primary-light;
     @apply min-h-screen;
   }
 
@@ -73,7 +73,7 @@
 
 /* Keep focus outline for keyboard users */
 :focus-visible {
-  @apply outline-none ring-2 ring-primary ring-offset-2;
+  @apply outline-none ring-2 ring-element-500 ring-offset-2;
 }
 
 /* Smooth transition for dark mode */

@@ -24,14 +24,19 @@ export const useCSRF = (options: CSRFOptions = {}): CSRFHookReturn => {
     try {
       // First try to get from cookie
       const cookies = document.cookie.split(';');
-      const csrfCookie = cookies.find(cookie => 
-        cookie.trim().startsWith(`${cookieName}=`)
-      );
+      const csrfCookie = cookies
+        .map(cookie => cookie.trim())
+        .find(cookie => cookie.startsWith(`${cookieName}=`));
       
       if (csrfCookie) {
-        const tokenFromCookie = csrfCookie.split('=')[1];
-        setToken(tokenFromCookie);
-        return tokenFromCookie;
+        const parts = csrfCookie.split('=');
+        if (parts.length >= 2) {
+          const tokenFromCookie = parts[1];
+          if (tokenFromCookie) {
+            setToken(tokenFromCookie);
+            return tokenFromCookie;
+          }
+        }
       }
 
       // If no token in cookie, request new one
@@ -45,8 +50,13 @@ export const useCSRF = (options: CSRFOptions = {}): CSRFHookReturn => {
       }
 
       const newToken = await response.text();
+      if (!newToken) {
+        throw new Error('Received empty CSRF token');
+      }
+
       setToken(newToken);
       return newToken;
+
     } catch (error) {
       console.error('Error fetching CSRF token:', error);
       return null;
@@ -54,14 +64,19 @@ export const useCSRF = (options: CSRFOptions = {}): CSRFHookReturn => {
   }, [cookieName]);
 
   const appendCSRFToken = useCallback((headers: Headers | Record<string, string> = {}): Headers | Record<string, string> => {
-    if (token) {
-      if (headers instanceof Headers) {
-        headers.set(headerName, token);
-      } else {
-        headers[headerName] = token;
-      }
+    if (!token) {
+      return headers;
     }
-    return headers;
+
+    if (headers instanceof Headers) {
+      headers.set(headerName, token);
+      return headers;
+    }
+
+    return {
+      ...headers,
+      [headerName]: token
+    };
   }, [token, headerName]);
 
   return {
