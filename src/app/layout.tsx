@@ -2,10 +2,41 @@ import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
 import './globals.css';
 import type { ReactNode } from 'react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import dynamic from 'next/dynamic';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Providers } from '@/components/Providers';
-import { AnalyticsProvider } from '@/components/Analytics';
+
+// Dynamic imports for non-critical components
+const Providers = dynamic(
+  () =>
+    import('@/components/Providers').then(mod => ({
+      default: mod.Providers,
+    })),
+  {
+    ssr: false,
+    loading: () => <></>,
+  }
+);
+
+const AnalyticsProvider = dynamic(
+  () =>
+    import('@/components/Analytics').then(mod => ({
+      default: mod.AnalyticsProvider,
+    })),
+  {
+    ssr: false,
+    loading: () => <></>,
+  }
+);
+
+const SpeedInsights = dynamic(
+  () =>
+    process.env.NODE_ENV === 'production'
+      ? import('@vercel/speed-insights/next').then(mod => ({
+          default: mod.SpeedInsights,
+        }))
+      : Promise.resolve({ default: () => null }),
+  { ssr: false }
+);
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -14,7 +45,7 @@ const poppins = Poppins({
   display: 'swap',
   preload: true,
   fallback: ['system-ui', 'sans-serif'],
-  adjustFontFallback: true, // Automatically adjust the fallback font to match the metrics of Poppins
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -136,7 +167,7 @@ export default function RootLayout({
       className={`${poppins.variable} scroll-smooth bg-primary-light`}
       suppressHydrationWarning
     >
-      <body className={`font-poppins antialiased bg-white dark:bg-black`}>
+      <body className="font-poppins antialiased bg-white dark:bg-black">
         <ErrorBoundary>
           <SpeedInsights />
           <AnalyticsProvider>

@@ -1,9 +1,20 @@
 // src/components/Analytics/index.tsx
 'use client';
 
-import type { JSX, ReactNode } from 'react';
-import { AnalyticsScripts } from '@/lib/analytics/Script';
-import { AnalyticsNoScript } from '@/lib/analytics/NoScript';
+import { type JSX, lazy, Suspense, type ReactNode } from 'react';
+
+// Lazy load analytics components
+const AnalyticsScripts = lazy(() =>
+  import('@/lib/analytics/Script').then(mod => ({
+    default: mod.AnalyticsScripts,
+  }))
+);
+
+const AnalyticsNoScript = lazy(() =>
+  import('@/lib/analytics/NoScript').then(mod => ({
+    default: mod.AnalyticsNoScript,
+  }))
+);
 
 interface AnalyticsProviderProps {
   children: ReactNode;
@@ -12,8 +23,10 @@ interface AnalyticsProviderProps {
 export function AnalyticsProvider({ children }: AnalyticsProviderProps): JSX.Element {
   return (
     <>
-      <AnalyticsScripts />
-      <AnalyticsNoScript />
+      <Suspense fallback={null}>
+        <AnalyticsScripts />
+        <AnalyticsNoScript />
+      </Suspense>
       {children}
     </>
   );

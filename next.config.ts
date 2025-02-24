@@ -7,7 +7,7 @@ import { SECURITY_HEADERS } from './src/lib/security/constants';
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  
+
   // Image optimization configuration
   images: {
     remotePatterns: [
