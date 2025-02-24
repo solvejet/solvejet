@@ -12,6 +12,9 @@ const poppins = Poppins({
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-poppins',
   display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'sans-serif'],
+  adjustFontFallback: true, // Automatically adjust the fallback font to match the metrics of Poppins
 });
 
 export const metadata: Metadata = {
@@ -128,7 +131,11 @@ export default function RootLayout({
   children: ReactNode;
 }>): React.JSX.Element {
   return (
-    <html lang="en" className={`${poppins.variable} scroll-smooth bg-primary-light`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${poppins.variable} scroll-smooth bg-primary-light`}
+      suppressHydrationWarning
+    >
       <body className={`font-poppins antialiased bg-white dark:bg-black`}>
         <ErrorBoundary>
           <SpeedInsights />

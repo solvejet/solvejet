@@ -1,10 +1,18 @@
 // src/components/Providers.tsx
 'use client';
 
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastProvider } from '@/components/ui/toast/ToastProvider';
-import { SpeedInsights } from '@vercel/speed-insights/next';
+
+// Lazy load SpeedInsights only in production
+const SpeedInsights = lazy(() =>
+  process.env.NODE_ENV === 'production'
+    ? import('@vercel/speed-insights/next').then(({ SpeedInsights }) => ({
+        default: SpeedInsights,
+      }))
+    : Promise.resolve({ default: () => null })
+);
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -24,7 +32,9 @@ export function Providers({ children }: ProvidersProps): React.ReactElement {
   return (
     <ErrorBoundary>
       <ToastProvider />
-      <SpeedInsights />
+      <Suspense fallback={null}>
+        <SpeedInsights />
+      </Suspense>
       {children}
     </ErrorBoundary>
   );

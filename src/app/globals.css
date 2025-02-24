@@ -1,13 +1,11 @@
 /* globals.css */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html {
-    font-family: 'Poppins', system-ui, sans-serif;
+    font-family: var(--font-poppins), system-ui, sans-serif;
     scroll-behavior: smooth !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -20,15 +18,15 @@
 
   /* Custom Scrollbar - Thin & Light */
   ::-webkit-scrollbar {
-    @apply w-1.5; /* Thinner scrollbar */
+    @apply w-1.5;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-transparent; /* Transparent track */
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-200 dark:bg-gray-700; /* Light/dark mode aware */
+    @apply bg-gray-200 dark:bg-gray-700;
     @apply rounded-full;
     @apply hover:bg-gray-300 dark:hover:bg-gray-600;
     @apply transition-colors duration-200;
@@ -37,7 +35,7 @@
   /* For Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #E5E7EB transparent;
+    scrollbar-color: #e5e7eb transparent;
   }
 }
 
@@ -55,7 +53,7 @@
   .text-balance {
     text-wrap: balance;
   }
-  
+
   .parallax {
     @apply transform transition-transform duration-500;
     perspective: 1000px;
