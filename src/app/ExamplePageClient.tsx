@@ -40,6 +40,8 @@ const tableColumns: Column<TableDataType>[] = [
     accessorKey: 'name',
     sortable: true,
     filterable: true,
+    width: '33%',
+    minWidth: '200px',
   },
   {
     id: 'email',
@@ -47,6 +49,8 @@ const tableColumns: Column<TableDataType>[] = [
     accessorKey: 'email',
     sortable: true,
     filterable: true,
+    width: '33%',
+    minWidth: '250px',
   },
   {
     id: 'role',
@@ -54,6 +58,8 @@ const tableColumns: Column<TableDataType>[] = [
     accessorKey: 'role',
     sortable: true,
     filterable: true,
+    width: '33%',
+    minWidth: '150px',
   },
 ];
 

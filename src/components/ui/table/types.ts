@@ -39,4 +39,5 @@ export interface TableProps<T> {
   selectedRows?: T[];
   onSelectionChange?: (rows: T[]) => void;
   stickyHeader?: boolean;
+  virtualScrollTimeout?: number; // New prop for virtualization delay
 }

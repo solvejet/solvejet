@@ -1,4 +1,4 @@
-// src/components/ui/button/Button.tsx
+// src/components/ui/Button/index.tsx
 import React, { forwardRef, memo, type ComponentPropsWithRef } from 'react';
 import { cva } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';

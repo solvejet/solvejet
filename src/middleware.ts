@@ -3,12 +3,9 @@ import { NextResponse } from 'next/server';
 import type { NextMiddleware } from 'next/server';
 import { SECURITY_HEADERS, CORS_HEADERS } from './lib/security/constants';
 
-/**
- * Apply security headers to all responses
- */
-export const middleware: NextMiddleware = (): NextResponse => {
+export const middleware: NextMiddleware = () => {
   const response = NextResponse.next();
-  
+
   // Apply security headers
   Object.entries({ ...SECURITY_HEADERS, ...CORS_HEADERS }).forEach(([key, value]) => {
     if (typeof value === 'string') {
@@ -22,7 +19,5 @@ export const middleware: NextMiddleware = (): NextResponse => {
 };
 
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
