@@ -4,8 +4,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { JSX } from 'react';
 import { z } from 'zod';
-import { useRouter } from 'next/navigation'; // Import useRouter
-import { AlertCircle, Lock, Mail, Shield } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { AlertCircle, Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/Input';
@@ -13,6 +13,7 @@ import { useToastStore } from '@/components/ui/toast/toast-store';
 import { useForm } from '@/hooks/useForm';
 import { useAuthStore } from '@/store/auth-store';
 import { secureInputValidation } from '@/lib/security/validation';
+import { SolvejetLogo } from '@/components/ui/SolvejetLogo';
 
 // Login form validation schema
 const loginSchema = z.object({
@@ -33,7 +34,7 @@ export default function AdminLogin(): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToastStore();
   const { isAuthenticated, login: storeLogin } = useAuthStore();
-  const router = useRouter(); // Use Next.js router
+  const router = useRouter();
 
   // Initialize form with useForm hook for better validation and tracking
   const form = useForm<LoginFormData>({
@@ -89,11 +90,14 @@ export default function AdminLogin(): JSX.Element {
   });
 
   // If already authenticated, redirect to dashboard - use effect for this
-  useEffect(() => {
+  useEffect((): (() => void) => {
     if (isAuthenticated) {
       // Use Next.js router for navigation
       router.push('/admin/dashboard');
     }
+    return (): void => {
+      // Empty cleanup function
+    };
   }, [isAuthenticated, router]);
 
   // Memoized handlers to prevent unnecessary renders
@@ -139,9 +143,8 @@ export default function AdminLogin(): JSX.Element {
       <Card className="max-w-md w-full p-8 shadow-lg">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="relative w-16 h-16 bg-element-500 rounded-full flex items-center justify-center">
-              <Shield className="h-8 w-8 text-white" />
-            </div>
+            {/* Replace Shield icon with the SolvejetLogo */}
+            <SolvejetLogo width={200} height={80} />
           </div>
           <h1 className="text-2xl font-bold mb-2">Admin Dashboard</h1>
           <p className="text-gray-600 dark:text-gray-400 text-sm">

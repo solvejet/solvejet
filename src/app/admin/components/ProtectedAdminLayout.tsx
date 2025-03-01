@@ -1,4 +1,4 @@
-// src/app/admin/components/ProtectedAdminLayout.tsx
+// src/app/admin/components/ProtectedAdminLayout.tsx - Fixed version
 'use client';
 
 import { useToastStore } from '@/components/ui/toast/toast-store';
@@ -48,7 +48,7 @@ export function ProtectedAdminLayout({
   requiredRole,
   requiredPermission,
 }: ProtectedAdminLayoutProps): JSX.Element {
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, isInitializing } = useAuthStore();
   const { checkPermission } = useSecureContext();
   const pathname = usePathname();
   const router = useRouter();
@@ -56,36 +56,59 @@ export function ProtectedAdminLayout({
   const [authChecked, setAuthChecked] = useState(false);
   const redirectedRef = useRef(false);
   const [isLoading, setIsLoading] = useState(true);
+  const initTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Function to check if user is super admin
   const isSuperAdmin = (): boolean => {
     return user?.role === 'SUPER_ADMIN';
   };
 
-  useEffect((): (() => void) => {
+  useEffect(() => {
+    // Set a safety timeout to avoid infinite loading
+    if (isInitializing && !initTimeoutRef.current) {
+      initTimeoutRef.current = setTimeout(() => {
+        console.warn('Protected layout timeout triggered - forcing completion of initialization');
+        setIsLoading(false);
+        setAuthChecked(true);
+      }, 8000); // 8 seconds timeout
+    }
+
     // Skip protection for login page
     if (pathname === '/admin/login') {
       setAuthChecked(true);
       setIsLoading(false);
       redirectedRef.current = false;
-      return (): void => {
-        // Empty cleanup function to satisfy TypeScript
-      };
+
+      // Clear any timeouts
+      if (initTimeoutRef.current) {
+        clearTimeout(initTimeoutRef.current);
+        initTimeoutRef.current = null;
+      }
+
+      // No cleanup needed
+      return undefined;
     }
 
-    // Reset redirect flag when path changes
-    if (redirectedRef.current && pathname !== '/admin/login' && pathname !== '/admin/dashboard') {
-      redirectedRef.current = false;
-    }
+    // Handle authentication check once initialization is complete
+    if (!isInitializing) {
+      // Clear the timeout if it exists
+      if (initTimeoutRef.current) {
+        clearTimeout(initTimeoutRef.current);
+        initTimeoutRef.current = null;
+      }
 
-    // Handle authentication check
-    const checkAuth = (): void => {
+      // Reset redirect flag when path changes
+      if (redirectedRef.current && pathname !== '/admin/login' && pathname !== '/admin/dashboard') {
+        redirectedRef.current = false;
+      }
+
+      // Check if user is authenticated
       if (!isAuthenticated) {
-        // Only show toast and redirect if we haven't already
+        // Only redirect if we haven't already
         if (!redirectedRef.current) {
           redirectedRef.current = true;
 
-          // Add toast on next tick to avoid React state updates during render
+          // Show toast notification
           setTimeout(() => {
             toast.addToast({
               title: 'Authentication Required',
@@ -94,9 +117,12 @@ export function ProtectedAdminLayout({
             });
           }, 0);
 
-          // Use Next.js router for navigation with braces to address ESLint error
+          // Navigate to login page
           router.push('/admin/login');
         }
+
+        // Update loading state
+        setIsLoading(false);
         return;
       }
 
@@ -109,11 +135,11 @@ export function ProtectedAdminLayout({
           return;
         }
 
-        // Only show toast and redirect if we haven't already
+        // Only redirect if we haven't already
         if (!redirectedRef.current) {
           redirectedRef.current = true;
 
-          // Add toast on next tick to avoid React state updates during render
+          // Show toast notification
           setTimeout(() => {
             toast.addToast({
               title: 'Access Denied',
@@ -122,9 +148,12 @@ export function ProtectedAdminLayout({
             });
           }, 0);
 
-          // Use Next.js router for navigation with braces to address ESLint error
+          // Navigate to dashboard
           router.push('/admin/dashboard');
         }
+
+        // Update loading state
+        setIsLoading(false);
         return;
       }
 
@@ -137,11 +166,11 @@ export function ProtectedAdminLayout({
           return;
         }
 
-        // Only show toast and redirect if we haven't already
+        // Only redirect if we haven't already
         if (!redirectedRef.current) {
           redirectedRef.current = true;
 
-          // Add toast on next tick to avoid React state updates during render
+          // Show toast notification
           setTimeout(() => {
             toast.addToast({
               title: 'Access Denied',
@@ -150,25 +179,26 @@ export function ProtectedAdminLayout({
             });
           }, 0);
 
-          // Use Next.js router for navigation with braces to address ESLint error
+          // Navigate to dashboard
           router.push('/admin/dashboard');
         }
+
+        // Update loading state
+        setIsLoading(false);
         return;
       }
 
       // If we get here, user is authorized
       setAuthChecked(true);
       setIsLoading(false);
-    };
+    }
 
-    // Set a small timeout to ensure any auth store initialization has completed
-    const timer = setTimeout(() => {
-      checkAuth();
-    }, 50);
-
-    // Return a cleanup function
-    return (): void => {
-      clearTimeout(timer);
+    return () : void => {
+      // Clear the timeout if component unmounts
+      if (initTimeoutRef.current) {
+        clearTimeout(initTimeoutRef.current);
+        initTimeoutRef.current = null;
+      }
     };
   }, [
     isAuthenticated,
@@ -179,6 +209,7 @@ export function ProtectedAdminLayout({
     requiredPermission,
     checkPermission,
     router,
+    isInitializing,
   ]);
 
   // For login page, always render content
@@ -186,8 +217,28 @@ export function ProtectedAdminLayout({
     return <ErrorBoundary fallback={<ProtectedLayoutErrorFallback />}>{children}</ErrorBoundary>;
   }
 
+  // If still initializing auth and not timed out, show a loading indicator
+  if (isInitializing && isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-element-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-lg">Loading authentication...</p>
+          <button
+            onClick={() => {
+              window.location.href = '/admin/login';
+            }}
+            className="mt-6 px-4 py-2 bg-element-500 text-white rounded-md hover:bg-element-600 transition-colors"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // For protected pages, render only after auth check is complete
-  if (isAuthenticated && authChecked) {
+  if (isAuthenticated && (authChecked || !isInitializing)) {
     return <ErrorBoundary fallback={<ProtectedLayoutErrorFallback />}>{children}</ErrorBoundary>;
   }
 
@@ -198,6 +249,14 @@ export function ProtectedAdminLayout({
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-element-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="mt-4 text-lg">Loading admin panel...</p>
+          <button
+            onClick={() => {
+              window.location.href = '/admin/login';
+            }}
+            className="mt-6 px-4 py-2 bg-element-500 text-white rounded-md hover:bg-element-600 transition-colors"
+          >
+            Go to Login
+          </button>
         </div>
       </div>
     );

@@ -55,7 +55,7 @@ const adminUsers = [
   {
     email: 'karan@solvejet.net',
     password: 'Karan@2002',
-    name: 'Super Admin',
+    name: 'Karan Shah',
     role: 'SUPER_ADMIN' as const,
     permissions: ['*'],
   },

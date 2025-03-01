@@ -1,6 +1,7 @@
-// src/store/auth-store.ts
+// src/store/auth-store.ts - Fixed version
 
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface AdminUser {
   id: string;
@@ -27,10 +28,12 @@ interface AuthState {
   isAuthenticated: boolean;
   user: AdminUser | null;
   token: string | null;
+  isInitializing: boolean;
   login: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>;
   logout: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
   isSuperAdmin: () => boolean;
+  setInitializing: (isInitializing: boolean) => void;
 }
 
 // API helper functions that don't rely on hooks
@@ -87,102 +90,149 @@ const apiHelpers = {
   },
 };
 
-export const useAuthStore = create<AuthState>((set, get) => ({
-  isAuthenticated: false,
-  user: null,
-  token: null,
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      isAuthenticated: false,
+      user: null,
+      token: null,
+      isInitializing: true, // Start with initializing true
 
-  login: async (email: string, password: string, rememberMe = false): Promise<boolean> => {
-    try {
-      const data = await apiHelpers.login(email, password, rememberMe);
+      setInitializing: (isInitializing: boolean): void => {
+        set({ isInitializing });
+      },
 
-      if (!data.success) {
-        return false;
-      }
-
-      if (!data.user || !data.token) {
-        console.error('Missing user or token in login response');
-        return false;
-      }
-
-      // Update store with user data and token
-      set({
-        isAuthenticated: true,
-        user: data.user,
-        token: data.token,
-      });
-
-      // Store token in localStorage if rememberMe is enabled
-      if (typeof window !== 'undefined' && rememberMe) {
+      login: async (email: string, password: string, rememberMe = false): Promise<boolean> => {
         try {
-          localStorage.setItem('admin_token', data.token);
-          localStorage.setItem('admin_user', JSON.stringify(data.user));
-        } catch (storageError) {
-          console.warn('Failed to store auth data in localStorage:', storageError);
+          const data = await apiHelpers.login(email, password, rememberMe);
+
+          if (!data.success) {
+            return false;
+          }
+
+          if (!data.user || !data.token) {
+            console.error('Missing user or token in login response');
+            return false;
+          }
+
+          // Update store with user data and token
+          set({
+            isAuthenticated: true,
+            user: data.user,
+            token: data.token,
+            isInitializing: false, // Important: Set to false after successful login
+          });
+
+          // Store token in localStorage if rememberMe is enabled
+          if (typeof window !== 'undefined' && rememberMe) {
+            try {
+              localStorage.setItem('admin_token', data.token);
+              localStorage.setItem('admin_user', JSON.stringify(data.user));
+            } catch (storageError) {
+              console.warn('Failed to store auth data in localStorage:', storageError);
+            }
+          }
+
+          return true;
+        } catch (error) {
+          console.error('Login error:', error instanceof Error ? error.message : 'Unknown error');
+          return false;
         }
-      }
+      },
 
-      return true;
-    } catch (error) {
-      console.error('Login error:', error instanceof Error ? error.message : 'Unknown error');
-      return false;
-    }
-  },
-
-  logout: async (): Promise<void> => {
-    try {
-      await apiHelpers.logout();
-    } catch (error) {
-      console.warn(
-        'Error calling logout API:',
-        error instanceof Error ? error.message : 'Unknown error'
-      );
-    } finally {
-      // Always clean up local state regardless of API response
-      set({
-        isAuthenticated: false,
-        user: null,
-        token: null,
-      });
-
-      // Clear localStorage
-      if (typeof window !== 'undefined') {
+      logout: async (): Promise<void> => {
         try {
-          localStorage.removeItem('admin_token');
-          localStorage.removeItem('admin_user');
-        } catch (storageError) {
-          console.warn('Failed to remove auth data from localStorage:', storageError);
+          await apiHelpers.logout();
+        } catch (error) {
+          console.warn(
+            'Error calling logout API:',
+            error instanceof Error ? error.message : 'Unknown error'
+          );
+        } finally {
+          // Always clean up local state regardless of API response
+          set({
+            isAuthenticated: false,
+            user: null,
+            token: null,
+            isInitializing: false, // Set to false after logout
+          });
+
+          // Clear localStorage
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.removeItem('admin_token');
+              localStorage.removeItem('admin_user');
+              sessionStorage.removeItem('auth_initialized'); // Clear the initialization flag too
+            } catch (storageError) {
+              console.warn('Failed to remove auth data from localStorage:', storageError);
+            }
+          }
         }
-      }
+      },
+
+      // Check if the current user has a specific permission
+      hasPermission: (permission: string): boolean => {
+        const { user } = get();
+
+        if (!user?.permissions) {
+          return false;
+        }
+
+        // Super admin has all permissions
+        if (user.role === 'SUPER_ADMIN' || user.permissions.includes('*')) {
+          return true;
+        }
+
+        return user.permissions.includes(permission);
+      },
+
+      // Check if the current user is a super admin
+      isSuperAdmin: (): boolean => {
+        return get().user?.role === 'SUPER_ADMIN';
+      },
+    }),
+    {
+      name: 'auth-storage', // name of the item in localStorage
+      // Only persist these fields
+      partialize: state => ({
+        isAuthenticated: state.isAuthenticated,
+        user: state.user,
+        token: state.token,
+      }),
     }
-  },
-
-  // Check if the current user has a specific permission
-  hasPermission: (permission: string): boolean => {
-    const { user } = get();
-
-    if (!user?.permissions) {
-      return false;
-    }
-
-    // Super admin has all permissions
-    if (user.role === 'SUPER_ADMIN' || user.permissions.includes('*')) {
-      return true;
-    }
-
-    return user.permissions.includes(permission);
-  },
-
-  // Check if the current user is a super admin
-  isSuperAdmin: (): boolean => {
-    return get().user?.role === 'SUPER_ADMIN';
-  },
-}));
+  )
+);
 
 // Initialize auth state from localStorage and verify with server
 export const initializeAuth = async (): Promise<void> => {
   if (typeof window === 'undefined') {
+    useAuthStore.getState().setInitializing(false);
     return; // Skip on server-side
+  }
+
+  // Check if we've already initialized in this session
+  const alreadyInitialized = sessionStorage.getItem('auth_initialized') === 'true';
+  if (alreadyInitialized) {
+    // If already initialized, update the store state accordingly
+    const isAuthenticated = localStorage.getItem('admin_token') !== null;
+    let user = null;
+    const userJson = localStorage.getItem('admin_user');
+
+    if (userJson) {
+      try {
+        user = JSON.parse(userJson) as AdminUser;
+      } catch {
+        // If parsing fails, ignore and continue with null user
+      }
+    }
+
+    useAuthStore.setState({
+      isAuthenticated,
+      user,
+      token: localStorage.getItem('admin_token'),
+      isInitializing: false,
+    });
+    return;
   }
 
   let token: string | null = null;
@@ -194,10 +244,14 @@ export const initializeAuth = async (): Promise<void> => {
     userJson = localStorage.getItem('admin_user');
   } catch (storageError) {
     console.warn('Error accessing localStorage:', storageError);
+    useAuthStore.getState().setInitializing(false);
+    sessionStorage.setItem('auth_initialized', 'true');
     return;
   }
 
   if (!token) {
+    useAuthStore.getState().setInitializing(false);
+    sessionStorage.setItem('auth_initialized', 'true');
     return; // No token found, stay logged out
   }
 
@@ -213,7 +267,11 @@ export const initializeAuth = async (): Promise<void> => {
       isAuthenticated: true,
       token,
       user: data.user,
+      isInitializing: false,
     });
+
+    // Mark as initialized
+    sessionStorage.setItem('auth_initialized', 'true');
   } catch (error) {
     console.error(
       'Error validating token:',
@@ -251,7 +309,15 @@ export const initializeAuth = async (): Promise<void> => {
         isAuthenticated: true,
         token,
         user: parsedUser,
+        isInitializing: false,
+      });
+    } else {
+      useAuthStore.setState({
+        isInitializing: false,
       });
     }
+
+    // Mark as initialized even if there was an error
+    sessionStorage.setItem('auth_initialized', 'true');
   }
 };
