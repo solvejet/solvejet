@@ -27,32 +27,26 @@ interface ButtonVariantsConfig {
 }
 
 const buttonVariants = cva(
-  // Base styles
-  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-element-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:transform active:scale-95 select-none',
+  'inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-element-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-gray-950 dark:focus-visible:ring-element-400',
   {
     variants: {
       variant: {
         default:
-          'bg-element-500 text-primary-light border-2 border-element-500 hover:bg-primary-light hover:text-element-500 hover:border-element-500 shadow-sm hover:shadow-md dark:bg-element-600 dark:border-element-600 dark:hover:bg-primary-dark dark:hover:text-element-400 dark:hover:border-element-400',
-
+          'bg-element-500 text-white hover:bg-element-600 dark:bg-element-500 dark:hover:bg-element-600',
         destructive:
-          'bg-red-500 text-white hover:bg-red-600 shadow-sm hover:shadow-md dark:bg-red-600 dark:hover:bg-red-700',
-
+          'bg-red-500 text-white hover:bg-red-600 dark:bg-red-900 dark:hover:bg-red-900/90',
         outline:
-          'border-2 border-element-500 bg-transparent text-element-500 hover:bg-element-500 hover:text-primary-light dark:border-element-400 dark:text-element-400 dark:hover:bg-element-600 dark:hover:text-primary-dark',
-
+          'border border-element-500 bg-transparent hover:bg-element-50 hover:text-element-600 dark:border-element-400 dark:hover:bg-element-950 dark:hover:text-element-300',
         secondary:
-          'bg-gray-100 text-gray-900 hover:bg-gray-200 shadow-sm hover:shadow-md dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700',
-
+          'bg-element-100 text-element-900 hover:bg-element-200 dark:bg-element-800 dark:text-element-50 dark:hover:bg-element-700',
         ghost:
-          'bg-transparent hover:bg-element-50 text-element-500 hover:text-element-600 dark:text-element-400 dark:hover:bg-element-950 dark:hover:text-element-300',
-
-        link: 'text-element-500 underline-offset-4 hover:underline hover:text-element-600 dark:text-element-400 dark:hover:text-element-300 p-0 h-auto',
+          'hover:bg-element-100 hover:text-element-600 dark:hover:bg-element-800 dark:hover:text-element-50',
+        link: 'text-element-600 underline-offset-4 hover:underline dark:text-element-400',
       },
       size: {
         default: 'h-10 px-4 py-2',
-        sm: 'h-8 px-3 text-xs',
-        lg: 'h-12 px-8 text-base',
+        sm: 'h-9 rounded-md px-3',
+        lg: 'h-11 rounded-md px-8',
         icon: 'h-10 w-10',
       },
       fullWidth: {
@@ -62,15 +56,15 @@ const buttonVariants = cva(
         none: '',
         pulse: 'animate-pulse',
         bounce: 'animate-bounce',
-        slideUp: 'hover:-translate-y-0.5 transition-transform',
-        glow: 'hover:animate-glow',
-        ripple:
-          'relative overflow-hidden hover:before:animate-ripple before:absolute before:content-[""] before:w-full before:h-full before:bg-white/20 before:scale-0 before:opacity-0',
+        slideUp: 'animate-slide-up',
+        glow: 'animate-glow',
+        ripple: 'animate-ripple',
       },
     },
     defaultVariants: {
       variant: 'default',
       size: 'default',
+      fullWidth: false,
       animation: 'none',
     },
   }

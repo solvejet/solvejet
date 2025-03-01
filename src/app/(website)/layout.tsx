@@ -1,7 +1,7 @@
 // src/app/(website)/layout.tsx
 import type { JSX, ReactNode } from 'react';
-import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import Header from '@/components/layout/Header';
 
 export default function WebsiteLayout({ children }: { children: ReactNode }): JSX.Element {
   return (
