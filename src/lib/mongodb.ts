@@ -8,6 +8,12 @@ const getMongoURI = (): string => {
   if (!uri) {
     throw new Error('Please add your MongoDB URI to .env.local');
   }
+
+  // Validate the URI format
+  if (!uri.startsWith('mongodb://') && !uri.startsWith('mongodb+srv://')) {
+    throw new Error('Invalid MongoDB URI format. URI must start with mongodb:// or mongodb+srv://');
+  }
+
   return uri;
 };
 
@@ -32,21 +38,29 @@ async function dbConnect(): Promise<mongoose.Connection> {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose
-      .connect(MONGODB_URI, opts)
-      .then((mongoose) => {
-        return mongoose.connection;
-      })
-      .catch((error: unknown) => {
-        cached.promise = null;
-        throw error;
-      });
+    try {
+      cached.promise = mongoose
+        .connect(MONGODB_URI, opts)
+        .then(mongoose => {
+          return mongoose.connection;
+        })
+        .catch((error: unknown) => {
+          console.error('MongoDB connection error:', error);
+          cached.promise = null;
+          throw error;
+        });
+    } catch (initialError) {
+      console.error('Error during MongoDB connection setup:', initialError);
+      cached.promise = null;
+      throw initialError;
+    }
   }
 
   try {
     cached.conn = await cached.promise;
   } catch (error: unknown) {
     cached.promise = null;
+    console.error('Failed to resolve MongoDB connection promise:', error);
     throw error;
   }
 

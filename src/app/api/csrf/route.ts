@@ -4,6 +4,7 @@ import crypto from 'crypto';
 
 const CSRF_COOKIE_NAME = 'XSRF-TOKEN';
 
+// Generate a more robust token with additional entropy
 function generateToken(): string {
   const randomBytes = crypto.randomBytes(32);
   const timestamp = Date.now().toString();

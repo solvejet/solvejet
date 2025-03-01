@@ -1,7 +1,6 @@
-
 // src/models/User.ts
 import mongoose from 'mongoose';
-import type { Document } from "mongoose";
+import type { Document } from 'mongoose';
 
 export interface IUser extends Document {
   email: string;
@@ -14,7 +13,7 @@ export interface IUser extends Document {
 }
 
 // Define valid user roles
-export type UserRole = 'ADMIN' | 'EDITOR' | 'VIEWER';
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'EDITOR' | 'VIEWER';
 
 // Password validation function type
 type PasswordValidator = (password: string) => boolean;
@@ -37,8 +36,8 @@ const UserSchema = new mongoose.Schema<IUser>(
       minlength: 8,
       validate: {
         validator: validatePassword,
-        message: 'Password must contain at least one letter and one number'
-      }
+        message: 'Password must contain at least one letter and one number',
+      },
     },
     name: {
       type: String,
@@ -46,7 +45,7 @@ const UserSchema = new mongoose.Schema<IUser>(
     },
     role: {
       type: String,
-      enum: ['ADMIN', 'EDITOR', 'VIEWER'] as UserRole[],
+      enum: ['SUPER_ADMIN', 'ADMIN', 'EDITOR', 'VIEWER'] as UserRole[],
       default: 'VIEWER',
     },
     permissions: [
@@ -61,6 +60,6 @@ const UserSchema = new mongoose.Schema<IUser>(
 );
 
 // Create the model
-const User = mongoose.model<IUser>('User', UserSchema);
+const User = mongoose.models.User ?? mongoose.model<IUser>('User', UserSchema);
 
 export default User;

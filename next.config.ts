@@ -40,19 +40,21 @@ const nextConfig = {
   },
 
   // Security headers configuration
-  headers: (): Promise<{
-    source: string;
-    headers: {
-      key: string;
-      value: string;
-    }[];
-  }[]> => {
+  headers: (): Promise<
+    {
+      source: string;
+      headers: {
+        key: string;
+        value: string;
+      }[];
+    }[]
+  > => {
     return Promise.resolve([
       {
         source: '/:path*',
         headers: Object.entries(SECURITY_HEADERS).map(([key, value]) => ({
           key,
-          value: Array.isArray(value) ? value.join(',') : value
+          value: Array.isArray(value) ? value.join(',') : value,
         })),
       },
       {
@@ -60,7 +62,7 @@ const nextConfig = {
         headers: [
           ...Object.entries(SECURITY_HEADERS).map(([key, value]) => ({
             key,
-            value: Array.isArray(value) ? value.join(',') : value
+            value: Array.isArray(value) ? value.join(',') : value,
           })),
           {
             key: 'Cache-Control',
@@ -88,9 +90,9 @@ const withPWAConfig = withPWA({
         cacheName: 'offline-page',
         expiration: {
           maxEntries: 1,
-          maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
-        }
-      }
+          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+        },
+      },
     },
     {
       urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
@@ -99,9 +101,9 @@ const withPWAConfig = withPWA({
         cacheName: 'google-fonts',
         expiration: {
           maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
-        }
-      }
+          maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
+        },
+      },
     },
     {
       urlPattern: /\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$/i,
@@ -110,9 +112,9 @@ const withPWAConfig = withPWA({
         cacheName: 'static-font-assets',
         expiration: {
           maxEntries: 4,
-          maxAgeSeconds: 7 * 24 * 60 * 60 // 7 days
-        }
-      }
+          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+        },
+      },
     },
     {
       urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
@@ -121,9 +123,9 @@ const withPWAConfig = withPWA({
         cacheName: 'static-image-assets',
         expiration: {
           maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
     },
     {
       urlPattern: /\.(?:js)$/i,
@@ -132,9 +134,9 @@ const withPWAConfig = withPWA({
         cacheName: 'static-js-assets',
         expiration: {
           maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
     },
     {
       urlPattern: /\.(?:css)$/i,
@@ -143,9 +145,9 @@ const withPWAConfig = withPWA({
         cacheName: 'static-style-assets',
         expiration: {
           maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
     },
     {
       urlPattern: /\.(?:json|xml|csv)$/i,
@@ -154,9 +156,9 @@ const withPWAConfig = withPWA({
         cacheName: 'static-data-assets',
         expiration: {
           maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
     },
     {
       urlPattern: /.*/i,
@@ -165,12 +167,12 @@ const withPWAConfig = withPWA({
         cacheName: 'others',
         expiration: {
           maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
         },
-        networkTimeoutSeconds: 10
-      }
-    }
-  ]
+        networkTimeoutSeconds: 10,
+      },
+    },
+  ],
 });
 
 export default withPWAConfig(nextConfig);

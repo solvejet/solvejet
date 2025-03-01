@@ -1,11 +1,11 @@
-// src/app/(admin)/dashboard/page.tsx
+// src/app/admin/dashboard/page.tsx
 'use client';
 
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/card';
 import { Table } from '@/components/ui/table/Table';
-import type { Column, CellValue } from '@/components/ui/table/types';
-import { ArrowUpRight, Users, DollarSign, ShoppingCart, TrendingUp } from 'lucide-react';
+import type { CellValue, Column } from '@/components/ui/table/types';
+import { ArrowUpRight, DollarSign, ShoppingCart, TrendingUp, Users } from 'lucide-react';
 import type { JSX } from 'react';
 
 interface StatsCardProps {

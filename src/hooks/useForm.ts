@@ -1,4 +1,6 @@
 // src/hooks/useForm.ts
+'use client';
+
 import { useState, useCallback } from 'react';
 import { z } from 'zod';
 import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';

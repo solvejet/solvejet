@@ -8,11 +8,11 @@ export const SECURITY_HEADERS = {
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   'Content-Security-Policy': `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' data: https: blob:;
-    font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL ?? ''};
+    font-src 'self' data: https://fonts.gstatic.com;
+    connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL ?? ''} https://*;
     frame-ancestors 'none';
     form-action 'self';
     base-uri 'self';
@@ -21,7 +21,7 @@ export const SECURITY_HEADERS = {
   `
     .replace(/\s+/g, ' ')
     .trim(),
-  'Cross-Origin-Embedder-Policy': 'require-corp',
+  'Cross-Origin-Embedder-Policy': 'credentialless',
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Cross-Origin-Resource-Policy': 'same-origin',
 };

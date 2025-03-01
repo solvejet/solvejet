@@ -3,7 +3,12 @@
 
 import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { AuthInitializer } from '@/components/AuthInitializer';
+import { SecurityProvider } from '@/components/SecurityProvider';
 
 // Dynamic imports for non-critical components
 const Providers = dynamic(
@@ -33,12 +38,43 @@ interface ClientProvidersProps {
 }
 
 export function ClientProviders({ children }: ClientProvidersProps): React.ReactElement {
+  // Create a new QueryClient instance for each session
+  const [queryClient] = useState(
+    (): QueryClient =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 5 * 60 * 1000, // 5 minutes
+            retry: 1,
+          },
+        },
+      })
+  );
+
+  // Avoid hydration mismatch
+  const [mounted, setMounted] = useState(false);
+
+  useEffect((): void => {
+    setMounted(true);
+  }, []);
+
+  // Return a simple loading state during SSR
+  if (!mounted) {
+    return <>{children}</>;
+  }
+
   return (
     <ErrorBoundary>
-      <SpeedInsights />
-      <AnalyticsProvider>
-        <Providers>{children}</Providers>
-      </AnalyticsProvider>
+      <QueryClientProvider client={queryClient}>
+        {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
+        <AuthInitializer />
+        <SpeedInsights />
+        <SecurityProvider>
+          <AnalyticsProvider>
+            <Providers>{children}</Providers>
+          </AnalyticsProvider>
+        </SecurityProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }
