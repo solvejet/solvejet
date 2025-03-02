@@ -1,4 +1,4 @@
-// src/components/ui/button/TrackedButton.tsx
+// src/components/ui/Button/TrackedButton.tsx
 import { forwardRef } from 'react';
 import { Button, type ButtonProps } from './index';
 import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';

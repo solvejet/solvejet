@@ -7,42 +7,54 @@ import { usePathname } from 'next/navigation';
 import { MessageSquare } from 'lucide-react';
 import { SolvejetLogo } from '@/components/ui/SolvejetLogo';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/Button';
+import { TrackedButton } from '@/components/ui/Button/TrackedButton';
 import { MegaMenuPanel } from './MegaMenuPanel';
 import { MobileMenu } from './MobileMenu';
 import { navigation } from './navigation';
 import type { NavItem } from './types';
+import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';
 
 export default function Header(): React.ReactElement {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMegaMenu, setOpenMegaMenu] = useState<string | null>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const megaMenuContainerRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
-
-  // Handle scroll to apply sticky styles
-  useEffect(() => {
-    const handleScroll = (): void => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return (): void => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const { trackEvent } = useAnalytics();
 
   // Close mega menu on route change
   useEffect(() => {
     setOpenMegaMenu(null);
     setIsMobileMenuOpen(false);
   }, [pathname]);
+
+  // Track page view on initial load
+  useEffect(() => {
+    trackEvent({
+      name: 'page_view',
+      category: 'navigation',
+      label: pathname,
+      properties: {
+        page_path: pathname,
+        page_title: document.title,
+      },
+    });
+  }, [pathname, trackEvent]);
+
+  // Close the megamenu with animation
+  const closeMegaMenu = (): void => {
+    if (openMegaMenu) {
+      setIsClosing(true);
+
+      // Wait for animation to complete before actually closing
+      setTimeout(() => {
+        setOpenMegaMenu(null);
+        setIsClosing(false);
+      }, 300); // Match animation duration
+    }
+  };
 
   // Handle hover events for mega menu
   const handleNavItemMouseEnter = (name: string): void => {
@@ -54,7 +66,33 @@ export default function Header(): React.ReactElement {
 
     // Set a small delay to prevent flickering
     hoverTimeoutRef.current = setTimeout(() => {
-      setOpenMegaMenu(name);
+      if (openMegaMenu && openMegaMenu !== name) {
+        // If another menu is open, close it first with animation
+        closeMegaMenu();
+
+        // Then open the new menu after a delay
+        setTimeout(() => {
+          setOpenMegaMenu(name);
+
+          // Track menu open event
+          trackEvent({
+            name: 'mega_menu_open',
+            category: 'navigation',
+            label: name,
+            properties: { menu_name: name },
+          });
+        }, 300);
+      } else {
+        setOpenMegaMenu(name);
+
+        // Track menu open event
+        trackEvent({
+          name: 'mega_menu_open',
+          category: 'navigation',
+          label: name,
+          properties: { menu_name: name },
+        });
+      }
     }, 50);
   };
 
@@ -67,7 +105,7 @@ export default function Header(): React.ReactElement {
 
     // Set a delay before closing to prevent accidental closing
     hoverTimeoutRef.current = setTimeout(() => {
-      setOpenMegaMenu(null);
+      closeMegaMenu();
     }, 100);
   };
 
@@ -82,7 +120,7 @@ export default function Header(): React.ReactElement {
   // Handler for when mouse leaves the mega menu - close after delay
   const handleMegaMenuMouseLeave = (): void => {
     hoverTimeoutRef.current = setTimeout(() => {
-      setOpenMegaMenu(null);
+      closeMegaMenu();
     }, 100);
   };
 
@@ -131,44 +169,45 @@ export default function Header(): React.ReactElement {
       {/* Header container with border, padding and sticky behavior */}
       <header
         ref={headerRef}
-        className={cn(
-          'fixed w-full z-50 transition-all duration-300 ease-in-out',
-          isScrolled
-            ? 'py-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-md'
-            : 'py-4 bg-white dark:bg-gray-900'
-        )}
+        className="fixed w-full z-50 transition-all duration-300 ease-in-out py-3 bg-transparent"
         itemScope
         itemType="https://schema.org/SiteNavigationElement"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6">
           <div
             ref={megaMenuContainerRef}
             className={cn(
-              'relative border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden transition-all',
-              isScrolled ? 'py-2 px-4' : 'py-3 px-6',
-              openMegaMenu ? 'rounded-b-none border-b-0' : 'rounded-b-lg'
+              'relative border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden transition-all duration-300',
+              'bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg shadow-sm',
+              'py-3 px-4',
+              openMegaMenu || isMobileMenuOpen ? 'rounded-b-none border-b-0' : 'rounded-b-lg'
             )}
           >
             <div className="flex items-center justify-between">
               {/* Logo */}
-              <div
-                className="flex-shrink-0 transition-all duration-300"
-                style={{
-                  transform: isScrolled ? 'scale(0.9)' : 'scale(1)',
-                  transformOrigin: 'left center',
-                }}
-              >
-                <Link href="/" className="block" aria-label="SolveJet Home">
+              <div className="flex-shrink-0">
+                <Link
+                  href="/"
+                  className="block"
+                  aria-label="SolveJet Home"
+                  onClick={() => {
+                    trackEvent({
+                      name: 'logo_click',
+                      category: 'navigation',
+                      label: 'header_logo',
+                    });
+                  }}
+                >
                   <SolvejetLogo
-                    width={isScrolled ? 120 : 140}
-                    height={isScrolled ? 36 : 42}
+                    width={140}
+                    height={42}
                     color={{ primary: '#2c2e35', accent: '#0055B8' }}
                   />
                 </Link>
               </div>
 
               {/* Desktop navigation */}
-              <nav className="hidden md:flex space-x-1 lg:space-x-3" aria-label="Main Navigation">
+              <nav className="hidden md:flex space-x-2 lg:space-x-5" aria-label="Main Navigation">
                 {currentNavItems.map(item => (
                   <div
                     key={item.name}
@@ -184,13 +223,21 @@ export default function Header(): React.ReactElement {
                     <Link
                       href={item.href}
                       className={cn(
-                        'inline-block px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 group',
+                        'inline-block px-4 py-2.5 text-base font-medium rounded-md transition-all duration-200 group',
                         item.current
                           ? 'text-element-500 dark:text-element-400'
                           : 'text-gray-700 hover:text-element-500 dark:text-gray-300 dark:hover:text-element-400'
                       )}
                       itemProp="url"
                       aria-current={item.current ? 'page' : undefined}
+                      onClick={() => {
+                        trackEvent({
+                          name: 'nav_link_click',
+                          category: 'navigation',
+                          label: item.name,
+                          properties: { item_name: item.name, has_mega_menu: !!item.megaMenu },
+                        });
+                      }}
                     >
                       <span itemProp="name" className="relative">
                         {item.name}
@@ -215,33 +262,41 @@ export default function Header(): React.ReactElement {
 
               {/* Contact us button */}
               <div className="hidden md:block">
-                <Button
+                <TrackedButton
                   variant="outline"
-                  size="sm"
-                  className={cn(
-                    'transition-all duration-300 ml-4 border-element-500 text-element-500 hover:bg-element-50 dark:border-element-400 dark:text-element-400 dark:hover:bg-element-900',
-                    isScrolled ? 'py-1.5 px-4' : 'py-2 px-5'
-                  )}
-                  leftIcon={<MessageSquare className="h-4 w-4" />}
+                  size="lg"
+                  className="ml-4 border-element-500 text-element-500 hover:bg-element-50 dark:border-element-400 dark:text-element-400 dark:hover:bg-element-900 py-2 px-5"
+                  leftIcon={<MessageSquare className="h-5 w-5 mr-1" />}
+                  onClick={() => (window.location.href = '/contact')}
+                  trackingEvent={{
+                    name: 'contact_button_click',
+                    category: 'navigation',
+                    label: 'header_contact_button',
+                  }}
                 >
                   Get in Touch
-                </Button>
+                </TrackedButton>
               </div>
 
               {/* Mobile menu button */}
               <div className="md:hidden flex items-center">
-                <Button
+                <TrackedButton
                   variant="ghost"
-                  size="sm"
+                  size="lg"
                   aria-controls="mobile-menu"
                   aria-expanded={isMobileMenuOpen}
                   onClick={() => {
                     setIsMobileMenuOpen(!isMobileMenuOpen);
                   }}
-                  className="p-2 text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 rounded-md"
+                  className="p-2.5 text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 rounded-md"
+                  trackingEvent={{
+                    name: 'mobile_menu_toggle',
+                    category: 'navigation',
+                    label: isMobileMenuOpen ? 'close_mobile_menu' : 'open_mobile_menu',
+                  }}
                 >
                   <span className="sr-only">{isMobileMenuOpen ? 'Close menu' : 'Open menu'}</span>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     {isMobileMenuOpen ? (
                       <path
                         strokeLinecap="round"
@@ -258,39 +313,61 @@ export default function Header(): React.ReactElement {
                       />
                     )}
                   </svg>
-                </Button>
+                </TrackedButton>
               </div>
             </div>
           </div>
 
           {/* Mega menu panel - part of the header border */}
-          {openMegaMenu && (
-            <div
-              className={cn(
-                'border border-gray-200 dark:border-gray-800 border-t-0 rounded-t-none rounded-b-lg overflow-hidden',
-                'animate-menu-slide-down'
-              )}
-              onMouseEnter={handleMegaMenuMouseEnter}
-              onMouseLeave={handleMegaMenuMouseLeave}
-            >
-              <MegaMenuPanel navItems={navigation} openMegaMenu={openMegaMenu} />
-            </div>
-          )}
+          <div
+            className={cn(
+              'border border-gray-200 dark:border-gray-800 border-t-0 rounded-t-none rounded-b-lg overflow-hidden',
+              'transition-all duration-300 ease-in-out',
+              'shadow-lg',
+              openMegaMenu
+                ? 'max-h-[600px] opacity-100'
+                : 'max-h-0 opacity-0 pointer-events-none border-0'
+            )}
+            onMouseEnter={handleMegaMenuMouseEnter}
+            onMouseLeave={handleMegaMenuMouseLeave}
+          >
+            <MegaMenuPanel navItems={navigation} openMegaMenu={openMegaMenu} closing={isClosing} />
+          </div>
         </div>
 
-        {/* Mobile menu */}
-        <MobileMenu
-          isOpen={isMobileMenuOpen}
-          navItems={currentNavItems}
-          openMegaMenu={openMegaMenu}
-          toggleMegaMenu={(name: string) => {
-            setOpenMegaMenu(openMegaMenu === name ? null : name);
-          }}
-        />
+        {/* Mobile menu - now attached to the header */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            className={cn(
+              'md:hidden transition-all duration-300 ease-in-out w-full overflow-hidden',
+              'border border-gray-200 dark:border-gray-800 rounded-b-lg border-t-0',
+              'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md',
+              isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 border-0'
+            )}
+            id="mobile-menu"
+          >
+            <MobileMenu
+              isOpen={isMobileMenuOpen}
+              navItems={currentNavItems}
+              openMegaMenu={openMegaMenu}
+              toggleMegaMenu={(name: string) => {
+                setOpenMegaMenu(openMegaMenu === name ? null : name);
+
+                // Track menu toggle event
+                trackEvent({
+                  name: openMegaMenu === name ? 'mobile_menu_close' : 'mobile_menu_open',
+                  category: 'navigation',
+                  label: name,
+                  properties: { menu_name: name },
+                });
+              }}
+            />
+          </div>
+        </div>
       </header>
 
-      {/* Spacer for fixed header */}
-      <div className={cn('transition-all duration-300', isScrolled ? 'h-16' : 'h-24')} />
+      {/* Spacer for fixed header - fixed height */}
+      <div className="h-20" />
     </>
   );
 }
