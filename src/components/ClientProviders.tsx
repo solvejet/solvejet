@@ -1,31 +1,32 @@
 // src/components/ClientProviders.tsx
 'use client';
 
-import dynamic from 'next/dynamic';
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthInitializer } from '@/components/AuthInitializer';
-import { SecurityProvider } from '@/components/SecurityProvider';
 
-// Dynamic imports for non-critical components
-const Providers = dynamic(
-  () => import('@/components/Providers').then(mod => ({ default: mod.Providers })),
-  {
-    loading: () => <></>,
-  }
+// Lazy load non-critical components
+const SecurityProvider = lazy(() =>
+  import('@/components/SecurityProvider').then(mod => ({ default: mod.SecurityProvider }))
 );
 
-const AnalyticsProvider = dynamic(
-  () => import('@/components/Analytics').then(mod => ({ default: mod.AnalyticsProvider })),
-  {
-    loading: () => <></>,
-  }
+const ReactQueryDevtools = lazy(() =>
+  process.env.NODE_ENV === 'development'
+    ? import('@tanstack/react-query-devtools').then(mod => ({ default: mod.ReactQueryDevtools }))
+    : Promise.resolve({ default: () => null })
 );
 
-const SpeedInsights = dynamic(() =>
+const AnalyticsProvider = lazy(() =>
+  import('@/components/Analytics').then(mod => ({ default: mod.AnalyticsProvider }))
+);
+
+const Providers = lazy(() =>
+  import('@/components/Providers').then(mod => ({ default: mod.Providers }))
+);
+
+const SpeedInsights = lazy(() =>
   process.env.NODE_ENV === 'production'
     ? import('@vercel/speed-insights/next').then(mod => ({
         default: mod.SpeedInsights,
@@ -66,14 +67,24 @@ export function ClientProviders({ children }: ClientProvidersProps): React.React
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
+        <Suspense fallback={null}>
+          {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
+        </Suspense>
         <AuthInitializer />
-        <SpeedInsights />
-        <SecurityProvider>
-          <AnalyticsProvider>
-            <Providers>{children}</Providers>
-          </AnalyticsProvider>
-        </SecurityProvider>
+        <Suspense fallback={null}>
+          <SpeedInsights />
+        </Suspense>
+        <Suspense fallback={<>{children}</>}>
+          <SecurityProvider>
+            <Suspense fallback={<>{children}</>}>
+              <AnalyticsProvider>
+                <Suspense fallback={<>{children}</>}>
+                  <Providers>{children}</Providers>
+                </Suspense>
+              </AnalyticsProvider>
+            </Suspense>
+          </SecurityProvider>
+        </Suspense>
       </QueryClientProvider>
     </ErrorBoundary>
   );

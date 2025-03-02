@@ -8,6 +8,13 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
 
+  // Enable auto tree-shaking to remove unused code
+  modularizeImports: {
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{member}}',
+    },
+  },
+
   // Image optimization configuration
   images: {
     remotePatterns: [
@@ -24,7 +31,7 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // Webpack configuration
+  // Enhanced webpack configuration for performance
   webpack: (config: WebpackConfig): WebpackConfig => {
     if (typeof config.module?.rules === 'object') {
       const rules = config.module.rules as unknown[];
@@ -36,6 +43,17 @@ const nextConfig = {
         },
       });
     }
+
+    // Add tree-shaking optimization
+    if (config.optimization && !config.optimization.innerGraph) {
+      config.optimization.innerGraph = true;
+    }
+
+    // Add module concatenation for better bundling
+    if (config.optimization && !config.optimization.concatenateModules) {
+      config.optimization.concatenateModules = true;
+    }
+
     return config;
   },
 
@@ -70,8 +88,35 @@ const nextConfig = {
           },
         ],
       },
+      // Add caching for static assets
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
     ]);
   },
+
+  // Enhanced compiler options for faster builds
+  compiler: {
+    // Remove console logs in production
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+
+  // SWC minification is enabled by default in Next.js 13+
 } satisfies NextConfig;
 
 // PWA Configuration

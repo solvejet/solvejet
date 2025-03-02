@@ -1,7 +1,7 @@
 // src/components/layout/Header/index.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MessageSquare } from 'lucide-react';
@@ -18,11 +18,30 @@ export default function Header(): React.ReactElement {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMegaMenu, setOpenMegaMenu] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
-  const megaMenuContainerRef = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
   const { trackEvent } = useAnalytics();
+
+  // Handle scroll effects
+  useEffect(() => {
+    const handleScroll = (): void => {
+      const scrollPosition = window.scrollY;
+      setIsScrolled(scrollPosition > 10);
+    };
+
+    // Initial check
+    handleScroll();
+
+    // Add scroll listener
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return (): void => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   // Close mega menu on route change
   useEffect(() => {
@@ -43,9 +62,9 @@ export default function Header(): React.ReactElement {
     });
   }, [pathname, trackEvent]);
 
-  // Close the megamenu with animation
-  const closeMegaMenu = (): void => {
-    if (openMegaMenu) {
+  // Close the megamenu with animation - memoized with useCallback
+  const closeMegaMenu = useCallback((): void => {
+    if (openMegaMenu && !isTransitioning) {
       setIsClosing(true);
 
       // Wait for animation to complete before actually closing
@@ -54,24 +73,45 @@ export default function Header(): React.ReactElement {
         setIsClosing(false);
       }, 300); // Match animation duration
     }
-  };
+  }, [openMegaMenu, isTransitioning]);
 
-  // Handle hover events for mega menu
-  const handleNavItemMouseEnter = (name: string): void => {
-    // Clear any existing timeout
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
+  // Handle direct menu change without closing animation - memoized with useCallback
+  const changeMegaMenu = useCallback(
+    (name: string): void => {
+      setIsTransitioning(true);
+      setOpenMegaMenu(name);
 
-    // Set a small delay to prevent flickering
-    hoverTimeoutRef.current = setTimeout(() => {
-      if (openMegaMenu && openMegaMenu !== name) {
-        // If another menu is open, close it first with animation
-        closeMegaMenu();
+      // Track menu open event
+      trackEvent({
+        name: 'mega_menu_open',
+        category: 'navigation',
+        label: name,
+        properties: { menu_name: name },
+      });
 
-        // Then open the new menu after a delay
-        setTimeout(() => {
+      // Reset transitioning state after a small delay
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 50);
+    },
+    [trackEvent]
+  );
+
+  // Handle hover events for mega menu - memoized with useCallback
+  const handleNavItemMouseEnter = useCallback(
+    (name: string): void => {
+      // Clear any existing timeout
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = null;
+      }
+
+      // Set a small delay to prevent flickering
+      hoverTimeoutRef.current = setTimeout(() => {
+        if (openMegaMenu && openMegaMenu !== name) {
+          // If another menu is open, directly change to the new one without closing animation
+          changeMegaMenu(name);
+        } else if (!openMegaMenu) {
           setOpenMegaMenu(name);
 
           // Track menu open event
@@ -81,22 +121,13 @@ export default function Header(): React.ReactElement {
             label: name,
             properties: { menu_name: name },
           });
-        }, 300);
-      } else {
-        setOpenMegaMenu(name);
+        }
+      }, 50);
+    },
+    [openMegaMenu, changeMegaMenu, trackEvent]
+  );
 
-        // Track menu open event
-        trackEvent({
-          name: 'mega_menu_open',
-          category: 'navigation',
-          label: name,
-          properties: { menu_name: name },
-        });
-      }
-    }, 50);
-  };
-
-  const handleNavItemMouseLeave = (): void => {
+  const handleNavItemMouseLeave = useCallback((): void => {
     // Clear any existing timeout
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
@@ -105,24 +136,28 @@ export default function Header(): React.ReactElement {
 
     // Set a delay before closing to prevent accidental closing
     hoverTimeoutRef.current = setTimeout(() => {
-      closeMegaMenu();
+      if (!isTransitioning) {
+        closeMegaMenu();
+      }
     }, 100);
-  };
+  }, [isTransitioning, closeMegaMenu]);
 
   // Handler for when mouse enters the mega menu itself - keep it open
-  const handleMegaMenuMouseEnter = (): void => {
+  const handleMegaMenuMouseEnter = useCallback((): void => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
       hoverTimeoutRef.current = null;
     }
-  };
+  }, []);
 
   // Handler for when mouse leaves the mega menu - close after delay
-  const handleMegaMenuMouseLeave = (): void => {
+  const handleMegaMenuMouseLeave = useCallback((): void => {
     hoverTimeoutRef.current = setTimeout(() => {
-      closeMegaMenu();
+      if (!isTransitioning) {
+        closeMegaMenu();
+      }
     }, 100);
-  };
+  }, [isTransitioning, closeMegaMenu]);
 
   // Clean up timeouts on unmount
   useEffect(() => {
@@ -132,6 +167,44 @@ export default function Header(): React.ReactElement {
       }
     };
   }, []);
+
+  // Handle mobile menu toggle
+  const toggleMobileMenu = useCallback((): void => {
+    const newState = !isMobileMenuOpen;
+    setIsMobileMenuOpen(newState);
+
+    // Track event
+    trackEvent({
+      name: 'mobile_menu_toggle',
+      category: 'navigation',
+      label: newState ? 'open_mobile_menu' : 'close_mobile_menu',
+    });
+
+    // Close any open mega menu when closing mobile menu
+    if (!newState && openMegaMenu) {
+      setOpenMegaMenu(null);
+    }
+  }, [isMobileMenuOpen, openMegaMenu, trackEvent]);
+
+  // Toggle mega menu in mobile view
+  const toggleMegaMenu = useCallback(
+    (name: string): void => {
+      setOpenMegaMenu(prevState => {
+        const newState = prevState === name ? null : name;
+
+        // Track event
+        trackEvent({
+          name: newState ? 'mobile_submenu_open' : 'mobile_submenu_close',
+          category: 'navigation',
+          label: name,
+          properties: { menu_name: name },
+        });
+
+        return newState;
+      });
+    },
+    [trackEvent]
+  );
 
   // Find active nav item based on pathname
   const currentNavItems: NavItem[] = navigation.map(item => ({
@@ -169,18 +242,23 @@ export default function Header(): React.ReactElement {
       {/* Header container with border, padding and sticky behavior */}
       <header
         ref={headerRef}
-        className="fixed w-full z-50 transition-all duration-300 ease-in-out py-3 bg-transparent"
+        className={cn(
+          'fixed w-full z-50 transition-all duration-300 ease-in-out py-3',
+          isScrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md' : 'bg-transparent'
+        )}
         itemScope
         itemType="https://schema.org/SiteNavigationElement"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6">
+          {/* Single container for the header */}
           <div
-            ref={megaMenuContainerRef}
             className={cn(
-              'relative border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden transition-all duration-300',
+              'relative border border-gray-200 dark:border-gray-800 rounded-lg',
               'bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg shadow-sm',
               'py-3 px-4',
-              openMegaMenu || isMobileMenuOpen ? 'rounded-b-none border-b-0' : 'rounded-b-lg'
+              'transition-all duration-200 ease-in-out',
+              openMegaMenu ? 'rounded-b-none border-b-0' : 'rounded-b-lg',
+              isScrolled ? 'shadow-md' : 'shadow-sm'
             )}
           >
             <div className="flex items-center justify-between">
@@ -285,9 +363,7 @@ export default function Header(): React.ReactElement {
                   size="lg"
                   aria-controls="mobile-menu"
                   aria-expanded={isMobileMenuOpen}
-                  onClick={() => {
-                    setIsMobileMenuOpen(!isMobileMenuOpen);
-                  }}
+                  onClick={toggleMobileMenu}
                   className="p-2.5 text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 rounded-md"
                   trackingEvent={{
                     name: 'mobile_menu_toggle',
@@ -318,25 +394,18 @@ export default function Header(): React.ReactElement {
             </div>
           </div>
 
-          {/* Mega menu panel - part of the header border */}
-          <div
-            className={cn(
-              'border border-gray-200 dark:border-gray-800 border-t-0 rounded-t-none rounded-b-lg overflow-hidden',
-              'transition-all duration-300 ease-in-out',
-              'shadow-lg',
-              openMegaMenu
-                ? 'max-h-[600px] opacity-100'
-                : 'max-h-0 opacity-0 pointer-events-none border-0'
-            )}
-            onMouseEnter={handleMegaMenuMouseEnter}
-            onMouseLeave={handleMegaMenuMouseLeave}
-          >
-            <MegaMenuPanel navItems={navigation} openMegaMenu={openMegaMenu} closing={isClosing} />
-          </div>
-        </div>
+          {/* Mega menu panel - outside the header container but associated with it */}
+          {openMegaMenu && (
+            <div onMouseEnter={handleMegaMenuMouseEnter} onMouseLeave={handleMegaMenuMouseLeave}>
+              <MegaMenuPanel
+                navItems={navigation}
+                openMegaMenu={openMegaMenu}
+                closing={isClosing}
+              />
+            </div>
+          )}
 
-        {/* Mobile menu - now attached to the header */}
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Mobile menu - separate from desktop mega menu */}
           <div
             className={cn(
               'md:hidden transition-all duration-300 ease-in-out w-full overflow-hidden',
@@ -350,17 +419,7 @@ export default function Header(): React.ReactElement {
               isOpen={isMobileMenuOpen}
               navItems={currentNavItems}
               openMegaMenu={openMegaMenu}
-              toggleMegaMenu={(name: string) => {
-                setOpenMegaMenu(openMegaMenu === name ? null : name);
-
-                // Track menu toggle event
-                trackEvent({
-                  name: openMegaMenu === name ? 'mobile_menu_close' : 'mobile_menu_open',
-                  category: 'navigation',
-                  label: name,
-                  properties: { menu_name: name },
-                });
-              }}
+              toggleMegaMenu={toggleMegaMenu}
             />
           </div>
         </div>

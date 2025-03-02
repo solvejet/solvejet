@@ -173,6 +173,18 @@ export const navigation: NavItem[] = [
               description: 'Strategic alliances and collaborations',
               icon: <Handshake className="h-5 w-5" />,
             },
+            {
+              title: 'Blog',
+              href: '/company/blog',
+              description: 'Insights and thought leadership',
+              icon: <FileText className="h-5 w-5" />,
+            },
+            {
+              title: 'Tech Study',
+              href: '/company/tech-study',
+              description: 'Our success stories and project highlights',
+              icon: <BookText className="h-5 w-5" />,
+            },
           ],
         },
         {
