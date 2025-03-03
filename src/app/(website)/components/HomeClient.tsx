@@ -1,209 +1,265 @@
 // src/app/(website)/components/HomeClient.tsx
 'use client';
 
-import { useState, useEffect, lazy, Suspense } from 'react';
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
-import type { ReactElement } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+import FeaturesSection from '@/components/Home/FeaturesSection';
+import HeroSection from '@/components/Home/HeroSection';
+import IndustrySection from '@/components/Home/IndustrySection';
+import ServicesSection from '@/components/Home/ServicesSection';
 
-// Lazy load non-critical components
-const Button = lazy(() => import('@/components/ui/Button').then(mod => ({ default: mod.Button })));
+// Register ScrollTrigger with GSAP
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
-export default function HomeClient(): ReactElement {
-  // State to track if the component is mounted
-  const [isMounted, setIsMounted] = useState(false);
+interface Industry {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
+  color: string;
+  content: string;
+}
 
-  useEffect(() => {
-    setIsMounted(true);
+const industries: Industry[] = [
+  {
+    id: 'real-estate',
+    title: 'Real Estate',
+    description: 'PropTech solutions for the modern real estate industry',
+    iconName: 'Building2',
+    color: 'bg-blue-500',
+    content: 'Innovative solutions for property management, sales, and analytics.',
+  },
+  {
+    id: 'ecommerce',
+    title: 'Ecommerce',
+    description: 'Digital commerce solutions for global reach',
+    iconName: 'ShoppingCart',
+    color: 'bg-purple-500',
+    content: 'Scalable platforms, payment integrations, and inventory management.',
+  },
+  {
+    id: 'manufacturing',
+    title: 'Manufacturing',
+    description: 'Industry 4.0 and smart manufacturing',
+    iconName: 'Factory',
+    color: 'bg-green-500',
+    content: 'IoT integration, process automation, and supply chain optimization.',
+  },
+  {
+    id: 'logistics',
+    title: 'Logistics',
+    description: 'Supply chain and logistics optimization',
+    iconName: 'Truck',
+    color: 'bg-amber-500',
+    content: 'Route optimization, warehouse management, and delivery tracking.',
+  },
+  {
+    id: 'travel',
+    title: 'Travel & Tourism',
+    description: 'Digital solutions for travel businesses',
+    iconName: 'Plane',
+    color: 'bg-teal-500',
+    content: 'Booking systems, customer experience, and operational efficiency.',
+  },
+];
+
+// Rotation values for each card for a more natural look
+const rotations: number[] = [-2, 1, -1.5, 1, -0.5];
+
+export default function HomeClient(): React.ReactElement {
+  const mainRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const industryStickyContainerRef = useRef<HTMLDivElement>(null);
+  const industrySectionsRef = useRef<HTMLDivElement>(null);
+  const [activeSection, setActiveSection] = useState(0);
+
+  useEffect((): (() => void) => {
+    // Reset scroll position when component mounts
+    window.scrollTo(0, 0);
+
+    let initialized = false;
+
+    // Initialize GSAP only once DOM is ready
+    const initScrollAnimation = (): void => {
+      if (!industryStickyContainerRef.current || !industrySectionsRef.current || initialized)
+        return;
+
+      // Clear existing ScrollTrigger instances
+      ScrollTrigger.getAll().forEach((trigger): void => {
+        trigger.kill();
+      });
+
+      // Get all the industry section cards
+      const cards = gsap.utils.toArray<HTMLElement>('.industry-card');
+
+      if (cards.length === 0) return;
+
+      // Set initial positions of all cards (below the viewport)
+      cards.forEach((card, index): void => {
+        gsap.set(card, {
+          y: window.innerHeight,
+          rotate: rotations[index] ?? 0,
+          opacity: 0,
+        });
+      });
+
+      // Get the hero element to calculate its position
+      const heroElement = heroRef.current;
+      const heroHeight = heroElement?.offsetHeight ?? window.innerHeight;
+
+      // Create the main ScrollTrigger for the industry stacking effect
+      // Start the effect when we reach the bottom portion of the hero section
+      ScrollTrigger.create({
+        trigger: industryStickyContainerRef.current,
+        start: `top+=${String(Math.max(0, heroHeight - window.innerHeight - 100))}px top`, // Start when we're 100px from the bottom of hero
+        end: `+=${String(window.innerHeight * 3)}px`, // End after 3 viewport heights of scrolling
+        pin: true,
+        pinSpacing: true,
+        scrub: 1,
+        onUpdate: (self): void => {
+          const progress = self.progress;
+          const totalCards = cards.length;
+          const progressPerCard = 1 / totalCards;
+
+          // Update active section based on progress
+          const newActiveIndex = Math.min(Math.floor(progress * totalCards), totalCards - 1);
+          setActiveSection(newActiveIndex);
+
+          // Animate each card based on scroll progress
+          cards.forEach((card, index): void => {
+            const cardStart = index * progressPerCard;
+            let cardProgress = (progress - cardStart) / progressPerCard;
+            cardProgress = Math.min(Math.max(cardProgress, 0), 1);
+
+            // Calculate vertical position based on progress
+            let yPos = window.innerHeight * (1 - cardProgress);
+            let xPos = 0;
+            let opacity = cardProgress;
+            let scale = 0.9 + 0.1 * cardProgress;
+
+            // If this card is fully shown and we're scrolling to the next one,
+            // move this card out of the way
+            if (cardProgress === 1 && index < totalCards - 1) {
+              const remainingProgress =
+                (progress - (cardStart + progressPerCard)) / (1 - (cardStart + progressPerCard));
+
+              if (remainingProgress > 0) {
+                const distanceMultiplier = 1 - index * 0.15;
+                xPos = -window.innerWidth * 0.3 * distanceMultiplier * remainingProgress;
+                yPos = -window.innerHeight * 0.3 * distanceMultiplier * remainingProgress;
+                opacity = 1 - remainingProgress * 0.7;
+                scale = scale - remainingProgress * 0.1;
+              }
+            }
+
+            // Apply the animation
+            gsap.to(card, {
+              y: yPos,
+              x: xPos,
+              opacity: opacity,
+              scale: scale,
+              duration: 0,
+              ease: 'none',
+            });
+          });
+        },
+      });
+
+      // Set up additional sections animation
+      const additionalSections = document.querySelectorAll('.additional-section');
+      additionalSections.forEach((section): void => {
+        gsap.from(section, {
+          opacity: 0,
+          y: 100,
+          duration: 1,
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 80%',
+            end: 'bottom 20%',
+            toggleActions: 'play none none reverse',
+            scrub: false,
+          },
+        });
+      });
+
+      initialized = true;
+    };
+
+    // Wait a moment for the DOM to be fully rendered
+    const timer = setTimeout(initScrollAnimation, 200);
+
+    // Run again when window is resized
+    const handleResize = (): void => {
+      initialized = false;
+
+      ScrollTrigger.getAll().forEach((trigger): void => {
+        trigger.kill();
+      });
+
+      setTimeout(initScrollAnimation, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup function
+    return (): void => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+
+      // Kill all GSAP instances
+      ScrollTrigger.getAll().forEach((trigger): void => {
+        trigger.kill();
+      });
+    };
   }, []);
 
   return (
-    <>
-      {/* Hero Section with optimized LCP */}
-      <section className="relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-element-500 mix-blend-multiply opacity-10" />
-        </div>
-        <div className="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
-          {/* Pre-rendered critical h1 for faster LCP */}
-          <h1
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-6"
-            style={{
-              // Inline critical styles to avoid CLS
-              fontFamily: 'var(--font-poppins), sans-serif',
-            }}
-            data-font-display="swap" // Custom attribute instead of inline style
-          >
-            Transform Your Business with{' '}
-            <span className="text-element-500">Innovative Solutions</span>
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 text-center max-w-3xl mx-auto mb-8">
-            We build cutting-edge software solutions that help businesses scale, innovate, and
-            succeed in the digital age.
-          </p>
+    <div ref={mainRef} className="relative">
+      {/* Hero Section - Fixed in position, no animation on scroll */}
+      <div ref={heroRef} className="relative">
+        <HeroSection />
+      </div>
 
-          {/* Conditionally render buttons after mount for hydration */}
-          {isMounted ? (
-            <div className="flex justify-center gap-4">
-              <Suspense
-                fallback={
-                  <div className="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 bg-element-500 text-white">
-                    Get Started
-                  </div>
-                }
-              >
-                <Button size="lg" onClick={() => (window.location.href = '/contact')}>
-                  Get Started
-                </Button>
-              </Suspense>
-              <Suspense
-                fallback={
-                  <div className="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 border border-element-500 text-element-500">
-                    Learn More About Our Services
-                  </div>
-                }
-              >
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => (window.location.href = '/services')}
-                >
-                  Learn More About Our Services
-                </Button>
-              </Suspense>
-            </div>
-          ) : (
-            <div className="flex justify-center gap-4">
-              <div className="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 bg-element-500 text-white">
-                Get Started
-              </div>
-              <div className="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 border border-element-500 text-element-500">
-                Learn More About Our Services
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Industry Sections Container - Starts below hero and then stacks cards */}
+      <div
+        ref={industryStickyContainerRef}
+        className="sticky-container relative w-full overflow-hidden"
+        style={{ height: '300vh' }} // Height for scrolling
+      >
+        <div
+          ref={industrySectionsRef}
+          className="industry-sections-container sticky top-0 left-0 w-full h-screen flex flex-col justify-center items-center"
+        >
+          {/* Industry Sections that will stack */}
+          {industries.map((industry, index) => {
+            // Safely compute z-index as a string to avoid template literal type errors
+            const zIndex =
+              activeSection === index ? 'z-10' : `z-${String(Math.max(0, 10 - index))}`;
 
-      {/* Services Section */}
-      <section className="py-20 bg-white dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Our Services</h2>
-            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              We offer comprehensive software development services tailored to your unique business
-              needs.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                title: 'Custom Software Development',
-                description:
-                  'Tailored solutions built with cutting-edge technology to meet your specific needs.',
-              },
-              {
-                title: 'Mobile App Development',
-                description:
-                  'Native and cross-platform mobile applications for iOS and Android platforms.',
-              },
-              {
-                title: 'Web Development',
-                description:
-                  'Responsive and user-friendly web applications with modern technologies.',
-              },
-            ].map((service, index) => (
+            return (
               <div
-                key={index}
-                className="p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:shadow-lg transition-shadow"
+                key={industry.id}
+                className={`industry-card absolute w-full sm:w-4/5 md:w-3/4 lg:w-2/3 xl:w-3/5 2xl:w-1/2 ${zIndex}`}
               >
-                <h3 className="text-xl font-semibold mb-3">{service.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">{service.description}</p>
-                <Link
-                  href={`/services/${service.title.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="text-element-500 hover:text-element-600 dark:hover:text-element-400 inline-flex items-center"
-                  aria-label={`Learn more about ${service.title}`}
-                >
-                  Explore {service.title}
-                  <ChevronRight className="ml-1 h-4 w-4" aria-hidden="true" />
-                </Link>
+                <IndustrySection
+                  industry={industry}
+                  isActive={activeSection === index}
+                  index={index}
+                />
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      </section>
+      </div>
 
-      {/* Why Choose Us Section */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Why Choose Us</h2>
-            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              We combine technical expertise with industry knowledge to deliver exceptional results.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                title: 'Expert Team',
-                description: 'Skilled developers with years of industry experience.',
-              },
-              {
-                title: 'Quality Focus',
-                description: 'Rigorous testing and quality assurance processes.',
-              },
-              {
-                title: 'Timely Delivery',
-                description: 'We respect deadlines and deliver on time, every time.',
-              },
-              {
-                title: 'Ongoing Support',
-                description: '24/7 support and maintenance for your solutions.',
-              },
-            ].map((feature, index) => (
-              <div key={index} className="text-center">
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="bg-element-500 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Let's discuss how we can help transform your business.
-          </p>
-
-          {isMounted ? (
-            <Suspense
-              fallback={
-                <div className="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 border border-white text-white">
-                  Contact Us Today
-                </div>
-              }
-            >
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-white text-white hover:bg-white hover:text-element-500"
-                onClick={() => (window.location.href = '/contact')}
-              >
-                Contact Us Today
-              </Button>
-            </Suspense>
-          ) : (
-            <div className="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 border border-white text-white">
-              Contact Us Today
-            </div>
-          )}
-        </div>
-      </section>
-    </>
+      {/* Regular scrolling sections that come after */}
+      <div className="pt-16 pb-24">
+        <FeaturesSection className="additional-section" />
+        <ServicesSection className="additional-section" />
+      </div>
+    </div>
   );
 }

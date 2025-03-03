@@ -1,0 +1,39 @@
+/* Optimized animation styles for stack pin effect */
+
+/* Main stacking container */
+.sticky-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Industry card styling */
+.industry-card {
+  will-change: transform, opacity;
+  transform-origin: center center;
+  backface-visibility: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.industry-card.active {
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Fix for Safari and iOS */
+@supports (-webkit-touch-callout: none) {
+  .industry-sections-container,
+  .industry-card {
+    transform: translateZ(0);
+  }
+}
+
+/* Improved performance for animations */
+.gsap-hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.gsap-visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}

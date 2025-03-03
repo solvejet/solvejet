@@ -156,112 +156,44 @@ html {
   }
 }
 
-@keyframes menuSlideUp {
+.animate-fadeIn {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* Particle animation styles */
+canvas {
+  display: block;
+  will-change: transform, opacity;
+}
+
+/* Three.js performance optimizations */
+.three-performance {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+  will-change: transform, opacity;
+}
+
+/* Create more subtle animations for low-power devices */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeIn {
+    animation-duration: 0.5s;
+  }
+
+  .animate-bounce {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+@keyframes fadeSlideUp {
   from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
     opacity: 1;
-    transform: translateY(0) scaleY(1);
-    transform-origin: top;
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-10px) scaleY(0.9);
-    transform-origin: top;
-  }
-}
-
-/* Add this with your other animation utility classes */
-.animate-menu-slide-up {
-  animation: menuSlideUp 0.3s ease-out forwards;
-}
-
-@keyframes menuSlideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scaleY(0.9);
-    transform-origin: top;
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scaleY(1);
-    transform-origin: top;
-  }
-}
-
-@keyframes underlineExpand {
-  from {
-    transform: scaleX(0);
-    transform-origin: left;
-  }
-  to {
-    transform: scaleX(1);
-    transform-origin: left;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
     transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 0 rgba(0, 85, 184, 0.4);
-  }
-  100% {
-    box-shadow: 0 0 20px rgba(0, 85, 184, 0.4);
-  }
-}
-
-@keyframes megaMenuExpand {
-  0% {
-    opacity: 0;
-    transform: scaleY(0.8);
-    transform-origin: top center;
-    width: 80%;
-    max-height: 0;
-  }
-  50% {
-    opacity: 0.8;
-    max-height: 600px;
-  }
-  100% {
-    opacity: 1;
-    transform: scaleY(1);
-    transform-origin: top center;
-    width: 100%;
-    max-height: 600px;
-  }
-}
-
-.animate-mega-menu-expand {
-  animation: megaMenuExpand 0.3s ease-out forwards;
-}
-
-@keyframes ripple {
-  0% {
-    transform: scale(0);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(4);
-    opacity: 0;
   }
 }
 
@@ -275,27 +207,40 @@ html {
   }
 }
 
-/* Header animations */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+/* Stacked Cards CSS */
+/* Hide scrollbar while preserving functionality */
+body.stacked-cards-active {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
-.animate-menu-slide-down {
-  animation: menuSlideDown 0.3s ease-out forwards;
+body.stacked-cards-active::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
 }
 
-.animate-slide-up {
-  animation: slideUp 0.3s ease-out forwards;
+/* Smooth perspective transform for cards */
+.stacked-card {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1), border-radius 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.animate-slide-down {
-  animation: slideDown 0.3s ease-out forwards;
+/* Content fade in animation */
+.fade-slide-up {
+  animation: fadeSlideUp 0.8s forwards;
+  opacity: 0;
 }
 
-.animate-glow {
-  animation: glow 1s ease-in-out infinite alternate;
+.fade-slide-up-delay-1 {
+  animation-delay: 0.1s;
 }
 
-.animate-ripple {
-  animation: ripple 0.6s linear forwards;
+.fade-slide-up-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.fade-slide-up-delay-3 {
+  animation-delay: 0.3s;
 }

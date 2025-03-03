@@ -6,6 +6,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthInitializer } from '@/components/AuthInitializer';
+import { initLenis, destroyLenis } from '@/lib/lenis';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+
+// Register ScrollTrigger with GSAP
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 // Lazy load non-critical components
 const SecurityProvider = lazy(() =>
@@ -55,8 +63,31 @@ export function ClientProviders({ children }: ClientProvidersProps): React.React
   // Avoid hydration mismatch
   const [mounted, setMounted] = useState(false);
 
-  useEffect((): void => {
+  useEffect((): (() => void) => {
     setMounted(true);
+
+    // Initialize Lenis for smooth scrolling site-wide
+    const lenis = initLenis();
+
+    // Connect Lenis to ScrollTrigger for scroll animations
+    if (lenis !== null) {
+      // Use arrow function to avoid 'this' binding issues
+      lenis.on('scroll', () => {
+        ScrollTrigger.update();
+      });
+
+      // Use arrow function to avoid 'this' binding issues
+      gsap.ticker.add((time): void => {
+        lenis.raf(time * 1000);
+      });
+
+      gsap.ticker.lagSmoothing(0);
+    }
+
+    // Cleanup function
+    return (): void => {
+      destroyLenis();
+    };
   }, []);
 
   // Return a simple loading state during SSR

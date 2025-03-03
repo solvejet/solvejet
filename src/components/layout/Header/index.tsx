@@ -20,10 +20,16 @@ export default function Header(): React.ReactElement {
   const [isClosing, setIsClosing] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isHeroPage, setIsHeroPage] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
   const { trackEvent } = useAnalytics();
+
+  // Detect if we're on the home page with hero section
+  useEffect(() => {
+    setIsHeroPage(pathname === '/' || pathname === '/home');
+  }, [pathname]);
 
   // Handle scroll effects
   useEffect(() => {
@@ -212,6 +218,29 @@ export default function Header(): React.ReactElement {
     current: pathname === item.href || pathname.startsWith(`${item.href}/`),
   }));
 
+  // Determine logo color based on page and scroll state
+  const logoColorPrimary = isHeroPage && !isScrolled ? '#ffffff' : '#2c2e35';
+
+  // Get appropriate text color for nav links based on scroll state and page
+  const getNavLinkTextColor = (isCurrent: boolean | undefined): string => {
+    if (isCurrent === true) {
+      return 'text-element-500 dark:text-element-400';
+    }
+
+    // On hero page
+    if (isHeroPage) {
+      // When scrolled, use dark text for better visibility against light backgrounds
+      if (isScrolled) {
+        return 'text-gray-700 hover:text-element-500 dark:text-gray-300 dark:hover:text-element-400';
+      }
+      // Not scrolled (at top of hero), use white text
+      return 'text-white hover:text-element-300';
+    }
+
+    // Not on hero page - use dark text always
+    return 'text-gray-700 hover:text-element-500 dark:text-gray-300 dark:hover:text-element-400';
+  };
+
   return (
     <>
       {/* Structured data for SEO */}
@@ -244,21 +273,24 @@ export default function Header(): React.ReactElement {
         ref={headerRef}
         className={cn(
           'fixed w-full z-50 transition-all duration-300 ease-in-out py-3',
-          isScrolled ? 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-md' : 'bg-transparent'
+          'bg-transparent'
         )}
         itemScope
         itemType="https://schema.org/SiteNavigationElement"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6">
+        <div className="container mx-auto px-4 max-w-7xl">
           {/* Single container for the header */}
           <div
             className={cn(
-              'relative border border-gray-200 dark:border-gray-800 rounded-lg',
-              'bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg shadow-sm',
+              'relative border border-gray-200/30 dark:border-gray-800/30 rounded-lg',
+              isScrolled
+                ? 'bg-white/10 dark:bg-gray-900/90 backdrop-blur-lg'
+                : isHeroPage
+                ? 'bg-black/10 dark:bg-gray-900/10 backdrop-blur-md'
+                : 'bg-white/10 dark:bg-gray-900/90 backdrop-blur-lg',
               'py-3 px-4',
               'transition-all duration-200 ease-in-out',
-              openMegaMenu ? 'rounded-b-none border-b-0' : 'rounded-b-lg',
-              isScrolled ? 'shadow-md' : 'shadow-sm'
+              openMegaMenu ? 'rounded-b-none border-b-0' : 'rounded-b-lg'
             )}
           >
             <div className="flex items-center justify-between">
@@ -277,9 +309,9 @@ export default function Header(): React.ReactElement {
                   }}
                 >
                   <SolvejetLogo
-                    width={140}
-                    height={42}
-                    color={{ primary: '#2c2e35', accent: '#0055B8' }}
+                    width={180}
+                    height={62}
+                    color={{ primary: logoColorPrimary, accent: '#0055B8' }}
                   />
                 </Link>
               </div>
@@ -302,9 +334,7 @@ export default function Header(): React.ReactElement {
                       href={item.href}
                       className={cn(
                         'inline-block px-4 py-2.5 text-base font-medium rounded-md transition-all duration-200 group',
-                        item.current
-                          ? 'text-element-500 dark:text-element-400'
-                          : 'text-gray-700 hover:text-element-500 dark:text-gray-300 dark:hover:text-element-400'
+                        getNavLinkTextColor(item.current)
                       )}
                       itemProp="url"
                       aria-current={item.current ? 'page' : undefined}
@@ -341,9 +371,14 @@ export default function Header(): React.ReactElement {
               {/* Contact us button */}
               <div className="hidden md:block">
                 <TrackedButton
-                  variant="outline"
+                  variant={isHeroPage && !isScrolled ? 'default' : 'outline'}
                   size="lg"
-                  className="ml-4 border-element-500 text-element-500 hover:bg-element-50 dark:border-element-400 dark:text-element-400 dark:hover:bg-element-900 py-2 px-5"
+                  className={cn(
+                    'py-2 px-5',
+                    isHeroPage && !isScrolled
+                      ? 'bg-element-500 text-white hover:bg-element-600'
+                      : 'border-element-500 text-element-500 hover:bg-element-50 dark:border-element-400 dark:text-element-400 dark:hover:bg-element-900'
+                  )}
                   leftIcon={<MessageSquare className="h-5 w-5 mr-1" />}
                   onClick={() => (window.location.href = '/contact')}
                   trackingEvent={{
@@ -364,7 +399,12 @@ export default function Header(): React.ReactElement {
                   aria-controls="mobile-menu"
                   aria-expanded={isMobileMenuOpen}
                   onClick={toggleMobileMenu}
-                  className="p-2.5 text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800 rounded-md"
+                  className={cn(
+                    'p-2.5 rounded-md',
+                    isHeroPage && !isScrolled
+                      ? 'text-white hover:bg-white/10'
+                      : 'text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800'
+                  )}
                   trackingEvent={{
                     name: 'mobile_menu_toggle',
                     category: 'navigation',
@@ -394,9 +434,13 @@ export default function Header(): React.ReactElement {
             </div>
           </div>
 
-          {/* Mega menu panel - outside the header container but associated with it */}
+          {/* Mega menu panel - this container needs to match the width */}
           {openMegaMenu && (
-            <div onMouseEnter={handleMegaMenuMouseEnter} onMouseLeave={handleMegaMenuMouseLeave}>
+            <div
+              className="relative z-50"
+              onMouseEnter={handleMegaMenuMouseEnter}
+              onMouseLeave={handleMegaMenuMouseLeave}
+            >
               <MegaMenuPanel
                 navItems={navigation}
                 openMegaMenu={openMegaMenu}
@@ -409,8 +453,8 @@ export default function Header(): React.ReactElement {
           <div
             className={cn(
               'md:hidden transition-all duration-300 ease-in-out w-full overflow-hidden',
-              'border border-gray-200 dark:border-gray-800 rounded-b-lg border-t-0',
-              'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md',
+              'border border-gray-200/30 dark:border-gray-800/30 rounded-b-lg border-t-0',
+              'bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg',
               isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 border-0'
             )}
             id="mobile-menu"
@@ -425,8 +469,8 @@ export default function Header(): React.ReactElement {
         </div>
       </header>
 
-      {/* Spacer for fixed header - fixed height */}
-      <div className="h-20" />
+      {/* No spacer for hero section pages, spacer for other pages */}
+      {!isHeroPage && <div className="h-20" />}
     </>
   );
 }

@@ -1,9 +1,10 @@
 // src/components/Providers.tsx
 'use client';
 
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastProvider } from '@/components/ui/toast/ToastProvider';
+import { initLenis } from '@/lib/lenis';
 
 // Lazy load SpeedInsights only in production
 const SpeedInsights = lazy(() =>
@@ -21,8 +22,13 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps): React.ReactElement {
   const [isMounted, setIsMounted] = React.useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsMounted(true);
+
+    // Initialize Lenis for smooth scrolling site-wide
+    initLenis();
+
+    // No need for cleanup as Lenis will be active throughout the site
   }, []);
 
   if (!isMounted) {
