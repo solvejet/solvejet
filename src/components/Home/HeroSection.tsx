@@ -1,10 +1,11 @@
 // src/components/Home/HeroSection.tsx
 'use client';
 
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, memo } from 'react';
 import { ChevronDown } from 'lucide-react';
-import Image from 'next/image';
+import { Image } from '@/components/ui/Image';
 import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';
+import { useEffect } from 'react';
 
 // Define client logo type for better type safety
 interface ClientLogo {
@@ -14,7 +15,8 @@ interface ClientLogo {
   height: number;
 }
 
-export default function HeroSection(): React.ReactElement {
+// Use memo to prevent unnecessary re-renders
+const HeroSection = memo(function HeroSection(): React.ReactElement {
   const [textIndex, setTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -39,7 +41,7 @@ export default function HeroSection(): React.ReactElement {
 
   const textSwitcherRef = useRef<HTMLSpanElement>(null);
 
-  // Define client logos with proper typing and explicit dimensions
+  // Define client logos with proper typing and explicit dimensions - reduced number and simplified
   const clientLogos: ClientLogo[] = [
     {
       path: '/images/clients/kelsi_organics.webp',
@@ -52,59 +54,63 @@ export default function HeroSection(): React.ReactElement {
     { path: '/images/clients/tyent.webp', alt: 'Tyent Australia Logo', width: 80, height: 30 },
   ];
 
-  // Text rotation animation with 3D effect - only if reduced motion is not preferred
-  // Memoize with useCallback to prevent unnecessary re-renders
-  const rotateText = useCallback(() => {
-    if (!textSwitcherRef.current) return;
-
-    setIsAnimating(true);
-    setTimeout(() => {
-      setTextIndex(prevIndex => (prevIndex + 1) % rotatingTexts.length);
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 50);
-    }, 300);
-  }, [rotatingTexts.length]);
-
-  // Initialize and handle animations
-  useEffect(() => {
-    // Wait for the component to be fully mounted before showing animations
-    const initTimer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 50);
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // Only setup rotation for non-reduced motion
-    let intervalId: NodeJS.Timeout | undefined;
-    if (!prefersReducedMotion) {
-      // Start the text rotation after a delay to avoid conflicts with the initial animation
-      intervalId = setInterval(rotateText, 5000);
-    }
-
-    // Track hero section view
-    trackEvent({
-      name: 'view_hero_section',
-      category: 'engagement',
-      label: 'hero_section_viewed',
-    });
-
-    return (): void => {
-      clearTimeout(initTimer);
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [rotateText, trackEvent]);
-
+  // Simplified scroll function
   const scrollToContent = useCallback((): void => {
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-
-    // Track scroll interaction
     trackEvent({
       name: 'hero_scroll_click',
       category: 'navigation',
       label: 'scroll_to_content',
     });
   }, [trackEvent]);
+
+  useEffect(() => {
+    // Wait for the component to be fully mounted before showing animations
+    const timer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 50);
+
+    // Only setup rotation for non-reduced motion
+    let rotationTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const rotateText = (): void => {
+      if (!textSwitcherRef.current) return;
+      setIsAnimating(true);
+      setTimeout(() => {
+        setTextIndex(prevIndex => (prevIndex + 1) % rotatingTexts.length);
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 50);
+      }, 300);
+    };
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReducedMotion) {
+      rotationTimer = setTimeout(() => {
+        rotateText();
+        // Set up the interval only after the first rotation
+        const intervalId = setInterval(rotateText, 5000);
+        return (): void => {
+          clearInterval(intervalId);
+        };
+      }, 2000);
+    }
+
+    // Track hero section view with a small delay to prioritize rendering
+    const trackingTimer = setTimeout(() => {
+      trackEvent({
+        name: 'view_hero_section',
+        category: 'engagement',
+        label: 'hero_section_viewed',
+      });
+    }, 1000);
+
+    return (): void => {
+      clearTimeout(timer);
+      clearTimeout(trackingTimer);
+      if (rotationTimer) clearTimeout(rotationTimer);
+    };
+  }, [rotatingTexts.length, trackEvent]);
 
   return (
     <section
@@ -127,26 +133,13 @@ export default function HeroSection(): React.ReactElement {
         aria-hidden="true"
       />
 
-      {/* Subtle diagonal lines with single unified animation */}
+      {/* Reduced number of decorative elements */}
       <div
-        className={`absolute top-[30%] left-0 w-full h-px transform rotate-[5deg] origin-left transition-opacity duration-1000 ${
-          isLoaded ? 'opacity-15 animate-float-line' : 'opacity-0'
+        className={`absolute top-[40%] left-0 w-full h-px transform rotate-[5deg] origin-left transition-opacity duration-700 ${
+          isLoaded ? 'opacity-15' : 'opacity-0'
         }`}
         style={{
           background: 'linear-gradient(90deg, transparent, rgba(0, 85, 184, 0.5), transparent)',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Second diagonal line for layered effect */}
-      <div
-        className={`absolute top-[60%] left-0 w-full h-px transform -rotate-[2deg] origin-right transition-opacity duration-1000 delay-500 ${
-          isLoaded ? 'opacity-10' : 'opacity-0'
-        }`}
-        style={{
-          background: 'linear-gradient(90deg, transparent, rgba(0, 85, 184, 0.3), transparent)',
-          animation: isLoaded ? 'floatingLine 12s ease-in-out infinite reverse' : 'none',
-          animationDelay: '2s',
         }}
         aria-hidden="true"
       />
@@ -158,7 +151,7 @@ export default function HeroSection(): React.ReactElement {
           <div className="flex justify-between items-start mb-12">
             <div className="w-full max-w-4xl mr-8">
               <h1
-                className={`text-4xl md:text-5xl lg:text-7xl font-normal text-white leading-tight tracking-tight whitespace-nowrap transition-opacity duration-700 ease-out ${
+                className={`text-4xl md:text-5xl lg:text-7xl font-normal text-white leading-tight tracking-tight transition-opacity duration-700 ease-out ${
                   isLoaded ? 'opacity-100' : 'opacity-0 transform translate-y-4'
                 }`}
                 style={{ transitionDelay: '100ms' }}
@@ -241,46 +234,22 @@ export default function HeroSection(): React.ReactElement {
             >
               {clientLogos.map((logo, i) => (
                 <div key={i} className="h-10 w-24 relative overflow-hidden">
-                  <div className="w-full h-full bg-white/5 backdrop-blur-sm rounded-sm flex items-center justify-center p-1">
-                    <Image
-                      src={logo.path}
-                      alt={logo.alt}
-                      width={logo.width}
-                      height={logo.height}
-                      className="h-full w-auto object-contain brightness-0 invert opacity-80"
-                      priority={i < 2} // Prioritize loading first two images
-                    />
-                  </div>
+                  <Image
+                    src={logo.path}
+                    alt={logo.alt}
+                    width={logo.width}
+                    height={logo.height}
+                    className="h-full w-auto object-contain filter brightness-0 invert opacity-80"
+                    priority={i < 2} // Prioritize loading first two images
+                  />
                 </div>
               ))}
-            </div>
-
-            {/* Mobile marquee for logos - optimized with explicit dimensions */}
-            <div
-              className={`md:hidden w-full overflow-hidden transition-opacity duration-700 ease-out ${
-                isLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{ transitionDelay: '400ms' }}
-            >
-              <div className="flex space-x-6">
-                {clientLogos.map((logo, i) => (
-                  <div key={i} className="h-8 w-20 flex-shrink-0 relative overflow-hidden">
-                    <div className="w-full h-full bg-white/5 backdrop-blur-sm rounded-sm flex items-center justify-center p-1">
-                      <Image
-                        src={logo.path}
-                        alt={logo.alt}
-                        width={logo.width}
-                        height={logo.height}
-                        className="h-full w-auto object-contain brightness-0 invert opacity-80"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
   );
-}
+});
+
+export default HeroSection;

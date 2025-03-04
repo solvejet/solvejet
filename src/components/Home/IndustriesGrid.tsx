@@ -34,7 +34,7 @@ interface IndustriesGridProps {
   className?: string;
 }
 
-// Memoized Industry Card component to prevent unnecessary re-renders
+// Optimized memoized card component
 const IndustryCard = memo(function IndustryCard({
   industry,
   isHovered,
@@ -71,7 +71,7 @@ const IndustryCard = memo(function IndustryCard({
       onFocus={onMouseEnter} // Keyboard focus triggers same behavior as hover
       tabIndex={0} // Make div focusable for keyboard navigation
     >
-      {/* Background image with overlay */}
+      {/* Background image with overlay - optimized */}
       <div className={`${aspectRatio} relative overflow-hidden`}>
         <Image
           src={industry.imagePath ?? `/images/industries/${industry.id}.webp`}
@@ -84,8 +84,8 @@ const IndustryCard = memo(function IndustryCard({
           }
           className="object-cover transition-transform duration-700 group-hover:scale-105"
           priority={priority}
-          loading={priority ? undefined : 'lazy'}
-          quality={isLarge ? 85 : 80} // Higher quality for larger cards
+          loading={priority ? 'eager' : 'lazy'}
+          quality={isLarge ? 75 : 70} // Reduced quality for better performance
         />
         <div
           className="absolute inset-0 transition-colors duration-300"
@@ -114,54 +114,41 @@ const IndustryCard = memo(function IndustryCard({
             aria-hidden="true"
           />
 
-          {/* Description shown on hover */}
-          <div
-            className={`overflow-hidden transition-all duration-300 ${
-              isHovered
-                ? `max-h-${isLarge ? '24' : '20'} opacity-100 mb-${isLarge ? '5' : '4'}`
-                : 'max-h-0 opacity-0'
-            }`}
-          >
-            <p className={`text-white/90 text-${isLarge ? 'sm' : 'xs'}`}>
+          {/* Description shown on hover - simplified for better performance */}
+          {isHovered && (
+            <p className={`text-white/90 text-${isLarge ? 'sm' : 'xs'} mb-${isLarge ? '5' : '4'}`}>
               {industry.shortDescription ??
                 'We provide cutting-edge solutions tailored for this industry.'}
             </p>
-          </div>
+          )}
 
-          {/* Bottom action row with Learn More link and button */}
-          <div
-            className={`flex items-center justify-end gap-${
-              isLarge ? '4' : '3'
-            } transition-all duration-300 ${
-              isHovered ? 'opacity-100 max-h-10' : 'opacity-0 max-h-0 overflow-hidden'
-            }`}
-          >
-            <Link
-              href={`/industries/${industry.id}`}
-              className={`text-white inline-flex items-center transition-all duration-300 hover:text-yellow-400 text-${
-                isLarge ? 'base' : 'sm'
-              }`}
-              aria-label={`Learn more about ${industry.title} solutions`}
-              onClick={handleLinkClick}
-            >
-              <span>Learn more</span>
-            </Link>
+          {/* Bottom action row with Learn More link and button - simplified */}
+          {isHovered && (
+            <div className={`flex items-center justify-end gap-${isLarge ? '4' : '3'}`}>
+              <Link
+                href={`/industries/${industry.id}`}
+                className={`text-white inline-flex items-center transition-all duration-300 hover:text-yellow-400 text-${
+                  isLarge ? 'base' : 'sm'
+                }`}
+                onClick={handleLinkClick}
+              >
+                <span>Learn more about {industry.title}</span>
+              </Link>
 
-            <Link
-              href={`/industries/${industry.id}`}
-              className={`h-${isLarge ? '10' : '8'} w-${
-                isLarge ? '10' : '8'
-              } rounded-full bg-white flex items-center justify-center transition-all duration-300 hover:bg-yellow-400 ${
-                isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-              }`}
-              aria-label={`Learn more about ${industry.title} industry solutions`}
-              onClick={handleLinkClick}
-            >
-              <ArrowUpRight
-                className={`h-${isLarge ? '5' : '4'} w-${isLarge ? '5' : '4'} text-gray-900`}
-              />
-            </Link>
-          </div>
+              <Link
+                href={`/industries/${industry.id}`}
+                className={`h-${isLarge ? '10' : '8'} w-${
+                  isLarge ? '10' : '8'
+                } rounded-full bg-white flex items-center justify-center transition-all duration-300 hover:bg-yellow-400`}
+                aria-label={`Learn more about ${industry.title} industry solutions`}
+                onClick={handleLinkClick}
+              >
+                <ArrowUpRight
+                  className={`h-${isLarge ? '5' : '4'} w-${isLarge ? '5' : '4'} text-gray-900`}
+                />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -179,15 +166,22 @@ function IndustriesGrid({ industries, className }: IndustriesGridProps): React.R
 
   // Track section view - once when component mounts
   React.useEffect(() => {
-    trackEvent({
-      name: 'industries_grid_view',
-      category: 'engagement',
-      label: 'industries_section',
-      properties: {
-        industry_count: industries.length,
-        industry_categories: industries.map(i => i.id).join(','),
-      },
-    });
+    // Delay tracking slightly to prioritize rendering
+    const trackingTimeout = setTimeout(() => {
+      trackEvent({
+        name: 'industries_grid_view',
+        category: 'engagement',
+        label: 'industries_section',
+        properties: {
+          industry_count: industries.length,
+          industry_categories: industries.map(i => i.id).join(','),
+        },
+      });
+    }, 500);
+
+    return (): void => {
+      clearTimeout(trackingTimeout);
+    };
   }, [trackEvent, industries]);
 
   // Memoized hover handlers
@@ -209,13 +203,11 @@ function IndustriesGrid({ industries, className }: IndustriesGridProps): React.R
             });
           }, 300);
 
-          const cleanup = (): void => {
+          // Remove the return since it's a void function and never used
+          setTimeout(() => {
             clearTimeout(timer);
-          };
-          cleanup();
+          }, 310);
         }
-
-        return undefined;
       };
     },
     [trackEvent]
@@ -249,21 +241,23 @@ function IndustriesGrid({ industries, className }: IndustriesGridProps): React.R
           ))}
         </div>
 
-        {/* Bottom grid - 3 square cards in a row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bottomIndustries.map((industry, index) => (
-            <IndustryCard
-              key={industry.id}
-              industry={industry}
-              isHovered={hoveredCard === industry.id}
-              onMouseEnter={createHoverHandler(industry.id, true)}
-              onMouseLeave={createHoverHandler(industry.id, false)}
-              priority={false} // Don't prioritize loading for bottom row
-              index={index + topIndustries.length}
-              isLarge={false}
-            />
-          ))}
-        </div>
+        {/* Bottom grid - only show available industries */}
+        {bottomIndustries.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {bottomIndustries.map((industry, index) => (
+              <IndustryCard
+                key={industry.id}
+                industry={industry}
+                isHovered={hoveredCard === industry.id}
+                onMouseEnter={createHoverHandler(industry.id, true)}
+                onMouseLeave={createHoverHandler(industry.id, false)}
+                priority={false} // Don't prioritize loading for bottom row
+                index={index + topIndustries.length}
+                isLarge={false}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
