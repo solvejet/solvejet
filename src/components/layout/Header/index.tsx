@@ -1,4 +1,4 @@
-// src/components/layout/Header/index.tsx
+// Updated src/components/layout/Header/index.tsx
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -20,28 +20,27 @@ export default function Header(): React.ReactElement {
   const [isClosing, setIsClosing] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isHeroPage, setIsHeroPage] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
   const { trackEvent } = useAnalytics();
 
-  // Detect if we're on the home page with hero section
+  // Set initial header state and scroll position immediately to prevent flash
   useEffect(() => {
-    setIsHeroPage(pathname === '/' || pathname === '/home');
-  }, [pathname]);
+    // This will run on initial mount
+    setIsLoaded(true);
+
+    // Initialize scroll state immediately to prevent flashing
+    setIsScrolled(window.scrollY > 10);
+  }, []);
 
   // Handle scroll effects
   useEffect(() => {
     const handleScroll = (): void => {
-      const scrollPosition = window.scrollY;
-      setIsScrolled(scrollPosition > 10);
+      setIsScrolled(window.scrollY > 10);
     };
 
-    // Initial check
-    handleScroll();
-
-    // Add scroll listener
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return (): void => {
@@ -193,6 +192,13 @@ export default function Header(): React.ReactElement {
     current: pathname === item.href || pathname.startsWith(`${item.href}/`),
   }));
 
+  // Determine background styling - we set a default background even before isLoaded is true
+  const headerBackground = isLoaded
+    ? isScrolled
+      ? 'bg-black/80 backdrop-blur-lg border-gray-800/30'
+      : 'bg-black/50 backdrop-blur-md'
+    : 'bg-black/80 backdrop-blur-lg border-gray-800/30'; // Default state during load
+
   return (
     <>
       {/* Structured data for SEO */}
@@ -231,13 +237,11 @@ export default function Header(): React.ReactElement {
         itemType="https://schema.org/SiteNavigationElement"
       >
         <div className="container mx-auto px-4 max-w-[95rem]">
-          {/* Single container for the header */}
+          {/* Single container for the header - immediately apply background to prevent flash */}
           <div
             className={cn(
               'relative border-0 lg:border rounded-lg',
-              isScrolled
-                ? 'bg-black/80 backdrop-blur-lg border-gray-800/30'
-                : 'bg-black/50 backdrop-blur-md',
+              headerBackground, // Use the computed background
               'py-3 px-4',
               'transition-all duration-200 ease-in-out',
               openMegaMenu ? 'rounded-b-none lg:border-b-0' : 'rounded-b-lg'
@@ -407,8 +411,6 @@ export default function Header(): React.ReactElement {
         </div>
       </header>
 
-      {/* No spacer for hero section pages, spacer for other pages */}
-      {!isHeroPage && <div className="h-20" />}
     </>
   );
 }

@@ -1,14 +1,24 @@
 // src/app/(website)/components/HomeClient.tsx
 'use client';
 
-import { useEffect } from 'react';
-import FeaturesSection from '@/components/Home/FeaturesSection';
-import HeroSection from '@/components/Home/HeroSection';
-import IndustriesGrid from '@/components/Home/IndustriesGrid';
-import ServicesSection from '@/components/Home/ServicesSection';
+import { useEffect, useState } from 'react';
+import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import type { ReactElement } from 'react';
 
-// Industry data - limited to only the 5 requested industries
+// Import HeroSection using dynamic import with SSR disabled
+const HeroSection = dynamic(() => import('@/components/Home/HeroSection'), {
+  ssr: false,
+  loading: () => <div className="h-screen w-full bg-black flex items-center justify-center"></div>,
+});
+
+// Dynamically import other components for better performance
+const IndustriesGrid = dynamic(() => import('@/components/Home/IndustriesGrid'), {
+  ssr: true,
+  loading: () => <div className="h-96 bg-white"></div>,
+});
+
+// Industry data
 const industries = [
   {
     id: 'real-estate',
@@ -63,29 +73,34 @@ const industries = [
 ];
 
 export default function HomeClient(): ReactElement {
-  useEffect((): (() => void) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Only show content after client-side mount
+    setMounted(true);
+
     // Reset scroll position when component mounts
     window.scrollTo(0, 0);
-
-    // Return empty cleanup function to satisfy TypeScript
-    return (): void => {
-      // Empty cleanup function
-    };
   }, []);
+
+  if (!mounted) {
+    // Return a simple placeholder while mounting
+    return <div className="h-screen bg-black"></div>;
+  }
 
   return (
     <>
-      {/* Hero Section */}
+      {/* Hero Section - Not using Suspense to prevent hydration mismatches */}
       <HeroSection />
 
-      {/* Industries Section - Now using the new grid component */}
-      <IndustriesGrid industries={industries} />
+      {/* Industries Section - Using Suspense for better loading */}
+      <Suspense fallback={<div className="h-96 bg-white"></div>}>
+        <IndustriesGrid industries={industries} />
+      </Suspense>
 
-      {/* Features Section */}
-      <FeaturesSection />
-
-      {/* Services Section */}
-      <ServicesSection />
+      {/* Other sections can be added here */}
+      {/* <FeaturesSection /> */}
+      {/* <ServicesSection /> */}
     </>
   );
 }

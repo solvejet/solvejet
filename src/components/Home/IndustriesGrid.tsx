@@ -1,13 +1,14 @@
 // src/components/Home/IndustriesGrid.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';
 
-interface Industry {
+export interface Industry {
   id: string;
   title: string;
   description: string;
@@ -18,24 +19,211 @@ interface Industry {
   imagePath?: string;
 }
 
+interface IndustryCardProps {
+  industry: Industry;
+  isHovered: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  priority?: boolean;
+  index: number;
+  isLarge?: boolean;
+}
+
 interface IndustriesGridProps {
   industries: Industry[];
   className?: string;
 }
 
-export default function IndustriesGrid({
-  industries,
-  className,
-}: IndustriesGridProps): React.ReactElement {
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+// Memoized Industry Card component to prevent unnecessary re-renders
+const IndustryCard = memo(function IndustryCard({
+  industry,
+  isHovered,
+  onMouseEnter,
+  onMouseLeave,
+  priority = false,
+  index,
+  isLarge = false,
+}: IndustryCardProps): React.ReactElement {
+  const { trackEvent } = useAnalytics();
 
-  // Use a 2-3 layout - 2 rectangular cards on top, 3 square cards on bottom
+  const handleLinkClick = useCallback(() => {
+    trackEvent({
+      name: 'industry_card_click',
+      category: 'navigation',
+      label: `industry_${industry.id}`,
+      properties: {
+        industry_id: industry.id,
+        industry_title: industry.title,
+        position: index,
+        is_large_card: isLarge,
+      },
+    });
+  }, [trackEvent, industry.id, industry.title, index, isLarge]);
+
+  // Aspect ratio and sizing based on card type
+  const aspectRatio = isLarge ? 'aspect-[16/9]' : 'aspect-square';
+
+  return (
+    <div
+      className={`relative group overflow-hidden rounded-2xl bg-gray-50 transition-all duration-300 hover:shadow-lg`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onMouseEnter} // Keyboard focus triggers same behavior as hover
+      tabIndex={0} // Make div focusable for keyboard navigation
+    >
+      {/* Background image with overlay */}
+      <div className={`${aspectRatio} relative overflow-hidden`}>
+        <Image
+          src={industry.imagePath ?? `/images/industries/${industry.id}.webp`}
+          alt={`${industry.title} industry visualization`}
+          fill
+          sizes={
+            isLarge
+              ? '(max-width: 768px) 100vw, 50vw'
+              : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
+          }
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
+          priority={priority}
+          loading={priority ? undefined : 'lazy'}
+          quality={isLarge ? 85 : 80} // Higher quality for larger cards
+        />
+        <div
+          className="absolute inset-0 transition-colors duration-300"
+          style={{
+            backgroundColor: isHovered ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.4)',
+          }}
+          aria-hidden="true"
+        />
+      </div>
+
+      {/* Content overlay - positioned at bottom */}
+      <div className="absolute bottom-0 left-0 w-full p-6 z-10">
+        <div
+          className="flex flex-col transition-all duration-300"
+          style={{
+            transform: isHovered ? `translateY(-${isLarge ? '24px' : '16px'})` : 'translateY(0)',
+          }}
+        >
+          <h3 className={`${isLarge ? 'text-2xl' : 'text-xl'} font-normal text-white mb-2`}>
+            {industry.title}
+          </h3>
+
+          {/* Underline border that moves with the title */}
+          <div
+            className="w-[95%] h-px bg-white/40 mb-4 transition-transform duration-300"
+            aria-hidden="true"
+          />
+
+          {/* Description shown on hover */}
+          <div
+            className={`overflow-hidden transition-all duration-300 ${
+              isHovered
+                ? `max-h-${isLarge ? '24' : '20'} opacity-100 mb-${isLarge ? '5' : '4'}`
+                : 'max-h-0 opacity-0'
+            }`}
+          >
+            <p className={`text-white/90 text-${isLarge ? 'sm' : 'xs'}`}>
+              {industry.shortDescription ??
+                'We provide cutting-edge solutions tailored for this industry.'}
+            </p>
+          </div>
+
+          {/* Bottom action row with Learn More link and button */}
+          <div
+            className={`flex items-center justify-end gap-${
+              isLarge ? '4' : '3'
+            } transition-all duration-300 ${
+              isHovered ? 'opacity-100 max-h-10' : 'opacity-0 max-h-0 overflow-hidden'
+            }`}
+          >
+            <Link
+              href={`/industries/${industry.id}`}
+              className={`text-white inline-flex items-center transition-all duration-300 hover:text-yellow-400 text-${
+                isLarge ? 'base' : 'sm'
+              }`}
+              aria-label={`Learn more about ${industry.title} solutions`}
+              onClick={handleLinkClick}
+            >
+              <span>Learn more</span>
+            </Link>
+
+            <Link
+              href={`/industries/${industry.id}`}
+              className={`h-${isLarge ? '10' : '8'} w-${
+                isLarge ? '10' : '8'
+              } rounded-full bg-white flex items-center justify-center transition-all duration-300 hover:bg-yellow-400 ${
+                isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
+              }`}
+              aria-label={`Learn more about ${industry.title} industry solutions`}
+              onClick={handleLinkClick}
+            >
+              <ArrowUpRight
+                className={`h-${isLarge ? '5' : '4'} w-${isLarge ? '5' : '4'} text-gray-900`}
+              />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// Main component with optimizations
+function IndustriesGrid({ industries, className }: IndustriesGridProps): React.ReactElement {
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const { trackEvent } = useAnalytics();
+
+  // Use 2-3 layout - 2 rectangular cards on top, 3 square cards on bottom
   const topIndustries = industries.slice(0, 2);
   const bottomIndustries = industries.slice(2);
 
+  // Track section view - once when component mounts
+  React.useEffect(() => {
+    trackEvent({
+      name: 'industries_grid_view',
+      category: 'engagement',
+      label: 'industries_section',
+      properties: {
+        industry_count: industries.length,
+        industry_categories: industries.map(i => i.id).join(','),
+      },
+    });
+  }, [trackEvent, industries]);
+
+  // Memoized hover handlers
+  const createHoverHandler = useCallback(
+    (industryId: string, isEnter: boolean) => {
+      return (): void => {
+        setHoveredCard(isEnter ? industryId : null);
+
+        // Only track hover events that last for meaningful engagement (300ms)
+        if (isEnter) {
+          const timer = setTimeout(() => {
+            trackEvent({
+              name: 'industry_card_hover',
+              category: 'engagement',
+              label: `industry_${industryId}_hover`,
+              properties: {
+                industry_id: industryId,
+              },
+            });
+          }, 300);
+
+          const cleanup = (): void => {
+            clearTimeout(timer);
+          };
+          cleanup();
+        }
+
+        return undefined;
+      };
+    },
+    [trackEvent]
+  );
+
   return (
     <section className={cn('py-24 bg-white rounded-t-3xl', className)}>
-      <div className="container mx-auto px-4 max-w-7xl">
+      <div className="container mx-auto px-4 max-w-7xl rounded-t-2xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-16">
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium text-gray-900 mb-6 md:mb-0">
             Industries
@@ -47,170 +235,38 @@ export default function IndustriesGrid({
 
         {/* Top row - 2 larger rectangular cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {topIndustries.map(industry => (
-            <div
+          {topIndustries.map((industry, index) => (
+            <IndustryCard
               key={industry.id}
-              className="relative group overflow-hidden rounded-2xl bg-gray-50 transition-all duration-300"
-              onMouseEnter={() => {
-                setHoveredCard(industry.id);
-              }}
-              onMouseLeave={() => {
-                setHoveredCard(null);
-              }}
-            >
-              {/* Background image with overlay */}
-              <div className="aspect-[16/9] relative overflow-hidden">
-                <Image
-                  src={industry.imagePath ?? `/images/industries/${industry.id}.webp`}
-                  alt={`${industry.title} industry`}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300"></div>
-              </div>
-
-              {/* Content overlay - positioned at bottom */}
-              <div className="absolute bottom-0 left-0 w-full p-6 z-10">
-                <div
-                  className="flex flex-col transition-all duration-300"
-                  style={{
-                    transform: hoveredCard === industry.id ? 'translateY(-24px)' : 'translateY(0)',
-                  }}
-                >
-                  <h3 className="text-2xl font-normal text-white mb-2">{industry.title}</h3>
-
-                  {/* Underline border that moves with the title */}
-                  <div className="w-[95%] h-px bg-white/40 mb-4 transition-transform duration-300"></div>
-
-                  {/* Description shown on hover */}
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ${
-                      hoveredCard === industry.id
-                        ? 'max-h-24 opacity-100 mb-5'
-                        : 'max-h-0 opacity-0'
-                    }`}
-                  >
-                    <p className="text-white/90 text-sm">
-                      {industry.shortDescription ??
-                        'We provide cutting-edge solutions tailored for this industry.'}
-                    </p>
-                  </div>
-
-                  {/* Bottom action row with Learn More link and button (shown on hover) */}
-                  <div
-                    className={`flex items-center justify-end gap-4 transition-all duration-300 ${
-                      hoveredCard === industry.id
-                        ? 'opacity-100 max-h-10'
-                        : 'opacity-0 max-h-0 overflow-hidden'
-                    }`}
-                  >
-                    <Link
-                      href={`/industries/${industry.id}`}
-                      className={`text-white inline-flex items-center transition-all duration-300 hover:text-yellow-400`}
-                    >
-                      <span>Learn more</span>
-                    </Link>
-
-                    <Link
-                      href={`/industries/${industry.id}`}
-                      className={`h-10 w-10 rounded-full bg-white flex items-center justify-center transition-all duration-300 hover:bg-yellow-400 ${
-                        hoveredCard === industry.id ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-                      }`}
-                      aria-label={`Learn more about ${industry.title}`}
-                    >
-                      <ArrowUpRight className="h-5 w-5 text-gray-900" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
+              industry={industry}
+              isHovered={hoveredCard === industry.id}
+              onMouseEnter={createHoverHandler(industry.id, true)}
+              onMouseLeave={createHoverHandler(industry.id, false)}
+              priority={index === 0} // Only prioritize the first image
+              index={index}
+              isLarge={true}
+            />
           ))}
         </div>
 
         {/* Bottom grid - 3 square cards in a row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bottomIndustries.map(industry => (
-            <div
+          {bottomIndustries.map((industry, index) => (
+            <IndustryCard
               key={industry.id}
-              className="relative group overflow-hidden rounded-2xl bg-gray-50 transition-all duration-300 hover:shadow-lg"
-              onMouseEnter={() => {
-                setHoveredCard(industry.id);
-              }}
-              onMouseLeave={() => {
-                setHoveredCard(null);
-              }}
-            >
-              {/* Background image with overlay */}
-              <div className="aspect-square relative overflow-hidden">
-                <Image
-                  src={industry.imagePath ?? `/images/industries/${industry.id}.webp`}
-                  alt={`${industry.title} industry`}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                />
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300"></div>
-              </div>
-
-              {/* Content overlay - positioned at bottom */}
-              <div className="absolute bottom-0 left-0 w-full p-6 z-10">
-                <div
-                  className="flex flex-col transition-all duration-300"
-                  style={{
-                    transform: hoveredCard === industry.id ? 'translateY(-16px)' : 'translateY(0)',
-                  }}
-                >
-                  <h3 className="text-xl font-normal text-white mb-2">{industry.title}</h3>
-
-                  {/* Underline border that moves with the title */}
-                  <div className="w-[95%] h-px bg-white/40 mb-3 transition-transform duration-300"></div>
-
-                  {/* Description shown on hover */}
-                  <div
-                    className={`overflow-hidden transition-all duration-300 ${
-                      hoveredCard === industry.id
-                        ? 'max-h-20 opacity-100 mb-4'
-                        : 'max-h-0 opacity-0'
-                    }`}
-                  >
-                    <p className="text-white/90 text-xs">
-                      {industry.shortDescription ??
-                        'We provide cutting-edge solutions tailored for this industry.'}
-                    </p>
-                  </div>
-
-                  {/* Bottom action row with Learn More link and button (shown on hover) */}
-                  <div
-                    className={`flex items-center justify-end gap-3 transition-all duration-300 ${
-                      hoveredCard === industry.id
-                        ? 'opacity-100 max-h-10'
-                        : 'opacity-0 max-h-0 overflow-hidden'
-                    }`}
-                  >
-                    <Link
-                      href={`/industries/${industry.id}`}
-                      className={`text-white text-sm inline-flex items-center transition-all duration-300 hover:text-yellow-400`}
-                    >
-                      <span>Learn more</span>
-                    </Link>
-
-                    <Link
-                      href={`/industries/${industry.id}`}
-                      className={`h-8 w-8 rounded-full bg-white flex items-center justify-center transition-all duration-300 hover:bg-yellow-400 ${
-                        hoveredCard === industry.id ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-                      }`}
-                      aria-label={`Learn more about ${industry.title}`}
-                    >
-                      <ArrowUpRight className="h-4 w-4 text-gray-900" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
+              industry={industry}
+              isHovered={hoveredCard === industry.id}
+              onMouseEnter={createHoverHandler(industry.id, true)}
+              onMouseLeave={createHoverHandler(industry.id, false)}
+              priority={false} // Don't prioritize loading for bottom row
+              index={index + topIndustries.length}
+              isLarge={false}
+            />
           ))}
         </div>
       </div>
     </section>
   );
 }
+
+export default memo(IndustriesGrid);

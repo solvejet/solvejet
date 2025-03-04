@@ -184,46 +184,10 @@ html {
   }
 }
 
+/* Ensure the animation only applies once */
 .animate-fadeIn {
   animation: fadeIn 0.8s ease-out forwards;
-}
-
-/* Create more subtle animations for low-power devices */
-@media (prefers-reduced-motion: reduce) {
-  .animate-fadeIn,
-  .animate-float-line,
-  .animate-bounce,
-  .animate-pulse,
-  .text-rotate-out,
-  .text-rotate-in {
-    animation: none !important;
-  }
-
-  .transition-all,
-  .transition-transform,
-  .transition-opacity {
-    transition: none !important;
-  }
-}
-
-/* Floating line animation */
-@keyframes floatingLine {
-  0% {
-    transform: translateY(0px) rotate(5deg);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translateY(-15px) rotate(5deg);
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(0px) rotate(5deg);
-    opacity: 0.3;
-  }
-}
-
-.animate-float-line {
-  animation: floatingLine 8s ease-in-out infinite;
+  animation-fill-mode: both; /* Ensure the final state is preserved */
 }
 
 /* Text rotation animations */
@@ -249,14 +213,39 @@ html {
   }
 }
 
+/* Use forwards fill mode to ensure animations stick to their final state */
 .text-rotate-out {
   animation: textRotateOut 0.5s forwards;
   transform-origin: center center;
+  animation-fill-mode: forwards;
 }
 
 .text-rotate-in {
   animation: textRotateIn 0.5s forwards;
   transform-origin: center center;
+  animation-fill-mode: forwards;
+}
+
+/* Updated floating line animation */
+@keyframes floatingLine {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-15px) rotate(0deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+}
+
+.animate-float-line {
+  animation: floatingLine 8s ease-in-out infinite;
+  animation-fill-mode: both;
+  will-change: transform, opacity;
 }
 
 /* Scroll indicator animation */
@@ -320,6 +309,7 @@ body.stacked-cards-active::-webkit-scrollbar {
 .fade-slide-up {
   animation: fadeSlideUp 0.8s forwards;
   opacity: 0;
+  will-change: opacity, transform;
 }
 
 .fade-slide-up-delay-1 {
@@ -347,4 +337,15 @@ body.stacked-cards-active::-webkit-scrollbar {
 .animate-marquee {
   display: flex;
   animation: marquee 20s linear infinite;
+  will-change: transform;
+}
+
+/* Create more subtle animations for low-power devices */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

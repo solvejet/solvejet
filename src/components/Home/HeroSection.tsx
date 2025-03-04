@@ -1,20 +1,23 @@
 // src/components/Home/HeroSection.tsx
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import { gsap } from 'gsap';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
+import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';
 
 // Define client logo type for better type safety
 interface ClientLogo {
   path: string;
   alt: string;
+  width: number;
+  height: number;
 }
 
 export default function HeroSection(): React.ReactElement {
   const [textIndex, setTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const rotatingTexts = [
     'Intelligent Solutions',
     'Enterprise Systems',
@@ -22,6 +25,8 @@ export default function HeroSection(): React.ReactElement {
     'Scalable Products',
     'Digital Experiences',
   ];
+
+  const { trackEvent } = useAnalytics();
 
   // For SEO optimization
   const structuredData = {
@@ -32,120 +37,77 @@ export default function HeroSection(): React.ReactElement {
     url: 'https://solvejet.net',
   };
 
-  const heroRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const subHeadingRef = useRef<HTMLDivElement>(null);
-  const paragraphRef = useRef<HTMLParagraphElement>(null);
-  const clientsRef = useRef<HTMLDivElement>(null);
-  const diagonalLineRef = useRef<HTMLDivElement>(null);
   const textSwitcherRef = useRef<HTMLSpanElement>(null);
 
-  // Define client logos with proper typing
+  // Define client logos with proper typing and explicit dimensions
   const clientLogos: ClientLogo[] = [
-    { path: '/images/clients/kelsi_organics.webp', alt: 'Kelsi Organics Logo' },
-    { path: '/images/clients/riya-logo.webp', alt: 'Riya Logo' },
-    { path: '/images/clients/logo.webp', alt: '7Eventzz Logo' },
-    { path: '/images/clients/tyent.webp', alt: 'Tyent Australia Logo' },
+    {
+      path: '/images/clients/kelsi_organics.webp',
+      alt: 'Kelsi Organics Logo',
+      width: 80,
+      height: 30,
+    },
+    { path: '/images/clients/riya-logo.webp', alt: 'Riya Logo', width: 80, height: 30 },
+    { path: '/images/clients/logo.webp', alt: '7Eventzz Logo', width: 80, height: 30 },
+    { path: '/images/clients/tyent.webp', alt: 'Tyent Australia Logo', width: 80, height: 30 },
   ];
 
-  // Text rotation animation with 3D effect
-  useEffect((): (() => void) => {
-    const interval = setInterval(() => {
-      if (!textSwitcherRef.current) return;
+  // Text rotation animation with 3D effect - only if reduced motion is not preferred
+  // Memoize with useCallback to prevent unnecessary re-renders
+  const rotateText = useCallback(() => {
+    if (!textSwitcherRef.current) return;
 
-      // Start rotation out animation
-      setIsAnimating(true);
-
-      // After animation out completes, change text and animate in
+    setIsAnimating(true);
+    setTimeout(() => {
+      setTextIndex(prevIndex => (prevIndex + 1) % rotatingTexts.length);
       setTimeout(() => {
-        setTextIndex(prevIndex => (prevIndex + 1) % rotatingTexts.length);
+        setIsAnimating(false);
+      }, 50);
+    }, 300);
+  }, [rotatingTexts.length]);
 
-        // Small delay before animating in
-        setTimeout(() => {
-          setIsAnimating(false);
-        }, 50);
-      }, 500);
-    }, 5000);
-
-    return (): void => {
-      clearInterval(interval);
-    };
-  }, []);
-
-  // Animation sequence on mount
+  // Initialize and handle animations
   useEffect(() => {
-    // Skip animations if user prefers reduced motion
+    // Wait for the component to be fully mounted before showing animations
+    const initTimer = setTimeout(() => {
+      setIsLoaded(true);
+    }, 50);
+
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (!contentRef.current || prefersReducedMotion) {
-      // Make content visible immediately for users who prefer reduced motion
-      if (
-        prefersReducedMotion &&
-        headingRef.current &&
-        subHeadingRef.current &&
-        paragraphRef.current &&
-        clientsRef.current
-      ) {
-        gsap.set(
-          [headingRef.current, subHeadingRef.current, paragraphRef.current, clientsRef.current],
-          { opacity: 1, y: 0 }
-        );
-      }
-      return;
+    // Only setup rotation for non-reduced motion
+    let intervalId: NodeJS.Timeout | undefined;
+    if (!prefersReducedMotion) {
+      // Start the text rotation after a delay to avoid conflicts with the initial animation
+      intervalId = setInterval(rotateText, 5000);
     }
 
-    const tl = gsap.timeline({
-      defaults: { ease: 'power3.out' },
-      // Delay animation start for better page load performance
-      delay: 0.2,
+    // Track hero section view
+    trackEvent({
+      name: 'view_hero_section',
+      category: 'engagement',
+      label: 'hero_section_viewed',
     });
 
-    // Animate elements in sequence with performance optimizations
-    tl.fromTo(
-      headingRef.current,
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.8, clearProps: 'transform' }
-    )
-      .fromTo(
-        subHeadingRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, clearProps: 'transform' },
-        '-=0.4'
-      )
-      .fromTo(
-        paragraphRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.6, clearProps: 'transform' },
-        '-=0.2'
-      )
-      .fromTo(clientsRef.current, { opacity: 0 }, { opacity: 1, duration: 0.8 }, '-=0.2');
-
-    // Animate diagonal line
-    if (diagonalLineRef.current) {
-      gsap.to(diagonalLineRef.current, {
-        duration: 8,
-        y: -15,
-        opacity: 0.5,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-      });
-    }
-
-    // Clean up
     return (): void => {
-      tl.kill();
+      clearTimeout(initTimer);
+      if (intervalId) clearInterval(intervalId);
     };
-  }, []);
+  }, [rotateText, trackEvent]);
 
-  const scrollToContent = (): void => {
+  const scrollToContent = useCallback((): void => {
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-  };
+
+    // Track scroll interaction
+    trackEvent({
+      name: 'hero_scroll_click',
+      category: 'navigation',
+      label: 'scroll_to_content',
+    });
+  }, [trackEvent]);
 
   return (
     <section
-      ref={heroRef}
       className="relative w-full h-screen overflow-hidden bg-black"
       aria-label="Hero section"
     >
@@ -155,50 +117,62 @@ export default function HeroSection(): React.ReactElement {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* Enhanced background with animated gradient effect */}
-      <div className="absolute inset-0 bg-black overflow-hidden">
-        {/* Primary gradient orb that slowly animates */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-element-900/20 blur-3xl rounded-l-full animate-pulse-slow"></div>
-
-        {/* Secondary floating gradient elements */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-900/10 blur-3xl rounded-full animate-float-slow"></div>
-        <div className="absolute bottom-1/3 right-1/3 w-96 h-96 bg-blue-800/10 blur-3xl rounded-full animate-float-reverse"></div>
-
-        {/* Subtle overlay gradient for texture */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900/50 to-black opacity-90"></div>
-
-        {/* Grain texture overlay */}
-        <div className="absolute inset-0 opacity-20 bg-noise"></div>
-      </div>
-
-      {/* Animated diagonal line */}
-      <div className="absolute bottom-[30%] w-full">
-        <div
-          ref={diagonalLineRef}
-          className="w-full h-[1px] bg-element-500/30 transform rotate-[5deg] animate-float-line"
-        ></div>
-      </div>
-
-      {/* Content container - aligned with header and optimized for all screen sizes */}
+      {/* Pre-rendered background to prevent layout shifts */}
       <div
-        ref={contentRef}
-        className="container mx-auto px-4 sm:px-6 max-w-[95rem] relative z-10 h-full flex flex-col justify-center"
-      >
-        {/* Center Logo removed to avoid duplication with header */}
+        className="absolute inset-0 bg-black"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 70% 30%, rgba(0, 85, 184, 0.15) 0%, rgba(0, 0, 0, 1) 60%)',
+        }}
+        aria-hidden="true"
+      />
 
-        <div className="max-w-7xl sm:ml-0 ml-0 fade-in pt-16 md:pt-0">
+      {/* Subtle diagonal lines with single unified animation */}
+      <div
+        className={`absolute top-[30%] left-0 w-full h-px transform rotate-[5deg] origin-left transition-opacity duration-1000 ${
+          isLoaded ? 'opacity-15 animate-float-line' : 'opacity-0'
+        }`}
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(0, 85, 184, 0.5), transparent)',
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Second diagonal line for layered effect */}
+      <div
+        className={`absolute top-[60%] left-0 w-full h-px transform -rotate-[2deg] origin-right transition-opacity duration-1000 delay-500 ${
+          isLoaded ? 'opacity-10' : 'opacity-0'
+        }`}
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(0, 85, 184, 0.3), transparent)',
+          animation: isLoaded ? 'floatingLine 12s ease-in-out infinite reverse' : 'none',
+          animationDelay: '2s',
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Content container with pre-defined styles to avoid layout shifts */}
+      <div className="container mx-auto px-4 sm:px-6 max-w-[95rem] relative z-10 h-full flex flex-col justify-center">
+        <div className="max-w-7xl sm:ml-0 ml-0 pt-16 md:pt-0">
           {/* Main heading with more space and scroll at far right */}
           <div className="flex justify-between items-start mb-12">
             <div className="w-full max-w-4xl mr-8">
               <h1
-                ref={headingRef}
-                className="text-4xl md:text-5xl lg:text-7xl font-normal text-white leading-tight tracking-tight whitespace-nowrap"
+                className={`text-4xl md:text-5xl lg:text-7xl font-normal text-white leading-tight tracking-tight whitespace-nowrap transition-opacity duration-700 ease-out ${
+                  isLoaded ? 'opacity-100' : 'opacity-0 transform translate-y-4'
+                }`}
+                style={{ transitionDelay: '100ms' }}
               >
                 Engineering Tomorrow
               </h1>
 
               {/* Subheading with highlighted text and animation */}
-              <div ref={subHeadingRef} className="mt-4 text-2xl md:text-4xl font-normal">
+              <div
+                className={`mt-4 text-2xl md:text-4xl font-normal transition-opacity duration-700 ease-out ${
+                  isLoaded ? 'opacity-100' : 'opacity-0 transform translate-y-4'
+                }`}
+                style={{ transitionDelay: '200ms' }}
+              >
                 <span className="text-white">Crafting </span>
                 <span
                   ref={textSwitcherRef}
@@ -215,14 +189,17 @@ export default function HeroSection(): React.ReactElement {
               </div>
             </div>
 
-            {/* Scroll indicator - positioned at far right, only visible on desktop */}
+            {/* Scroll indicator - only visible on desktop */}
             <div
-              className="hidden md:flex items-center text-white cursor-pointer hover:text-white/90 transition-colors mt-4 md:mt-8"
+              className={`hidden md:flex items-center text-white cursor-pointer hover:text-white/90 transition-colors mt-4 md:mt-8 transition-opacity duration-700 ease-out ${
+                isLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ transitionDelay: '400ms' }}
               onClick={scrollToContent}
               role="button"
               tabIndex={0}
               aria-label="Scroll down to content"
-              onKeyDown={e => {
+              onKeyDown={(e): void => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
                   scrollToContent();
@@ -242,10 +219,12 @@ export default function HeroSection(): React.ReactElement {
         {/* Bottom section with paragraph and client logos */}
         <div className="absolute bottom-16 left-0 right-0 container mx-auto px-4 sm:px-6 max-w-[95rem]">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
-            {/* Paragraph content with more generous width and improved line height */}
+            {/* Paragraph content with CSS transitions */}
             <p
-              ref={paragraphRef}
-              className="text-md/8 md:text-sm text-gray-300 max-w-lg md:max-w-3xl lg:max-w-4xl pr-4 leading-relaxed md:leading-8"
+              className={`text-md/8 md:text-sm text-gray-300 max-w-lg md:max-w-3xl lg:max-w-4xl pr-4 leading-relaxed md:leading-8 transition-opacity duration-700 ease-out ${
+                isLoaded ? 'opacity-100' : 'opacity-0 transform translate-y-4'
+              }`}
+              style={{ transitionDelay: '300ms' }}
             >
               SolveJet pioneers technology solutions that transcend conventional boundaries. We
               leverage cutting-edge innovation to empower businesses with scalable, future-proof
@@ -253,56 +232,50 @@ export default function HeroSection(): React.ReactElement {
               digital landscape.
             </p>
 
-            {/* Client logos section - marquee on mobile, static on desktop */}
-            <div className="hidden md:flex items-center space-x-6" ref={clientsRef}>
+            {/* Client logos section - with explicit dimensions and optimized for performance */}
+            <div
+              className={`hidden md:flex items-center space-x-6 transition-opacity duration-700 ease-out ${
+                isLoaded ? 'opacity-100' : 'opacity-0 transform translate-y-4'
+              }`}
+              style={{ transitionDelay: '400ms' }}
+            >
               {clientLogos.map((logo, i) => (
                 <div key={i} className="h-10 w-24 relative overflow-hidden">
                   <div className="w-full h-full bg-white/5 backdrop-blur-sm rounded-sm flex items-center justify-center p-1">
                     <Image
                       src={logo.path}
                       alt={logo.alt}
-                      width={80}
-                      height={30}
+                      width={logo.width}
+                      height={logo.height}
                       className="h-full w-auto object-contain brightness-0 invert opacity-80"
+                      priority={i < 2} // Prioritize loading first two images
                     />
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Mobile marquee for logos */}
-            <div className="md:hidden w-full overflow-hidden">
-              <div className="animate-marquee flex space-x-6">
-                {Array.from({ length: 8 }, (_, i) => {
-                  // Ensure we have a valid index by using modulo
-                  const logoIndex = i % clientLogos.length;
-
-                  // We know this is safe because:
-                  // 1. clientLogos is a non-empty array (defined above)
-                  // 2. We're using modulo of the array length, so index is always valid
-                  // 3. ESLint-friendly approach without non-null assertion
-                  const logo = clientLogos[logoIndex];
-
-                  // TypeScript should recognize logo is defined, but we can be extra safe
-                  if (!logo) {
-                    // This condition will never be true, but it satisfies TypeScript
-                    return null;
-                  }
-
-                  return (
-                    <div key={i} className="h-8 w-20 flex-shrink-0 relative overflow-hidden">
-                      <div className="w-full h-full bg-white/5 backdrop-blur-sm rounded-sm flex items-center justify-center p-1">
-                        <Image
-                          src={logo.path}
-                          alt={logo.alt}
-                          width={64}
-                          height={24}
-                          className="h-full w-auto object-contain brightness-0 invert opacity-80"
-                        />
-                      </div>
+            {/* Mobile marquee for logos - optimized with explicit dimensions */}
+            <div
+              className={`md:hidden w-full overflow-hidden transition-opacity duration-700 ease-out ${
+                isLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ transitionDelay: '400ms' }}
+            >
+              <div className="flex space-x-6">
+                {clientLogos.map((logo, i) => (
+                  <div key={i} className="h-8 w-20 flex-shrink-0 relative overflow-hidden">
+                    <div className="w-full h-full bg-white/5 backdrop-blur-sm rounded-sm flex items-center justify-center p-1">
+                      <Image
+                        src={logo.path}
+                        alt={logo.alt}
+                        width={logo.width}
+                        height={logo.height}
+                        className="h-full w-auto object-contain brightness-0 invert opacity-80"
+                      />
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
