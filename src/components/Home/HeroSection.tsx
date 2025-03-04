@@ -1,11 +1,10 @@
 // src/components/Home/HeroSection.tsx
 'use client';
 
-import { useRef, useState, useCallback, memo } from 'react';
+import { useRef, useState, useCallback, memo, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { Image } from '@/components/ui/Image';
 import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';
-import { useEffect } from 'react';
+import { Image } from '@/components/ui/Image';
 
 // Define client logo type for better type safety
 interface ClientLogo {
@@ -19,7 +18,8 @@ interface ClientLogo {
 const HeroSection = memo(function HeroSection(): React.ReactElement {
   const [textIndex, setTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(true);
+  // Remove animation state that delays critical content
+  const [animationsEnabled, setAnimationsEnabled] = useState(false);
   const rotatingTexts = [
     'Intelligent Solutions',
     'Enterprise Systems',
@@ -65,12 +65,12 @@ const HeroSection = memo(function HeroSection(): React.ReactElement {
   }, [trackEvent]);
 
   useEffect(() => {
-    // Wait for the component to be fully mounted before showing animations
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 50);
+    // Enable animations only after critical content is rendered
+    const animationTimer = setTimeout(() => {
+      setAnimationsEnabled(true);
+    }, 100);
 
-    // Only setup rotation for non-reduced motion
+    // Only setup rotation for non-reduced motion and after initial render
     let rotationTimer: ReturnType<typeof setTimeout> | undefined;
 
     const rotateText = (): void => {
@@ -84,8 +84,13 @@ const HeroSection = memo(function HeroSection(): React.ReactElement {
       }, 300);
     };
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!prefersReducedMotion) {
+    // Check for reduced motion preference
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Only start text rotation after initial render and if animations enabled
+    if (!prefersReducedMotion && animationsEnabled) {
       rotationTimer = setTimeout(() => {
         rotateText();
         // Set up the interval only after the first rotation
@@ -103,14 +108,14 @@ const HeroSection = memo(function HeroSection(): React.ReactElement {
         category: 'engagement',
         label: 'hero_section_viewed',
       });
-    }, 1000);
+    }, 2000); // Delay tracking even further
 
     return (): void => {
-      clearTimeout(timer);
+      clearTimeout(animationTimer);
       clearTimeout(trackingTimer);
       if (rotationTimer) clearTimeout(rotationTimer);
     };
-  }, [rotatingTexts.length, trackEvent]);
+  }, [rotatingTexts.length, trackEvent, animationsEnabled]);
 
   return (
     <section
@@ -133,48 +138,38 @@ const HeroSection = memo(function HeroSection(): React.ReactElement {
         aria-hidden="true"
       />
 
-      {/* Reduced number of decorative elements */}
-      <div
-        className={`absolute top-[40%] left-0 w-full h-px transform rotate-[5deg] origin-left transition-opacity duration-700 ${
-          isLoaded ? 'opacity-15' : 'opacity-0'
-        }`}
-        style={{
-          background: 'linear-gradient(90deg, transparent, rgba(0, 85, 184, 0.5), transparent)',
-        }}
-        aria-hidden="true"
-      />
+      {/* Reduced number of decorative elements - only show when animations are enabled */}
+      {animationsEnabled && (
+        <div
+          className="absolute top-[40%] left-0 w-full h-px transform rotate-[5deg] origin-left opacity-15"
+          style={{
+            background: 'linear-gradient(90deg, transparent, rgba(0, 85, 184, 0.5), transparent)',
+          }}
+          aria-hidden="true"
+        />
+      )}
 
-      {/* Content container with pre-defined styles to avoid layout shifts */}
+      {/* Content container with pre-defined styles - no initial transitions */}
       <div className="container mx-auto px-4 sm:px-6 max-w-[95rem] relative z-10 h-full flex flex-col justify-center">
         <div className="max-w-7xl sm:ml-0 ml-0 pt-16 md:pt-0">
-          {/* Main heading with more space and scroll at far right */}
+          {/* Main heading - render immediately without animations on initial load */}
           <div className="flex justify-between items-start mb-12">
             <div className="w-full max-w-4xl mr-8">
-              <h1
-                className={`text-4xl md:text-5xl lg:text-7xl font-normal text-white leading-tight tracking-tight transition-opacity duration-700 ease-out ${
-                  isLoaded ? 'opacity-100' : 'opacity-0 transform translate-y-4'
-                }`}
-                style={{ transitionDelay: '100ms' }}
-              >
+              <h1 className="text-4xl md:text-5xl lg:text-7xl font-normal text-white leading-tight tracking-tight">
                 Engineering Tomorrow
               </h1>
 
-              {/* Subheading with highlighted text and animation */}
-              <div
-                className={`mt-4 text-2xl md:text-4xl font-normal transition-opacity duration-700 ease-out ${
-                  isLoaded ? 'opacity-100' : 'opacity-0 transform translate-y-4'
-                }`}
-                style={{ transitionDelay: '200ms' }}
-              >
+              {/* Subheading with highlighted text - no animations on initial load */}
+              <div className="mt-4 text-2xl md:text-4xl font-normal">
                 <span className="text-white">Crafting </span>
                 <span
                   ref={textSwitcherRef}
                   className={`text-yellow-500 inline-block min-w-48 ${
-                    isAnimating ? 'text-rotate-out' : 'text-rotate-in'
+                    animationsEnabled && isAnimating ? 'text-rotate-out' : 'text-rotate-in'
                   }`}
                   style={{
                     display: 'inline-block',
-                    perspective: '1000px',
+                    perspective: animationsEnabled ? '1000px' : 'none',
                   }}
                 >
                   {rotatingTexts[textIndex]}
@@ -184,10 +179,7 @@ const HeroSection = memo(function HeroSection(): React.ReactElement {
 
             {/* Scroll indicator - only visible on desktop */}
             <div
-              className={`hidden md:flex items-center text-white cursor-pointer hover:text-white/90 transition-colors mt-4 md:mt-8 transition-opacity duration-700 ease-out ${
-                isLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{ transitionDelay: '400ms' }}
+              className="hidden md:flex items-center text-white cursor-pointer hover:text-white/90 transition-colors mt-4 md:mt-8"
               onClick={scrollToContent}
               role="button"
               tabIndex={0}
@@ -209,15 +201,13 @@ const HeroSection = memo(function HeroSection(): React.ReactElement {
           </div>
         </div>
 
-        {/* Bottom section with paragraph and client logos */}
+        {/* Bottom section with paragraph and client logos - critical LCP element */}
         <div className="absolute bottom-16 left-0 right-0 container mx-auto px-4 sm:px-6 max-w-[95rem]">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
-            {/* Paragraph content with CSS transitions */}
+            {/* Paragraph content - CRITICAL LCP ELEMENT - NO ANIMATIONS INITIALLY */}
             <p
-              className={`text-md/8 md:text-sm text-gray-300 max-w-lg md:max-w-3xl lg:max-w-4xl pr-4 leading-relaxed md:leading-8 transition-opacity duration-700 ease-out ${
-                isLoaded ? 'opacity-100' : 'opacity-0 transform translate-y-4'
-              }`}
-              style={{ transitionDelay: '300ms' }}
+              className="text-md/8 md:text-sm text-gray-300 max-w-lg md:max-w-3xl lg:max-w-4xl pr-4 leading-relaxed md:leading-8"
+              id="hero-description"
             >
               SolveJet pioneers technology solutions that transcend conventional boundaries. We
               leverage cutting-edge innovation to empower businesses with scalable, future-proof
@@ -225,26 +215,23 @@ const HeroSection = memo(function HeroSection(): React.ReactElement {
               digital landscape.
             </p>
 
-            {/* Client logos section - with explicit dimensions and optimized for performance */}
-            <div
-              className={`hidden md:flex items-center space-x-6 transition-opacity duration-700 ease-out ${
-                isLoaded ? 'opacity-100' : 'opacity-0 transform translate-y-4'
-              }`}
-              style={{ transitionDelay: '400ms' }}
-            >
-              {clientLogos.map((logo, i) => (
-                <div key={i} className="h-10 w-24 relative overflow-hidden">
-                  <Image
-                    src={logo.path}
-                    alt={logo.alt}
-                    width={logo.width}
-                    height={logo.height}
-                    className="h-full w-auto object-contain filter brightness-0 invert opacity-80"
-                    priority={i < 2} // Prioritize loading first two images
-                  />
-                </div>
-              ))}
-            </div>
+            {/* Client logos section - load asynchronously */}
+            {animationsEnabled && (
+              <div className="hidden md:flex items-center space-x-6">
+                {clientLogos.map((logo, i) => (
+                  <div key={i} className="h-10 w-24 relative overflow-hidden">
+                    <Image
+                      src={logo.path}
+                      alt={logo.alt}
+                      width={logo.width}
+                      height={logo.height}
+                      className="h-full w-auto object-contain filter brightness-0 invert opacity-80"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
