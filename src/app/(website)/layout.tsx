@@ -10,8 +10,8 @@ const Header = dynamic(() => import('@/components/layout/Header'), {
   ssr: true,
   loading: () => (
     <header className="fixed w-full z-50 py-3 bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6">
-        <div className="h-16 bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg shadow-sm border border-gray-200 dark:border-gray-800 rounded-lg"></div>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[95rem]">
+        <div className="h-16 bg-black/50 backdrop-blur-lg border-0 lg:border border-gray-800/30 rounded-lg"></div>
       </div>
     </header>
   ),

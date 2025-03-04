@@ -25,7 +25,7 @@ export function initLenis(): Lenis | null {
   if (window.lenis) return window.lenis;
 
   const lenisOptions: LenisOptions = {
-    duration: 1.2,
+    duration: 1.1,
     easing: (t: number): number => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     orientation: 'vertical',
     gestureOrientation: 'vertical',

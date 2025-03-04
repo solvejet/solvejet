@@ -185,61 +185,13 @@ export default function Header(): React.ReactElement {
       category: 'navigation',
       label: newState ? 'open_mobile_menu' : 'close_mobile_menu',
     });
-
-    // Close any open mega menu when closing mobile menu
-    if (!newState && openMegaMenu) {
-      setOpenMegaMenu(null);
-    }
-  }, [isMobileMenuOpen, openMegaMenu, trackEvent]);
-
-  // Toggle mega menu in mobile view
-  const toggleMegaMenu = useCallback(
-    (name: string): void => {
-      setOpenMegaMenu(prevState => {
-        const newState = prevState === name ? null : name;
-
-        // Track event
-        trackEvent({
-          name: newState ? 'mobile_submenu_open' : 'mobile_submenu_close',
-          category: 'navigation',
-          label: name,
-          properties: { menu_name: name },
-        });
-
-        return newState;
-      });
-    },
-    [trackEvent]
-  );
+  }, [isMobileMenuOpen, trackEvent]);
 
   // Find active nav item based on pathname
   const currentNavItems: NavItem[] = navigation.map(item => ({
     ...item,
     current: pathname === item.href || pathname.startsWith(`${item.href}/`),
   }));
-
-  // Determine logo color based on page and scroll state
-  const logoColorPrimary = isHeroPage && !isScrolled ? '#ffffff' : '#2c2e35';
-
-  // Get appropriate text color for nav links based on scroll state and page
-  const getNavLinkTextColor = (isCurrent: boolean | undefined): string => {
-    if (isCurrent === true) {
-      return 'text-element-500 dark:text-element-400';
-    }
-
-    // On hero page
-    if (isHeroPage) {
-      // When scrolled, use dark text for better visibility against light backgrounds
-      if (isScrolled) {
-        return 'text-gray-700 hover:text-element-500 dark:text-gray-300 dark:hover:text-element-400';
-      }
-      // Not scrolled (at top of hero), use white text
-      return 'text-white hover:text-element-300';
-    }
-
-    // Not on hero page - use dark text always
-    return 'text-gray-700 hover:text-element-500 dark:text-gray-300 dark:hover:text-element-400';
-  };
 
   return (
     <>
@@ -272,25 +224,23 @@ export default function Header(): React.ReactElement {
       <header
         ref={headerRef}
         className={cn(
-          'fixed w-full z-50 transition-all duration-300 ease-in-out py-3',
+          'fixed w-full z-50 transition-all duration-300 ease-in-out py-2',
           'bg-transparent'
         )}
         itemScope
         itemType="https://schema.org/SiteNavigationElement"
       >
-        <div className="container mx-auto px-4 max-w-7xl">
+        <div className="container mx-auto px-4 max-w-[95rem]">
           {/* Single container for the header */}
           <div
             className={cn(
-              'relative border border-gray-200/30 dark:border-gray-800/30 rounded-lg',
+              'relative border-0 lg:border rounded-lg',
               isScrolled
-                ? 'bg-white/10 dark:bg-gray-900/90 backdrop-blur-lg'
-                : isHeroPage
-                ? 'bg-black/10 dark:bg-gray-900/10 backdrop-blur-md'
-                : 'bg-white/10 dark:bg-gray-900/90 backdrop-blur-lg',
+                ? 'bg-black/80 backdrop-blur-lg border-gray-800/30'
+                : 'bg-black/50 backdrop-blur-md',
               'py-3 px-4',
               'transition-all duration-200 ease-in-out',
-              openMegaMenu ? 'rounded-b-none border-b-0' : 'rounded-b-lg'
+              openMegaMenu ? 'rounded-b-none lg:border-b-0' : 'rounded-b-lg'
             )}
           >
             <div className="flex items-center justify-between">
@@ -309,9 +259,10 @@ export default function Header(): React.ReactElement {
                   }}
                 >
                   <SolvejetLogo
-                    width={180}
-                    height={62}
-                    color={{ primary: logoColorPrimary, accent: '#0055B8' }}
+                    width="auto"
+                    height="auto"
+                    className="w-36 md:w-44"
+                    color={{ primary: '#ffffff', accent: '#0055B8' }}
                   />
                 </Link>
               </div>
@@ -333,8 +284,8 @@ export default function Header(): React.ReactElement {
                     <Link
                       href={item.href}
                       className={cn(
-                        'inline-block px-4 py-2.5 text-base font-medium rounded-md transition-all duration-200 group',
-                        getNavLinkTextColor(item.current)
+                        'inline-block px-4 py-2.5 text-sm font-medium-400 rounded-md transition-all duration-200 group',
+                        item.current ? 'text-element-400' : 'text-white hover:text-element-300'
                       )}
                       itemProp="url"
                       aria-current={item.current ? 'page' : undefined}
@@ -371,13 +322,11 @@ export default function Header(): React.ReactElement {
               {/* Contact us button */}
               <div className="hidden md:block">
                 <TrackedButton
-                  variant={isHeroPage && !isScrolled ? 'default' : 'outline'}
+                  variant="outline"
                   size="lg"
                   className={cn(
                     'py-2 px-5',
-                    isHeroPage && !isScrolled
-                      ? 'bg-element-500 text-white hover:bg-element-600'
-                      : 'border-element-500 text-element-500 hover:bg-element-50 dark:border-element-400 dark:text-element-400 dark:hover:bg-element-900'
+                    'border-element-400 text-element-400 hover:bg-element-900/50'
                   )}
                   leftIcon={<MessageSquare className="h-5 w-5 mr-1" />}
                   onClick={() => (window.location.href = '/contact')}
@@ -399,12 +348,7 @@ export default function Header(): React.ReactElement {
                   aria-controls="mobile-menu"
                   aria-expanded={isMobileMenuOpen}
                   onClick={toggleMobileMenu}
-                  className={cn(
-                    'p-2.5 rounded-md',
-                    isHeroPage && !isScrolled
-                      ? 'text-white hover:bg-white/10'
-                      : 'text-gray-500 hover:text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:bg-gray-800'
-                  )}
+                  className={cn('p-2.5 rounded-md', 'text-white hover:bg-white/10')}
                   trackingEvent={{
                     name: 'mobile_menu_toggle',
                     category: 'navigation',
@@ -412,23 +356,22 @@ export default function Header(): React.ReactElement {
                   }}
                 >
                   <span className="sr-only">{isMobileMenuOpen ? 'Close menu' : 'Open menu'}</span>
-                  <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    {isMobileMenuOpen ? (
+                  {isMobileMenuOpen ? (
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
                         d="M6 18L18 6M6 6l12 12"
                       />
-                    ) : (
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    )}
-                  </svg>
+                    </svg>
+                  ) : (
+                    <div className="flex flex-col space-y-1.5">
+                      <div className="w-6 h-0.5 bg-white rounded-full"></div>
+                      <div className="w-6 h-1 bg-white rounded-full"></div>
+                      <div className="w-6 h-0.5 bg-white rounded-full"></div>
+                    </div>
+                  )}
                 </TrackedButton>
               </div>
             </div>
@@ -453,18 +396,13 @@ export default function Header(): React.ReactElement {
           <div
             className={cn(
               'md:hidden transition-all duration-300 ease-in-out w-full overflow-hidden',
-              'border border-gray-200/30 dark:border-gray-800/30 rounded-b-lg border-t-0',
-              'bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg',
+              'border-0 lg:border border-gray-800/30 rounded-b-lg border-t-0',
+              'bg-black/90 backdrop-blur-lg',
               isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 border-0'
             )}
             id="mobile-menu"
           >
-            <MobileMenu
-              isOpen={isMobileMenuOpen}
-              navItems={currentNavItems}
-              openMegaMenu={openMegaMenu}
-              toggleMegaMenu={toggleMegaMenu}
-            />
+            <MobileMenu isOpen={isMobileMenuOpen} navItems={currentNavItems} />
           </div>
         </div>
       </header>
