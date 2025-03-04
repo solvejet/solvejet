@@ -23,8 +23,8 @@ const nextConfig = {
         hostname: '**',
       },
     ],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
     formats: ['image/webp'],
     minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
@@ -45,13 +45,55 @@ const nextConfig = {
     }
 
     // Add tree-shaking optimization
-    if (config.optimization && !config.optimization.innerGraph) {
+    if (config.optimization) {
+      // Enable inner graph optimization for tree shaking
       config.optimization.innerGraph = true;
-    }
 
-    // Add module concatenation for better bundling
-    if (config.optimization && !config.optimization.concatenateModules) {
+      // Enable module concatenation
       config.optimization.concatenateModules = true;
+
+      // Improve code splitting
+      if (!config.optimization.splitChunks) {
+        config.optimization.splitChunks = {
+          chunks: 'all',
+          maxInitialRequests: 25,
+          minSize: 20000,
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            // Create a framework chunk for React and related libraries
+            framework: {
+              name: 'framework',
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
+              priority: 40,
+              chunks: 'all',
+            },
+            // Create a commons chunk for shared code
+            commons: {
+              name: 'commons',
+              minChunks: 2,
+              priority: 20,
+              chunks: 'all',
+              reuseExistingChunk: true,
+            },
+            // Separate Lib chunks for third party libraries
+            lib: {
+              test: /[\\/]node_modules[\\/]/,
+              name(module: any) {
+                // Extract the package name from the path
+                const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+
+                // npm package names are URL-safe, but some servers don't like @ symbols
+                return `npm.${packageName.replace('@', '')}`;
+              },
+              priority: 10,
+              minChunks: 1,
+              chunks: 'async',
+              reuseExistingChunk: true,
+            },
+          },
+        };
+      }
     }
 
     return config;

@@ -19,7 +19,7 @@ interface ClientLogo {
 const HeroSection = memo(function HeroSection(): React.ReactElement {
   const [textIndex, setTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true);
   const rotatingTexts = [
     'Intelligent Solutions',
     'Enterprise Systems',

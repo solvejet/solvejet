@@ -71,7 +71,6 @@ export function ClientProviders({ children }: ClientProvidersProps): React.React
 
     // Connect Lenis to ScrollTrigger for scroll animations
     if (lenis !== null) {
-      // Use arrow function to avoid 'this' binding issues
       lenis.on('scroll', () => {
         ScrollTrigger.update();
       });

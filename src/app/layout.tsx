@@ -126,11 +126,19 @@ export default function RootLayout({
   children: ReactNode;
 }>): React.JSX.Element {
   return (
-    <html
-      lang="en"
-      className={`${poppins.variable} scroll-smooth bg-primary-light`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${poppins.variable} scroll-smooth`} suppressHydrationWarning>
+      <head>
+        {/* Preload critical assets */}
+        <link
+          rel="preload"
+          href="/images/industries/real-estate.webp"
+          as="image"
+          media="(min-width: 768px)"
+        />
+        {/* Preconnect to origins */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      </head>
       <body className="font-poppins antialiased bg-white dark:bg-black">
         <ClientProviders>{children}</ClientProviders>
       </body>
