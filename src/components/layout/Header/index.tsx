@@ -1,4 +1,4 @@
-// Updated src/components/layout/Header/index.tsx
+// src/components/layout/Header/index.tsx
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -23,8 +23,10 @@ export default function Header(): React.ReactElement {
   const [isLoaded, setIsLoaded] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const exitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
   const { trackEvent } = useAnalytics();
+  const megaMenuContainerRef = useRef<HTMLDivElement>(null);
 
   // Set initial header state and scroll position immediately to prevent flash
   useEffect(() => {
@@ -67,24 +69,37 @@ export default function Header(): React.ReactElement {
     });
   }, [pathname, trackEvent]);
 
-  // Close the megamenu with animation - memoized with useCallback
+  // Clean up timeouts on unmount
+  useEffect(() => {
+    return (): void => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      if (exitTimeoutRef.current) {
+        clearTimeout(exitTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Close the megamenu with animation
   const closeMegaMenu = useCallback((): void => {
     if (openMegaMenu && !isTransitioning) {
       setIsClosing(true);
 
       // Wait for animation to complete before actually closing
-      setTimeout(() => {
+      exitTimeoutRef.current = setTimeout(() => {
         setOpenMegaMenu(null);
         setIsClosing(false);
-      }, 300); // Match animation duration
+      }, 300); // Match animation duration in CSS
     }
   }, [openMegaMenu, isTransitioning]);
 
-  // Handle direct menu change without closing animation - memoized with useCallback
+  // Handle direct menu change without closing animation
   const changeMegaMenu = useCallback(
     (name: string): void => {
       setIsTransitioning(true);
       setOpenMegaMenu(name);
+      setIsClosing(false); // Ensure we're not in closing state
 
       // Track menu open event
       trackEvent({
@@ -102,21 +117,28 @@ export default function Header(): React.ReactElement {
     [trackEvent]
   );
 
-  // Handle hover events for mega menu - memoized with useCallback
+  // Handle hover events for mega menu - simplified for better performance
   const handleNavItemMouseEnter = useCallback(
     (name: string): void => {
-      // Clear any existing timeout
+      // Clear any existing timeouts
       if (hoverTimeoutRef.current) {
         clearTimeout(hoverTimeoutRef.current);
         hoverTimeoutRef.current = null;
       }
 
-      // Set a small delay to prevent flickering
+      if (exitTimeoutRef.current) {
+        clearTimeout(exitTimeoutRef.current);
+        exitTimeoutRef.current = null;
+      }
+
+      // Set a small delay to prevent flickering on accidental hovering
       hoverTimeoutRef.current = setTimeout(() => {
         if (openMegaMenu && openMegaMenu !== name) {
           // If another menu is open, directly change to the new one without closing animation
           changeMegaMenu(name);
         } else if (!openMegaMenu) {
+          // Open new menu, ensuring we're not in closing state
+          setIsClosing(false);
           setOpenMegaMenu(name);
 
           // Track menu open event
@@ -132,6 +154,7 @@ export default function Header(): React.ReactElement {
     [openMegaMenu, changeMegaMenu, trackEvent]
   );
 
+  // Simplified handler for mouse leave
   const handleNavItemMouseLeave = useCallback((): void => {
     // Clear any existing timeout
     if (hoverTimeoutRef.current) {
@@ -139,8 +162,8 @@ export default function Header(): React.ReactElement {
       hoverTimeoutRef.current = null;
     }
 
-    // Set a delay before closing to prevent accidental closing
-    hoverTimeoutRef.current = setTimeout(() => {
+    // Set a delay before closing to allow time to move to menu
+    exitTimeoutRef.current = setTimeout(() => {
       if (!isTransitioning) {
         closeMegaMenu();
       }
@@ -149,29 +172,20 @@ export default function Header(): React.ReactElement {
 
   // Handler for when mouse enters the mega menu itself - keep it open
   const handleMegaMenuMouseEnter = useCallback((): void => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
+    if (exitTimeoutRef.current) {
+      clearTimeout(exitTimeoutRef.current);
+      exitTimeoutRef.current = null;
     }
   }, []);
 
   // Handler for when mouse leaves the mega menu - close after delay
   const handleMegaMenuMouseLeave = useCallback((): void => {
-    hoverTimeoutRef.current = setTimeout(() => {
+    exitTimeoutRef.current = setTimeout(() => {
       if (!isTransitioning) {
         closeMegaMenu();
       }
     }, 100);
   }, [isTransitioning, closeMegaMenu]);
-
-  // Clean up timeouts on unmount
-  useEffect(() => {
-    return (): void => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-    };
-  }, []);
 
   // Handle mobile menu toggle
   const toggleMobileMenu = useCallback((): void => {
@@ -195,9 +209,9 @@ export default function Header(): React.ReactElement {
   // Determine background styling - we set a default background even before isLoaded is true
   const headerBackground = isLoaded
     ? isScrolled
-      ? 'bg-black/80 backdrop-blur-lg border-gray-800/30'
-      : 'bg-black/50 backdrop-blur-md'
-    : 'bg-black/80 backdrop-blur-lg border-gray-800/30'; // Default state during load
+      ? 'bg-gray-900/95 backdrop-blur-lg border-gray-800/30'
+      : 'bg-gray-900/90 backdrop-blur-md'
+    : 'bg-gray-900/95 backdrop-blur-lg border-gray-800/30'; // Default state during load
 
   return (
     <>
@@ -226,7 +240,7 @@ export default function Header(): React.ReactElement {
         }}
       />
 
-      {/* Header container with border, padding and sticky behavior */}
+      {/* Header container*/}
       <header
         ref={headerRef}
         className={cn(
@@ -237,14 +251,14 @@ export default function Header(): React.ReactElement {
         itemType="https://schema.org/SiteNavigationElement"
       >
         <div className="container mx-auto px-4 max-w-[95rem]">
-          {/* Single container for the header - immediately apply background to prevent flash */}
+          {/* Single container for the header */}
           <div
             className={cn(
-              'relative border-0 lg:border rounded-lg',
+              'relative rounded-lg',
               headerBackground, // Use the computed background
               'py-3 px-4',
               'transition-all duration-200 ease-in-out',
-              openMegaMenu ? 'rounded-b-none lg:border-b-0' : 'rounded-b-lg'
+              openMegaMenu ? 'rounded-b-none border-b-0' : 'rounded-b-lg'
             )}
           >
             <div className="flex items-center justify-between">
@@ -288,7 +302,7 @@ export default function Header(): React.ReactElement {
                     <Link
                       href={item.href}
                       className={cn(
-                        'inline-block px-4 py-2.5 text-sm font-medium-400 rounded-md transition-all duration-200 group',
+                        'inline-block px-4 py-2.5 text-sm font-medium rounded-md transition-all duration-200 group',
                         item.current ? 'text-element-400' : 'text-white hover:text-element-300'
                       )}
                       itemProp="url"
@@ -330,9 +344,11 @@ export default function Header(): React.ReactElement {
                   size="lg"
                   className={cn(
                     'py-2 px-5',
-                    'border-element-400 text-element-400 hover:bg-element-900/50'
+                    'border-element-400 text-element-400 hover:bg-element-900/50 group'
                   )}
-                  leftIcon={<MessageSquare className="h-5 w-5 mr-1" />}
+                  leftIcon={
+                    <MessageSquare className="h-5 w-5 mr-1 transition-transform duration-300 group-hover:scale-110" />
+                  }
                   onClick={() => (window.location.href = '/contact')}
                   trackingEvent={{
                     name: 'contact_button_click',
@@ -381,20 +397,21 @@ export default function Header(): React.ReactElement {
             </div>
           </div>
 
-          {/* Mega menu panel - this container needs to match the width */}
-          {openMegaMenu && (
-            <div
-              className="relative z-50"
-              onMouseEnter={handleMegaMenuMouseEnter}
-              onMouseLeave={handleMegaMenuMouseLeave}
-            >
+          {/* Mega menu panel - simplified container */}
+          <div
+            ref={megaMenuContainerRef}
+            className="relative z-50"
+            onMouseEnter={handleMegaMenuMouseEnter}
+            onMouseLeave={handleMegaMenuMouseLeave}
+          >
+            {openMegaMenu && (
               <MegaMenuPanel
                 navItems={navigation}
                 openMegaMenu={openMegaMenu}
                 closing={isClosing}
               />
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Mobile menu - separate from desktop mega menu */}
           <div
@@ -410,7 +427,6 @@ export default function Header(): React.ReactElement {
           </div>
         </div>
       </header>
-
     </>
   );
 }

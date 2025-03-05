@@ -2,12 +2,10 @@
 import {
   Code,
   Brain,
-  HeadsetIcon,
   Users,
   Cloud,
   Smartphone,
   Rocket,
-  BarChart3,
   Building2,
   ShoppingCart,
   Factory,
@@ -18,10 +16,18 @@ import {
   Handshake,
   FileText,
   BookText,
+  Lightbulb,
+  Database,
+  Shield,
+  Cpu,
+  Share2,
+  AirVent,
+  Layers,
+  Puzzle,
 } from 'lucide-react';
 import type { NavItem } from './types';
 
-// Define the navigation items with mega menu content
+// Define the navigation items with enhanced mega menu content
 export const navigation: NavItem[] = [
   {
     name: 'Home',
@@ -31,64 +37,68 @@ export const navigation: NavItem[] = [
     name: 'What We Do',
     href: '/services',
     megaMenu: {
-      title: 'Our Services',
-      description: 'Comprehensive software development and digital transformation solutions',
+      title: 'Our Solutions & Services',
+      description:
+        'Discover how we can transform your business with cutting-edge technology solutions tailored to your specific needs.',
       columns: [
         {
-          title: 'Core Services',
+          title: 'Core Solutions',
           items: [
             {
               title: 'Custom Software Development',
               href: '/services/custom-software-development',
-              description: 'Tailored software solutions for your business needs',
+              description:
+                'Bespoke software solutions designed to address your unique business challenges.',
               icon: <Code className="h-5 w-5" />,
             },
             {
               title: 'Artificial Intelligence',
               href: '/services/artificial-intelligence',
-              description: 'AI and machine learning solutions',
+              description:
+                'Harness the power of AI and ML to automate processes and gain valuable insights.',
               icon: <Brain className="h-5 w-5" />,
             },
             {
-              title: 'IT Consulting',
-              href: '/services/it-consulting',
-              description: 'Strategic technology consulting',
-              icon: <HeadsetIcon className="h-5 w-5" />,
+              title: 'Enterprise Systems',
+              href: '/services/enterprise-systems',
+              description: 'Scalable, secure, and integrated solutions for large-scale operations.',
+              icon: <Database className="h-5 w-5" />,
             },
             {
-              title: 'IT Staff Augmentation',
-              href: '/services/it-staff-augmentation',
-              description: 'Skilled resources for your projects',
-              icon: <Users className="h-5 w-5" />,
+              title: 'Digital Transformation',
+              href: '/services/digital-transformation',
+              description: 'Strategic initiatives to evolve your business in the digital era.',
+              icon: <Share2 className="h-5 w-5" />,
             },
           ],
         },
         {
-          title: 'Technology Solutions',
+          title: 'Technical Expertise',
           items: [
             {
               title: 'Cloud Services',
               href: '/services/cloud-services',
-              description: 'AWS, Azure, and Google Cloud solutions',
+              description: 'AWS, Azure, and Google Cloud solutions for optimized infrastructure.',
               icon: <Cloud className="h-5 w-5" />,
             },
             {
-              title: 'Mobile App Development',
+              title: 'Mobile Development',
               href: '/services/mobile-app-development',
-              description: 'iOS and Android applications',
+              description: 'Native and cross-platform solutions for iOS and Android.',
               icon: <Smartphone className="h-5 w-5" />,
             },
             {
-              title: 'MVP Development',
-              href: '/services/mvp-development',
-              description: 'Validate your product ideas quickly',
-              icon: <Rocket className="h-5 w-5" />,
+              title: 'IoT Solutions',
+              href: '/services/iot-solutions',
+              description: 'Connect your devices and systems for intelligent data exchange.',
+              icon: <Cpu className="h-5 w-5" />,
             },
             {
-              title: 'Data Analytics',
-              href: '/services/data-analytics',
-              description: 'Turn your data into actionable insights',
-              icon: <BarChart3 className="h-5 w-5" />,
+              title: 'Cybersecurity',
+              href: '/services/cybersecurity',
+              description:
+                'Protect your data and systems with our comprehensive security approach.',
+              icon: <Shield className="h-5 w-5" />,
             },
           ],
         },
@@ -99,29 +109,36 @@ export const navigation: NavItem[] = [
     name: 'Industries',
     href: '/industries',
     megaMenu: {
-      title: 'Industries We Serve',
-      description: 'Specialized solutions for diverse industry verticals',
+      title: 'Industry Expertise',
+      description:
+        'Our deep understanding of various sectors enables us to deliver tailored solutions that address industry-specific challenges.',
       columns: [
         {
-          title: 'Key Industries',
+          title: 'Business Sectors',
           items: [
             {
-              title: 'Real Estate',
+              title: 'Real Estate & PropTech',
               href: '/industries/real-estate',
-              description: 'PropTech solutions for the modern real estate industry',
+              description: 'Digital solutions transforming property management and transactions.',
               icon: <Building2 className="h-5 w-5" />,
             },
             {
-              title: 'Ecommerce',
+              title: 'E-commerce & Retail',
               href: '/industries/ecommerce',
-              description: 'Digital commerce solutions',
+              description: 'Scalable platforms and systems for modern commerce operations.',
               icon: <ShoppingCart className="h-5 w-5" />,
             },
             {
               title: 'Manufacturing',
               href: '/industries/manufacturing',
-              description: 'Industry 4.0 and smart manufacturing',
+              description: 'Industry 4.0 solutions for smart manufacturing and operations.',
               icon: <Factory className="h-5 w-5" />,
+            },
+            {
+              title: 'Healthcare & Biotech',
+              href: '/industries/healthcare',
+              description: 'Innovative solutions for patient care and medical research.',
+              icon: <AirVent className="h-5 w-5" />,
             },
           ],
         },
@@ -129,16 +146,28 @@ export const navigation: NavItem[] = [
           title: 'Additional Sectors',
           items: [
             {
-              title: 'Logistics',
+              title: 'Logistics & Supply Chain',
               href: '/industries/logistics',
-              description: 'Supply chain and logistics optimization',
+              description: 'Optimize your supply chain with intelligent tracking and management.',
               icon: <Truck className="h-5 w-5" />,
             },
             {
-              title: 'Travel & Tourism',
+              title: 'Travel & Hospitality',
               href: '/industries/travel-tourism',
-              description: 'Digital solutions for travel businesses',
+              description: 'Enhance guest experiences and streamline operations.',
               icon: <Plane className="h-5 w-5" />,
+            },
+            {
+              title: 'Finance & FinTech',
+              href: '/industries/finance',
+              description: 'Secure and innovative solutions for financial services.',
+              icon: <Layers className="h-5 w-5" />,
+            },
+            {
+              title: 'Education & EdTech',
+              href: '/industries/education',
+              description: 'Transform learning experiences with technology.',
+              icon: <Lightbulb className="h-5 w-5" />,
             },
           ],
         },
@@ -150,52 +179,64 @@ export const navigation: NavItem[] = [
     href: '/company',
     megaMenu: {
       title: 'About SolveJet',
-      description: 'Learn more about our company, culture, and expertise',
+      description:
+        'Learn about our journey, mission, and the passionate team driving innovation and excellence in everything we do.',
       columns: [
         {
-          title: 'Who We Are',
+          title: 'Our Organization',
           items: [
             {
               title: 'About Us',
               href: '/company/about',
-              description: 'Our story, mission, and values',
+              description: 'Our story, mission, values, and commitment to excellence.',
               icon: <Home className="h-5 w-5" />,
+            },
+            {
+              title: 'Leadership Team',
+              href: '/company/leadership',
+              description: 'Meet the visionaries guiding our company toward innovation.',
+              icon: <Users className="h-5 w-5" />,
             },
             {
               title: 'Careers',
               href: '/company/careers',
-              description: 'Join our growing team',
+              description: 'Join our growing team of passionate technology experts.',
               icon: <Briefcase className="h-5 w-5" />,
             },
             {
               title: 'Partnerships',
               href: '/company/partnerships',
-              description: 'Strategic alliances and collaborations',
+              description: 'Strategic alliances that expand our capabilities and reach.',
               icon: <Handshake className="h-5 w-5" />,
             },
           ],
         },
         {
-          title: 'Resources',
+          title: 'Insights & Resources',
           items: [
-            {
-              title: 'Blogs',
-              href: '/company/blogs',
-              description: 'Insights and thought leadership',
-              icon: <FileText className="h-5 w-5" />,
-            },
             {
               title: 'Case Studies',
               href: '/company/case-studies',
-              description: 'Our success stories and project highlights',
+              description: 'Success stories showcasing our impactful solutions.',
               icon: <BookText className="h-5 w-5" />,
             },
-
             {
-              title: 'Tech Study',
-              href: '/company/tech-study',
-              description: 'Our success stories and project highlights',
-              icon: <BookText className="h-5 w-5" />,
+              title: 'Blog',
+              href: '/company/blog',
+              description: 'Thought leadership, industry insights, and technology trends.',
+              icon: <FileText className="h-5 w-5" />,
+            },
+            {
+              title: 'Innovation Lab',
+              href: '/company/innovation',
+              description: 'Explore our latest research and experimental projects.',
+              icon: <Rocket className="h-5 w-5" />,
+            },
+            {
+              title: 'Technical Guides',
+              href: '/company/resources',
+              description: 'In-depth technical content and best practices.',
+              icon: <Puzzle className="h-5 w-5" />,
             },
           ],
         },
@@ -203,7 +244,11 @@ export const navigation: NavItem[] = [
     },
   },
   {
-    name: 'Case Study',
-    href: '/case-study',
+    name: 'Case Studies',
+    href: '/case-studies',
+  },
+  {
+    name: 'Contact',
+    href: '/contact',
   },
 ];

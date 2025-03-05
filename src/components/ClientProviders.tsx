@@ -6,16 +6,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthInitializer } from '@/components/AuthInitializer';
+import { initLenis, destroyLenis } from '@/lib/lenis';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 
 // Register ScrollTrigger with GSAP
-// Dynamically import GSAP to prevent it from blocking initial render
-const loadGsapWithPlugins = async (): Promise<void> => {
-  if (typeof window === 'undefined') return;
-
-  const { gsap } = await import('gsap');
-  const { ScrollTrigger } = await import('gsap/dist/ScrollTrigger');
+if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
-};
+}
 
 // Lazy load non-critical components
 const SecurityProvider = lazy(() =>
@@ -44,13 +42,6 @@ const SpeedInsights = lazy(() =>
     : Promise.resolve({ default: () => null })
 );
 
-// Lazy load lenis smooth scrolling after critical content renders
-const SmoothScroll = lazy(() => {
-  return import('./SmoothScroll').then(mod => ({
-    default: mod.SmoothScroll,
-  }));
-});
-
 interface ClientProvidersProps {
   children: ReactNode;
 }
@@ -71,27 +62,30 @@ export function ClientProviders({ children }: ClientProvidersProps): React.React
 
   // Avoid hydration mismatch
   const [mounted, setMounted] = useState(false);
-  const [gsapLoaded, setGsapLoaded] = useState(false);
 
   useEffect((): (() => void) => {
     setMounted(true);
 
-    // Load GSAP and plugins asynchronously
-    let gsapLoading = false;
+    // Initialize Lenis for smooth scrolling site-wide
+    const lenis = initLenis();
 
-    // Delay GSAP loading to improve initial render time
-    const timer = setTimeout(() => {
-      if (!gsapLoading) {
-        gsapLoading = true;
-        void loadGsapWithPlugins().then(() => {
-          setGsapLoaded(true);
-        });
-      }
-    }, 1000);
+    // Connect Lenis to ScrollTrigger for scroll animations
+    if (lenis !== null) {
+      lenis.on('scroll', () => {
+        ScrollTrigger.update();
+      });
+
+      // Use arrow function to avoid 'this' binding issues
+      gsap.ticker.add((time): void => {
+        lenis.raf(time * 1000);
+      });
+
+      gsap.ticker.lagSmoothing(0);
+    }
 
     // Cleanup function
     return (): void => {
-      clearTimeout(timer);
+      destroyLenis();
     };
   }, []);
 
@@ -107,7 +101,6 @@ export function ClientProviders({ children }: ClientProvidersProps): React.React
           {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
         </Suspense>
         <AuthInitializer />
-        {/* Delay loading non-critical UI enhancements */}
         <Suspense fallback={null}>
           <SpeedInsights />
         </Suspense>
@@ -116,15 +109,7 @@ export function ClientProviders({ children }: ClientProvidersProps): React.React
             <Suspense fallback={<>{children}</>}>
               <AnalyticsProvider>
                 <Suspense fallback={<>{children}</>}>
-                  <Providers>
-                    {/* Only load smooth scrolling after everything else */}
-                    {gsapLoaded && (
-                      <Suspense fallback={null}>
-                        <SmoothScroll />
-                      </Suspense>
-                    )}
-                    {children}
-                  </Providers>
+                  <Providers>{children}</Providers>
                 </Suspense>
               </AnalyticsProvider>
             </Suspense>

@@ -1,7 +1,7 @@
 // src/components/Home/IndustriesGrid.tsx
 'use client';
 
-import React, { useState, useCallback, memo } from 'react';
+import React, { useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
@@ -34,8 +34,8 @@ interface IndustriesGridProps {
   className?: string;
 }
 
-// Optimized memoized card component
-const IndustryCard = memo(function IndustryCard({
+// Define IndustryCard without memo
+function IndustryCard({
   industry,
   isHovered,
   onMouseEnter,
@@ -153,9 +153,9 @@ const IndustryCard = memo(function IndustryCard({
       </div>
     </div>
   );
-});
+}
 
-// Main component with optimizations
+// Main component without memoization
 function IndustriesGrid({ industries, className }: IndustriesGridProps): React.ReactElement {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const { trackEvent } = useAnalytics();
@@ -220,7 +220,7 @@ function IndustriesGrid({ industries, className }: IndustriesGridProps): React.R
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium text-gray-900 mb-6 md:mb-0">
             Industries
           </h2>
-          <p className="text-xl text-gray-600 max-w-lg">
+          <p className="text-lg text-gray-600 max-w-lg">
             We can help you do more in your area of expertise
           </p>
         </div>
@@ -263,4 +263,4 @@ function IndustriesGrid({ industries, className }: IndustriesGridProps): React.R
   );
 }
 
-export default memo(IndustriesGrid);
+export default IndustriesGrid;

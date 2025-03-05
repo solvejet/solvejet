@@ -86,7 +86,7 @@ export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
     return (
       <div
         className={cn(
-          'relative overflow-hidden bg-gray-100 dark:bg-gray-800',
+          'relative overflow-hidden bg-transparent',
           aspectRatioClasses[aspectRatio],
           wrapperClassName
         )}

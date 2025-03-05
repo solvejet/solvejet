@@ -7,7 +7,7 @@ import { ClientProviders } from '@/components/ClientProviders';
 
 const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-poppins',
   display: 'swap',
   preload: true,
