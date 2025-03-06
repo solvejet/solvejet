@@ -5,6 +5,7 @@ import './globals.css';
 import type { ReactNode } from 'react';
 import { ClientProviders } from '@/components/ClientProviders';
 
+// Optimize font loading - only load essential weights
 const poppins = Poppins({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
@@ -15,6 +16,7 @@ const poppins = Poppins({
   adjustFontFallback: true,
 });
 
+// Essential metadata
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
   title: {
@@ -128,16 +130,45 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} scroll-smooth`} suppressHydrationWarning>
       <head>
-        {/* Preload critical assets */}
-        <link
-          rel="preload"
-          href="/images/industries/real-estate.webp"
-          as="image"
-          media="(min-width: 768px)"
-        />
         {/* Preconnect to origins */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+
+        {/* Critical CSS for LCP optimization */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+          #hero-description {
+            color: #f3f4f6;
+            font-size: 1rem;
+            line-height: 1.7;
+            max-width: 32rem;
+            padding-right: 1rem;
+          }
+          @media (min-width: 768px) {
+            #hero-description {
+              font-size: 0.875rem;
+              max-width: 48rem;
+            }
+          }
+          @media (min-width: 1024px) {
+            #hero-description {
+              max-width: 56rem;
+            }
+          }
+          .bg-hero {
+            background-color: rgb(17, 24, 39);
+          }
+          .hero-grid {
+            background-image: linear-gradient(rgba(55, 65, 81, 0.4) 1px, transparent 1px),
+                             linear-gradient(90deg, rgba(55, 65, 81, 0.4) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: -0.5px -0.5px;
+            opacity: 0.3;
+          }
+        `,
+          }}
+        />
       </head>
       <body className="font-poppins antialiased bg-white dark:bg-black">
         <ClientProviders>{children}</ClientProviders>

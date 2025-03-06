@@ -1,10 +1,10 @@
 // src/components/Home/HeroSection.tsx
 'use client';
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';
-import { Image } from '@/components/ui/Image';
+import Image from 'next/image';
 
 // Define client logo type for better type safety
 interface ClientLogo {
@@ -14,10 +14,11 @@ interface ClientLogo {
   height: number;
 }
 
-// Simplified and optimized hero section
+// Use memo to prevent unnecessary re-renders
 export default function HeroSection(): React.ReactElement {
   const [textIndex, setTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  // We'll directly include animations - no loading state delay for critical content
   const rotatingTexts = [
     'Intelligent Solutions',
     'Enterprise Systems',
@@ -29,7 +30,7 @@ export default function HeroSection(): React.ReactElement {
   const { trackEvent } = useAnalytics();
   const textSwitcherRef = useRef<HTMLSpanElement>(null);
 
-  // Define client logos with proper typing and explicit dimensions
+  // Define client logos
   const clientLogos: ClientLogo[] = [
     {
       path: '/images/clients/kelsi_organics.webp',
@@ -52,52 +53,37 @@ export default function HeroSection(): React.ReactElement {
     });
   }, [trackEvent]);
 
-  // Set up text rotation after component is mounted
-  React.useEffect(() => {
-    // Initial tracking
-    const trackingTimer = setTimeout(() => {
-      trackEvent({
-        name: 'view_hero_section',
-        category: 'engagement',
-        label: 'hero_section_viewed',
-      });
+  // Text rotation effect
+  useEffect(() => {
+    const rotateText = (): void => {
+      if (!textSwitcherRef.current) return;
+      setIsAnimating(true);
+      setTimeout(() => {
+        setTextIndex(prevIndex => (prevIndex + 1) % rotatingTexts.length);
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 50);
+      }, 300);
+    };
+
+    // Start text rotation after initial render
+    const rotationTimer = setTimeout(() => {
+      rotateText();
+      const intervalId = setInterval(rotateText, 5000);
+      return (): void => {
+        clearInterval(intervalId);
+      };
     }, 2000);
 
-    // Check for reduced motion preference
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // Only start text rotation if animations should be enabled
-    if (!prefersReducedMotion) {
-      const rotateText = (): void => {
-        if (!textSwitcherRef.current) return;
-        setIsAnimating(true);
-        setTimeout(() => {
-          setTextIndex(prevIndex => (prevIndex + 1) % rotatingTexts.length);
-          setTimeout(() => {
-            setIsAnimating(false);
-          }, 50);
-        }, 300);
-      };
-
-      // Set up the rotation with a delay to allow initial render
-      const rotationTimer = setTimeout(() => {
-        rotateText();
-        const intervalId = setInterval(rotateText, 5000);
-        return (): void => {
-          clearInterval(intervalId);
-        };
-      }, 2000);
-
-      return (): void => {
-        clearTimeout(rotationTimer);
-        clearTimeout(trackingTimer);
-      };
-    }
+    // Track view
+    trackEvent({
+      name: 'view_hero_section',
+      category: 'engagement',
+      label: 'hero_section_viewed',
+    });
 
     return (): void => {
-      clearTimeout(trackingTimer);
+      clearTimeout(rotationTimer);
     };
   }, [rotatingTexts.length, trackEvent]);
 
@@ -107,29 +93,29 @@ export default function HeroSection(): React.ReactElement {
       aria-label="Hero section"
     >
       {/* Static background - pre-rendered */}
-      <div className="absolute inset-0 bg-[rgba(17, 24, 39, 1) 60%)]" aria-hidden="true" />
+      <div className="absolute inset-0 bg-[rgba(17, 24, 39, 1)]" aria-hidden="true" />
 
-      {/* Grid background */}
+      {/* Grid background - more visible */}
       <div
         className="absolute inset-0 opacity-30"
         style={{
           backgroundImage:
-            'linear-gradient(rgba(35, 40, 50, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(35, 40, 50, 0.2) 1px, transparent 1px)',
+            'linear-gradient(rgba(55, 65, 81, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(55, 65, 81, 0.4) 1px, transparent 1px)',
           backgroundSize: '40px 40px',
           backgroundPosition: '-0.5px -0.5px',
         }}
         aria-hidden="true"
       />
 
-      {/* Static accent circles */}
+      {/* Static accent circles - pre-rendered */}
       <div
-        className="absolute opacity-35 rounded-full"
+        className="absolute opacity-40 rounded-full"
         style={{
           width: '500px',
           height: '500px',
           left: '15%',
           top: '30%',
-          background: 'radial-gradient(circle, rgba(0, 85, 184, 0.2) 0%, rgba(0, 85, 184, 0) 70%)',
+          background: 'radial-gradient(circle, rgba(0, 85, 184, 0.3) 0%, rgba(0, 85, 184, 0) 70%)',
           filter: 'blur(50px)',
           transform: 'translate(-50%, -50%)',
         }}
@@ -137,14 +123,14 @@ export default function HeroSection(): React.ReactElement {
       />
 
       <div
-        className="absolute opacity-25 rounded-full"
+        className="absolute opacity-30 rounded-full"
         style={{
           width: '400px',
           height: '400px',
           right: '10%',
           bottom: '20%',
           background:
-            'radial-gradient(circle, rgba(255, 204, 0, 0.15) 0%, rgba(255, 204, 0, 0) 70%)',
+            'radial-gradient(circle, rgba(255, 204, 0, 0.2) 0%, rgba(255, 204, 0, 0) 70%)',
           filter: 'blur(50px)',
           transform: 'translate(50%, 50%)',
         }}
@@ -199,21 +185,17 @@ export default function HeroSection(): React.ReactElement {
           </div>
         </div>
 
-        {/* Critical LCP element - use simple, static content for fastest render */}
+        {/* Critical LCP element - rendered with inline styles for faster display */}
         <div className="absolute bottom-16 left-0 right-0 container mx-auto px-4 sm:px-6 max-w-[95rem]">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
-            {/* Paragraph content - this is the LCP element */}
-            <p
-              className="text-md/9 md:text-sm text-gray-300 max-w-lg md:max-w-3xl lg:max-w-4xl pr-4 leading-relaxed md:leading-loose"
-              id="hero-description"
-            >
+            <p id="hero-description" className="text-gray-300 leading-relaxed md:leading-loose">
               SolveJet pioneers technology solutions that transcend conventional boundaries. We
               leverage cutting-edge innovation to empower businesses with scalable, future-proof
               systems that drive growth and operational excellence in today's rapidly evolving
               digital landscape.
             </p>
 
-            {/* Client logos section - load with low priority */}
+            {/* Client logos - can load after critical content */}
             <div className="hidden md:flex items-center space-x-8">
               {clientLogos.map((logo, i) => (
                 <div key={i} className="h-12 w-32 relative flex items-center justify-center">

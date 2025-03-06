@@ -200,7 +200,6 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({ services, className }) 
                     category: 'navigation',
                     label: 'portfolio_view',
                   }}
-                  className="border-white text-white hover:bg-white/10"
                 >
                   View Our Work
                 </TrackedButton>

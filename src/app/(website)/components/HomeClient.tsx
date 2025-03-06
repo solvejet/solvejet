@@ -4,9 +4,9 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 
-// Import the components directly rather than using dynamic imports for now
 import HeroSection from '@/components/Home/HeroSection';
 import ServiceSection from '@/components/Home/ServiceSection';
+import ClientsSection from '@/components/Home/ClientsSection';
 import IndustriesGrid from '@/components/Home/IndustriesGrid';
 
 // Industry and services data
@@ -179,6 +179,7 @@ export default function HomeClient(): ReactElement {
       <HeroSection />
       <IndustriesGrid industries={industries} />
       <ServiceSection services={services} />
+      <ClientsSection />
     </>
   );
 }

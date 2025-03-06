@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import { Image } from '@/components/ui/Image';
+import Image from 'next/image';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Table } from '@/components/ui/table/Table';
@@ -264,7 +264,6 @@ export function ExamplePageClient(): JSX.Element {
               alt="Example image"
               width={400}
               height={300}
-              aspectRatio="4:3"
               className="rounded-lg"
             />
             <div className="space-y-4">

@@ -16,13 +16,10 @@ import {
   Handshake,
   FileText,
   BookText,
-  Lightbulb,
   Database,
   Shield,
   Cpu,
   Share2,
-  AirVent,
-  Layers,
   Puzzle,
 } from 'lucide-react';
 import type { NavItem } from './types';
@@ -134,12 +131,6 @@ export const navigation: NavItem[] = [
               description: 'Industry 4.0 solutions for smart manufacturing and operations.',
               icon: <Factory className="h-5 w-5" />,
             },
-            {
-              title: 'Healthcare & Biotech',
-              href: '/industries/healthcare',
-              description: 'Innovative solutions for patient care and medical research.',
-              icon: <AirVent className="h-5 w-5" />,
-            },
           ],
         },
         {
@@ -156,18 +147,6 @@ export const navigation: NavItem[] = [
               href: '/industries/travel-tourism',
               description: 'Enhance guest experiences and streamline operations.',
               icon: <Plane className="h-5 w-5" />,
-            },
-            {
-              title: 'Finance & FinTech',
-              href: '/industries/finance',
-              description: 'Secure and innovative solutions for financial services.',
-              icon: <Layers className="h-5 w-5" />,
-            },
-            {
-              title: 'Education & EdTech',
-              href: '/industries/education',
-              description: 'Transform learning experiences with technology.',
-              icon: <Lightbulb className="h-5 w-5" />,
             },
           ],
         },
