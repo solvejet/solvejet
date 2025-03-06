@@ -1,68 +1,22 @@
 // src/app/(website)/components/HomeClient.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import React from 'react';
 import type { ReactElement } from 'react';
 
-// Simple dynamic imports without any additional transformations
-const HeroSection = dynamic(() => import('@/components/Home/HeroSection'), {
-  ssr: true,
-  loading: () => (
-    <div className="h-screen w-full bg-black flex items-center justify-center">
-      <div className="w-32 h-8 bg-element-900/50 animate-pulse rounded"></div>
-    </div>
-  ),
-});
+// Import the components directly rather than using dynamic imports for now
+import HeroSection from '@/components/Home/HeroSection';
+import ServiceSection from '@/components/Home/ServiceSection';
+import IndustriesGrid from '@/components/Home/IndustriesGrid';
 
-const ServiceSection = dynamic(() => import('@/components/Home/ServiceSection'), {
-  ssr: true,
-  loading: () => (
-    <div className="py-24 bg-gray-50 dark:bg-gray-900">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="text-center mb-16">
-          <div className="h-12 w-64 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mx-auto"></div>
-          <div className="h-8 w-96 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mx-auto mt-4"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div
-              key={i}
-              className="h-64 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
-            ></div>
-          ))}
-        </div>
-      </div>
-    </div>
-  ),
-});
-
-const IndustriesGrid = dynamic(() => import('@/components/Home/IndustriesGrid'), {
-  ssr: true,
-  loading: () => (
-    <div className="py-24 bg-white rounded-t-3xl">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-16">
-          <div className="h-12 w-64 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-8 w-96 bg-gray-200 rounded animate-pulse"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {[1, 2].map(i => (
-            <div key={i} className="aspect-[16/9] bg-gray-200 rounded-2xl animate-pulse"></div>
-          ))}
-        </div>
-      </div>
-    </div>
-  ),
-});
-
+// Industry and services data
 const industries = [
   {
     id: 'real-estate',
     title: 'Real Estate',
     description: 'PropTech solutions for the modern real estate industry',
     shortDescription:
-      'Our innovative real estate solutions streamline property management, sales processes, and data analytics for agencies and developers.',
+      'Our innovative real estate solutions streamline property management, sales processes, and data analytics.',
     iconName: 'Building2',
     color: 'bg-blue-500',
     imagePath: '/images/industries/real-estate.webp',
@@ -72,7 +26,7 @@ const industries = [
     title: 'Ecommerce',
     description: 'Digital commerce solutions for global reach',
     shortDescription:
-      'We build powerful, scalable ecommerce platforms that integrate seamlessly with payment gateways and inventory systems.',
+      'We build powerful, scalable ecommerce platforms with seamless payment and inventory integration.',
     iconName: 'ShoppingCart',
     color: 'bg-purple-500',
     imagePath: '/images/industries/ecommerce.webp',
@@ -82,7 +36,7 @@ const industries = [
     title: 'Manufacturing',
     description: 'Industry 4.0 and smart manufacturing',
     shortDescription:
-      'Our Industry 4.0 solutions incorporate IoT, AI, and data analytics to optimize production processes and reduce downtime.',
+      'Our Industry 4.0 solutions incorporate IoT, AI, and data analytics to optimize production.',
     iconName: 'Factory',
     color: 'bg-green-500',
     imagePath: '/images/industries/manufacturing.webp',
@@ -92,7 +46,7 @@ const industries = [
     title: 'Logistics',
     description: 'Supply chain and logistics optimization',
     shortDescription:
-      'We develop comprehensive logistics management systems that provide real-time tracking and route optimization.',
+      'We develop comprehensive logistics management systems with real-time tracking.',
     iconName: 'Truck',
     color: 'bg-amber-500',
     imagePath: '/images/industries/logistics.webp',
@@ -102,14 +56,14 @@ const industries = [
     title: 'Travel & Tourism',
     description: 'Digital solutions for travel businesses',
     shortDescription:
-      'Our travel industry solutions help agencies, hotels, and tour operators deliver exceptional customer experiences.',
+      'Our travel industry solutions help agencies, hotels, and tour operators deliver exceptional experiences.',
     iconName: 'Plane',
     color: 'bg-teal-500',
     imagePath: '/images/industries/travel.webp',
   },
 ];
 
-// Services data with tags for each service
+// Complete services data (restored from previous version)
 const services = [
   {
     id: 'custom-software-development',
@@ -219,23 +173,9 @@ const services = [
 ];
 
 export default function HomeClient(): ReactElement {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // Only show content after client-side mount
-    setMounted(true);
-
-    // Reset scroll position when component mounts
-    window.scrollTo(0, 0);
-  }, []);
-
-  if (!mounted) {
-    // Return a simple placeholder while mounting
-    return <div className="h-screen bg-black"></div>;
-  }
-
   return (
     <>
+      {/* Render components directly instead of using Suspense for now */}
       <HeroSection />
       <IndustriesGrid industries={industries} />
       <ServiceSection services={services} />

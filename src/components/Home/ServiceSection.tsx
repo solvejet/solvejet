@@ -1,13 +1,13 @@
 // src/components/Home/ServiceSection.tsx
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';
 import Link from 'next/link';
-import { Image } from '@/components/ui/Image';
 import { TrackedButton } from '@/components/ui/Button/TrackedButton';
+import Image from 'next/image'; // Use Next.js Image directly
 
 export interface Service {
   id: string;
@@ -48,9 +48,9 @@ const ServiceCard: React.FC<{
       className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden
         transition-all duration-500 ease-in-out relative group cursor-pointer h-full"
     >
-      <div className="p-8 h-full flex flex-col lg:flex-row mt-2 mb-2">
+      <div className="p-6 h-full flex flex-col lg:flex-row mt-2 mb-2">
         {/* Content side - vertically centered by default, moves to top on hover */}
-        <div className="lg:w-3/5 h-full flex flex-col">
+        <div className="lg:w-4/5 h-full flex flex-col">
           {/* This wrapper maintains height and manages the vertical positioning */}
           <div
             className="h-full flex flex-col justify-center
@@ -103,16 +103,17 @@ const ServiceCard: React.FC<{
           </div>
         </div>
 
-        {/* Image side */}
+        {/* Image side - using Next.js Image component directly */}
         <div className="lg:w-2/5 relative flex items-center justify-center">
-          <div className="w-full h-56 lg:h-full overflow-hidden rounded-xl">
+          <div className="w-full h-56 lg:h-full overflow-hidden rounded-xl flex items-center justify-center">
             <Image
               src={service.iconPath}
               alt={service.title}
-              width={400}
-              height={300}
-              className="w-full h-full object-contain scale-90 group-hover:scale-105
+              width={200}
+              height={150}
+              className="w-auto h-auto max-w-full max-h-full object-contain scale-90 group-hover:scale-105
                 transition-transform duration-700 ease-in-out"
+              priority={service.id === 'custom-software-development'} // Prioritize the first image
             />
           </div>
         </div>
@@ -123,10 +124,9 @@ const ServiceCard: React.FC<{
 
 const ServiceSection: React.FC<ServiceSectionProps> = ({ services, className }) => {
   const { trackEvent } = useAnalytics();
-  const sectionRef = useRef<HTMLElement>(null);
 
-  // Track section view
-  useEffect(() => {
+  // Track section view on mount (client-side only)
+  React.useEffect(() => {
     trackEvent({
       name: 'services_section_view',
       category: 'engagement',
@@ -139,7 +139,7 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({ services, className }) 
   }, [services, trackEvent]);
 
   return (
-    <section ref={sectionRef} className={cn('py-24 bg-[#F5F5FB] dark:bg-gray-900', className)}>
+    <section className={cn('py-24 bg-[#F5F5FB] dark:bg-gray-900', className)}>
       <div className="container mx-auto px-4 max-w-[95rem]">
         <div className="text-center mb-16">
           <span className="text-md font-medium text-element-500 dark:text-element-400">
@@ -153,7 +153,7 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({ services, className }) 
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {services.map(service => (
             <ServiceCard key={service.id} service={service} />
           ))}

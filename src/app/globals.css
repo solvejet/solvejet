@@ -1,12 +1,14 @@
-/* globals.css */
+/* globals.css - Optimized for critical rendering */
+
+/* Critical base styles needed for initial render */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Base styles for the initial viewport - critical for LCP */
 @layer base {
   html {
     font-family: var(--font-poppins), system-ui, sans-serif;
-    scroll-behavior: smooth !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -15,8 +17,58 @@
     @apply bg-primary-light text-primary-dark dark:bg-primary-dark dark:text-primary-light;
     @apply min-h-screen;
   }
+}
 
-  /* Custom Scrollbar - Thin & Light */
+/* Critical container styles needed for layout */
+@layer components {
+  .container {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+}
+
+/* Critical utility classes needed for hero section */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Text rotation animations needed for hero */
+  @keyframes textRotateOut {
+    0% {
+      opacity: 1;
+      transform: translateY(0) rotateX(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(20px) rotateX(-90deg);
+    }
+  }
+
+  @keyframes textRotateIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px) rotateX(90deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) rotateX(0);
+    }
+  }
+
+  .text-rotate-out {
+    animation: textRotateOut 0.5s forwards;
+    transform-origin: center center;
+  }
+
+  .text-rotate-in {
+    animation: textRotateIn 0.5s forwards;
+    transform-origin: center center;
+  }
+}
+
+/* Defer non-critical CSS with media query to load after critical content */
+@media screen {
+  /* Scrollbar styles - non-critical */
   ::-webkit-scrollbar {
     @apply w-1.5;
   }
@@ -26,8 +78,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-200 dark:bg-gray-700;
-    @apply rounded-full;
+    @apply bg-gray-200 dark:bg-gray-700 rounded-full;
     @apply hover:bg-gray-300 dark:hover:bg-gray-600;
     @apply transition-colors duration-200;
   }
@@ -37,18 +88,13 @@
     scrollbar-width: thin;
     scrollbar-color: #e5e7eb transparent;
   }
-}
 
-@layer components {
-  .container {
-    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
-  }
-
+  /* Section styles - non-critical */
   .section {
     @apply py-12 sm:py-16 lg:py-20;
   }
 
-  /* Client logo masking effect */
+  /* Non-critical utility classes for other sections */
   .mask-client-logo {
     mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
     -webkit-mask-image: linear-gradient(
@@ -57,12 +103,6 @@
       rgba(0, 0, 0, 1),
       rgba(0, 0, 0, 0.7)
     );
-  }
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
   }
 
   .parallax {
@@ -74,7 +114,7 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Hover animations for links */
+  /* Hover effects - non-critical */
   .hover-underline {
     @apply relative;
   }
@@ -88,18 +128,17 @@
     @apply w-full;
   }
 
-  /* Mega menu animation */
+  /* Mega menu - non-critical */
   .mega-menu-container {
     transform-origin: top;
     transition: transform 0.3s ease, opacity 0.3s ease;
   }
 
-  /* Button animation effects */
+  /* Button effects - non-critical */
   .btn-pulse {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  /* Hover scale effect */
   .hover-scale {
     @apply transition-transform duration-200;
   }
@@ -108,7 +147,7 @@
     @apply transform scale-105;
   }
 
-  /* Menu hover interaction */
+  /* Menu hover - non-critical */
   .menu-item-hover {
     @apply relative overflow-hidden;
   }
@@ -121,7 +160,7 @@
     @apply w-full;
   }
 
-  /* Text gradient effect */
+  /* Text effects - non-critical */
   .text-gradient {
     background-image: linear-gradient(90deg, #0055b8, #4dabf7);
     background-clip: text;
@@ -131,216 +170,47 @@
     position: relative;
   }
 
-  /* Glowing text effect */
   .glow-text {
     text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
     position: relative;
     z-index: 1;
   }
-}
 
-/* Remove focus outline for mouse users, keep for keyboard */
-:focus:not(:focus-visible) {
-  outline: none;
-}
+  /* Focus styles - non-critical */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
 
-/* Keep focus outline for keyboard users */
-:focus-visible {
-  @apply outline-none ring-2 ring-element-500 ring-offset-2;
-}
+  :focus-visible {
+    @apply outline-none ring-2 ring-element-500 ring-offset-2;
+  }
 
-/* Smooth transition for dark mode */
-.dark {
-  color-scheme: dark;
-}
+  /* Dark mode transition - non-critical */
+  .dark {
+    color-scheme: dark;
+  }
 
-/* Prevent layout shift when scrollbar appears */
-html {
-  scrollbar-gutter: stable;
-}
-
-/* Better responsive text sizing */
-@screen lg {
+  /* Prevent layout shift - non-critical */
   html {
-    font-size: 16.5px;
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth !important;
+  }
+
+  /* Responsive text sizing - non-critical */
+  @screen lg {
+    html {
+      font-size: 16.5px;
+    }
+  }
+
+  @screen 2xl {
+    html {
+      font-size: 17px;
+    }
   }
 }
 
-@screen 2xl {
-  html {
-    font-size: 17px;
-  }
-}
-
-/* Animation keyframes */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Ensure the animation only applies once */
-.animate-fadeIn {
-  animation: fadeIn 0.8s ease-out forwards;
-  animation-fill-mode: both; /* Ensure the final state is preserved */
-}
-
-/* Text rotation animations */
-@keyframes textRotateOut {
-  0% {
-    opacity: 1;
-    transform: translateY(0) rotateX(0);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(20px) rotateX(-90deg);
-  }
-}
-
-@keyframes textRotateIn {
-  0% {
-    opacity: 0;
-    transform: translateY(-20px) rotateX(90deg);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) rotateX(0);
-  }
-}
-
-/* Use forwards fill mode to ensure animations stick to their final state */
-.text-rotate-out {
-  animation: textRotateOut 0.5s forwards;
-  transform-origin: center center;
-  animation-fill-mode: forwards;
-}
-
-.text-rotate-in {
-  animation: textRotateIn 0.5s forwards;
-  transform-origin: center center;
-  animation-fill-mode: forwards;
-}
-
-/* Updated floating line animation */
-@keyframes floatingLine {
-  0% {
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translateY(-15px) rotate(0deg);
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.3;
-  }
-}
-
-.animate-float-line {
-  animation: floatingLine 8s ease-in-out infinite;
-  animation-fill-mode: both;
-  will-change: transform, opacity;
-}
-
-/* Scroll indicator animation */
-@keyframes scrollIndicator {
-  0% {
-    transform: translateY(0);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateY(5px);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 0.7;
-  }
-}
-
-@keyframes fadeSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-/* Stacked Cards CSS */
-/* Hide scrollbar while preserving functionality */
-body.stacked-cards-active {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-body.stacked-cards-active::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, and Opera */
-}
-
-/* Smooth perspective transform for cards */
-.stacked-card {
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
-  will-change: transform, opacity;
-  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
-    opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1), border-radius 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-/* Content fade in animation */
-.fade-slide-up {
-  animation: fadeSlideUp 0.8s forwards;
-  opacity: 0;
-  will-change: opacity, transform;
-}
-
-.fade-slide-up-delay-1 {
-  animation-delay: 0.1s;
-}
-
-.fade-slide-up-delay-2 {
-  animation-delay: 0.2s;
-}
-
-.fade-slide-up-delay-3 {
-  animation-delay: 0.3s;
-}
-
-/* For marquee animations */
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  display: flex;
-  animation: marquee 20s linear infinite;
-  will-change: transform;
-}
-
-/* Create more subtle animations for low-power devices */
+/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
