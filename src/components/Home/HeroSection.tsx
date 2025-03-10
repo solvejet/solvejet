@@ -1,24 +1,15 @@
 // src/components/Home/HeroSection.tsx
 'use client';
 
-import React, { useRef, useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';
 import Image from 'next/image';
 
-// Define client logo type for better type safety
-interface ClientLogo {
-  path: string;
-  alt: string;
-  width: number;
-  height: number;
-}
-
-// Use memo to prevent unnecessary re-renders
+// Optimized version - removes unnecessary analytics, simplifies state management
 export default function HeroSection(): React.ReactElement {
   const [textIndex, setTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
-  // We'll directly include animations - no loading state delay for critical content
+  // Define rotating texts - these won't change so no need for state
   const rotatingTexts = [
     'Intelligent Solutions',
     'Enterprise Systems',
@@ -27,34 +18,19 @@ export default function HeroSection(): React.ReactElement {
     'Digital Experiences',
   ];
 
-  const { trackEvent } = useAnalytics();
   const textSwitcherRef = useRef<HTMLSpanElement>(null);
-
-  // Define client logos
-  const clientLogos: ClientLogo[] = [
-    {
-      path: '/images/clients/kelsi_organics.webp',
-      alt: 'Kelsi Organics Logo',
-      width: 140,
-      height: 70,
-    },
-    { path: '/images/clients/riya-logo.webp', alt: 'Riya Logo', width: 140, height: 70 },
-    { path: '/images/clients/logo.webp', alt: '7Eventzz Logo', width: 140, height: 70 },
-    { path: '/images/clients/tyent.webp', alt: 'Tyent Australia Logo', width: 140, height: 70 },
-  ];
+  const isInitialRender = useRef(true);
 
   // Simplified scroll function
   const scrollToContent = useCallback((): void => {
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-    trackEvent({
-      name: 'hero_scroll_click',
-      category: 'navigation',
-      label: 'scroll_to_content',
-    });
-  }, [trackEvent]);
+  }, []);
 
-  // Text rotation effect
+  // Optimized text rotation effect - only runs once after first render
   useEffect(() => {
+    if (!isInitialRender.current) return;
+    isInitialRender.current = false;
+
     const rotateText = (): void => {
       if (!textSwitcherRef.current) return;
       setIsAnimating(true);
@@ -66,26 +42,49 @@ export default function HeroSection(): React.ReactElement {
       }, 300);
     };
 
-    // Start text rotation after initial render
-    const rotationTimer = setTimeout(() => {
+    // Delayed initial rotation
+    const initialDelay = setTimeout(() => {
+      // Start rotation after initial delay
       rotateText();
       const intervalId = setInterval(rotateText, 5000);
+
       return (): void => {
         clearInterval(intervalId);
       };
     }, 2000);
 
-    // Track view
-    trackEvent({
-      name: 'view_hero_section',
-      category: 'engagement',
-      label: 'hero_section_viewed',
-    });
-
     return (): void => {
-      clearTimeout(rotationTimer);
+      clearTimeout(initialDelay);
     };
-  }, [rotatingTexts.length, trackEvent]);
+  }, [rotatingTexts.length]);
+
+  // Client logos with fixed dimensions for better CLS
+  const clientLogos = [
+    {
+      path: '/images/clients/kelsi_organics.webp',
+      alt: 'Kelsi Organics Logo',
+      width: 140,
+      height: 40,
+    },
+    {
+      path: '/images/clients/riya-logo.webp',
+      alt: 'Riya Logo',
+      width: 140,
+      height: 40,
+    },
+    {
+      path: '/images/clients/logo.webp',
+      alt: '7Eventzz Logo',
+      width: 140,
+      height: 40,
+    },
+    {
+      path: '/images/clients/tyent.webp',
+      alt: 'Tyent Australia Logo',
+      width: 140,
+      height: 40,
+    },
+  ];
 
   return (
     <section
@@ -96,16 +95,7 @@ export default function HeroSection(): React.ReactElement {
       <div className="absolute inset-0 bg-[rgba(17, 24, 39, 1)]" aria-hidden="true" />
 
       {/* Grid background - more visible */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(55, 65, 81, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(55, 65, 81, 0.4) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-          backgroundPosition: '-0.5px -0.5px',
-        }}
-        aria-hidden="true"
-      />
+      <div className="absolute inset-0 opacity-30 hero-grid" aria-hidden="true" />
 
       {/* Static accent circles - pre-rendered */}
       <div
@@ -152,7 +142,7 @@ export default function HeroSection(): React.ReactElement {
                 <span className="text-white">Crafting </span>
                 <span
                   ref={textSwitcherRef}
-                  className={`text-yellow-500 inline-block min-w-48 ${
+                  className={`text-yellow-500 inline-block ${
                     isAnimating ? 'text-rotate-out' : 'text-rotate-in'
                   }`}
                 >
@@ -185,7 +175,7 @@ export default function HeroSection(): React.ReactElement {
           </div>
         </div>
 
-        {/* Critical LCP element - rendered with inline styles for faster display */}
+        {/* Hero description - Critical LCP element */}
         <div className="absolute bottom-16 left-0 right-0 container mx-auto px-4 sm:px-6 max-w-[95rem]">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
             <p id="hero-description" className="text-gray-300 leading-relaxed md:leading-loose">
@@ -195,7 +185,7 @@ export default function HeroSection(): React.ReactElement {
               digital landscape.
             </p>
 
-            {/* Client logos - can load after critical content */}
+            {/* Client logos - deferred loading to prioritize critical content */}
             <div className="hidden md:flex items-center space-x-8">
               {clientLogos.map((logo, i) => (
                 <div key={i} className="h-12 w-32 relative flex items-center justify-center">

@@ -1,24 +1,32 @@
-// src/app/(website)/components/HomeClient.tsx
-'use client';
+// src/data/home-page-data.ts
 
-import React, { lazy, Suspense, type ReactElement, useEffect, useState } from 'react';
+// Define types for our data
+export interface Industry {
+  id: string;
+  title: string;
+  description: string;
+  shortDescription?: string;
+  iconName: string;
+  color: string;
+  imagePath: string;
+}
 
-// Import skeletons for suspended components
-import {
-  HeroSectionSkeleton,
-  IndustriesGridSkeleton,
-  ServiceSectionSkeleton,
-  ClientsSectionSkeleton,
-} from '@/components/Home/skeletons';
+export interface ServiceTag {
+  text: string;
+  className: string;
+}
 
-// Lazy load all heavy components
-const HeroSection = lazy(() => import('@/components/Home/HeroSection'));
-const IndustriesGrid = lazy(() => import('@/components/Home/IndustriesGrid'));
-const ServiceSection = lazy(() => import('@/components/Home/ServiceSection'));
-const ClientsSection = lazy(() => import('@/components/Home/ClientsSection'));
+export interface Service {
+  id: string;
+  title: string;
+  description: string;
+  iconPath: string;
+  href: string;
+  tags?: ServiceTag[];
+}
 
-// Industry and services data
-const industries = [
+// Industry data
+export const industries = [
   {
     id: 'real-estate',
     title: 'Real Estate',
@@ -72,7 +80,7 @@ const industries = [
 ];
 
 // Services data
-const services = [
+export const services = [
   {
     id: 'custom-software-development',
     title: 'Custom Software Development',
@@ -156,7 +164,7 @@ const services = [
     id: 'it-staff-augmentation',
     title: 'IT Staff Augmentation',
     description:
-      'We provide skilled engineers or dedicated teams tailored to your project, seamlessly aligning with your goals and company culture.',
+      'Extend your team with our skilled tech professionals to meet your project needs with perfect cultural fit.',
     iconPath: '/images/services/it-staff-augmentation.svg',
     href: '/services/it-staff-augmentation',
     tags: [
@@ -169,7 +177,7 @@ const services = [
     id: 'it-consulting',
     title: 'IT Consulting',
     description:
-      'Our experts provide strategic IT advisory, helping you align technology with business goals and maximize ROI.',
+      'Strategic technology advice to align your IT investments with business goals for maximum ROI.',
     iconPath: '/images/services/it-consulting.svg',
     href: '/services/it-consulting',
     tags: [
@@ -179,44 +187,3 @@ const services = [
     ],
   },
 ];
-
-export default function HomeClient(): ReactElement {
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Hydration safety - only show components after initial render to avoid mismatch
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return (
-      <>
-        <HeroSectionSkeleton />
-        <IndustriesGridSkeleton />
-        <ServiceSectionSkeleton />
-        <ClientsSectionSkeleton />
-      </>
-    );
-  }
-
-  return (
-    <>
-      {/* Use suspense boundaries around each major component */}
-      <Suspense fallback={<HeroSectionSkeleton />}>
-        <HeroSection />
-      </Suspense>
-
-      <Suspense fallback={<IndustriesGridSkeleton />}>
-        <IndustriesGrid industries={industries} />
-      </Suspense>
-
-      <Suspense fallback={<ServiceSectionSkeleton />}>
-        <ServiceSection services={services} />
-      </Suspense>
-
-      <Suspense fallback={<ClientsSectionSkeleton />}>
-        <ClientsSection />
-      </Suspense>
-    </>
-  );
-}

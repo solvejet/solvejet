@@ -11,11 +11,21 @@
     font-family: var(--font-poppins), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-primary-light text-primary-dark dark:bg-primary-dark dark:text-primary-light;
     @apply min-h-screen;
+  }
+
+  /* Ensure consistent focus outlines */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-element-500 ring-offset-2;
   }
 }
 
@@ -23,6 +33,22 @@
 @layer components {
   .container {
     @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  /* Button base styles */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium;
+    @apply transition-colors focus-visible:outline-none focus-visible:ring-2;
+    @apply focus-visible:ring-element-500 focus-visible:ring-offset-2;
+    @apply disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-element-500 text-white hover:bg-element-600;
+  }
+
+  .btn-outline {
+    @apply border border-element-400 text-element-400 hover:bg-element-900/50;
   }
 }
 
@@ -64,149 +90,260 @@
     animation: textRotateIn 0.5s forwards;
     transform-origin: center center;
   }
+
+  /* Hero section specific styles */
+  .hero-grid {
+    background-image: linear-gradient(rgba(55, 65, 81, 0.4) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(55, 65, 81, 0.4) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: -0.5px -0.5px;
+  }
+
+  .section-placeholder {
+    min-height: 100px;
+    width: 100%;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .hide-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
 }
 
-/* Defer non-critical CSS with media query to load after critical content */
-@media screen {
-  /* Scrollbar styles - non-critical */
-  ::-webkit-scrollbar {
-    @apply w-1.5;
-  }
+/* Non-critical styles that can load after initial render */
+.fade-in {
+  @apply animate-fade-in;
+}
 
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
+.slide-up {
+  @apply animate-slide-up;
+}
 
-  ::-webkit-scrollbar-thumb {
-    @apply bg-gray-200 dark:bg-gray-700 rounded-full;
-    @apply hover:bg-gray-300 dark:hover:bg-gray-600;
-    @apply transition-colors duration-200;
-  }
+.slide-down {
+  @apply animate-slide-down;
+}
 
-  /* For Firefox */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: #e5e7eb transparent;
-  }
+.menu-slide-down {
+  @apply animate-menu-slide-down;
+}
 
-  /* Section styles - non-critical */
-  .section {
-    @apply py-12 sm:py-16 lg:py-20;
-  }
+.underline-expand {
+  @apply animate-underline-expand;
+}
 
-  /* Non-critical utility classes for other sections */
-  .mask-client-logo {
-    mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
-    -webkit-mask-image: linear-gradient(
-      to right,
-      rgba(0, 0, 0, 0.7),
-      rgba(0, 0, 0, 1),
-      rgba(0, 0, 0, 0.7)
-    );
-  }
+.glow {
+  @apply animate-glow;
+}
 
-  .parallax {
-    @apply transform transition-transform duration-500;
-    perspective: 1000px;
-  }
+.ripple {
+  @apply animate-ripple;
+}
 
-  .no-tap-highlight {
-    -webkit-tap-highlight-color: transparent;
+/* Animation keyframes */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
   }
-
-  /* Hover effects - non-critical */
-  .hover-underline {
-    @apply relative;
+  100% {
+    opacity: 1;
   }
+}
 
-  .hover-underline:after {
-    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-current transition-all duration-300 ease-out content-[''];
+@keyframes slideUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes menuSlideDown {
+  0% {
+    transform: translateY(-10px) scaleY(0.9);
+    opacity: 0;
+    transform-origin: top;
+  }
+  100% {
+    transform: translateY(0) scaleY(1);
+    opacity: 1;
+    transform-origin: top;
+  }
+}
+
+@keyframes underlineExpand {
+  0% {
+    transform: scaleX(0);
     transform-origin: left;
   }
-
-  .hover-underline:hover:after {
-    @apply w-full;
+  100% {
+    transform: scaleX(1);
+    transform-origin: left;
   }
+}
 
-  /* Mega menu - non-critical */
-  .mega-menu-container {
-    transform-origin: top;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 0 rgba(0, 85, 184, 0.4);
   }
-
-  /* Button effects - non-critical */
-  .btn-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  100% {
+    box-shadow: 0 0 20px rgba(0, 85, 184, 0.4);
   }
+}
 
-  .hover-scale {
-    @apply transition-transform duration-200;
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
   }
-
-  .hover-scale:hover {
-    @apply transform scale-105;
+  100% {
+    transform: scale(4);
+    opacity: 0;
   }
+}
 
-  /* Menu hover - non-critical */
-  .menu-item-hover {
-    @apply relative overflow-hidden;
-  }
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  @apply w-1.5;
+}
 
-  .menu-item-hover:before {
-    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-element-500 dark:bg-element-400 transition-all duration-300 content-[''];
-  }
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
 
-  .menu-item-hover:hover:before {
-    @apply w-full;
-  }
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-200 dark:bg-gray-700 rounded-full;
+  @apply hover:bg-gray-300 dark:hover:bg-gray-600;
+  @apply transition-colors duration-200;
+}
 
-  /* Text effects - non-critical */
-  .text-gradient {
-    background-image: linear-gradient(90deg, #0055b8, #4dabf7);
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-    display: inline-block;
-    position: relative;
-  }
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+}
 
-  .glow-text {
-    text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
-    position: relative;
-    z-index: 1;
-  }
+/* Section styles */
+.section {
+  @apply py-12 sm:py-16 lg:py-20;
+}
 
-  /* Focus styles - non-critical */
-  :focus:not(:focus-visible) {
-    outline: none;
-  }
+/* Client logo masking */
+.mask-client-logo {
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.7));
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.7),
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0.7)
+  );
+}
 
-  :focus-visible {
-    @apply outline-none ring-2 ring-element-500 ring-offset-2;
-  }
+.parallax {
+  @apply transform transition-transform duration-500;
+  perspective: 1000px;
+}
 
-  /* Dark mode transition - non-critical */
-  .dark {
-    color-scheme: dark;
-  }
+.no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
+}
 
-  /* Prevent layout shift - non-critical */
+/* Hover effects */
+.hover-underline {
+  @apply relative;
+}
+
+.hover-underline:after {
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-current transition-all duration-300 ease-out content-[''];
+  transform-origin: left;
+}
+
+.hover-underline:hover:after {
+  @apply w-full;
+}
+
+/* Mega menu */
+.mega-menu-container {
+  transform-origin: top;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Button effects */
+.btn-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.hover-scale {
+  @apply transition-transform duration-200;
+}
+
+.hover-scale:hover {
+  @apply transform scale-105;
+}
+
+/* Menu hover */
+.menu-item-hover {
+  @apply relative overflow-hidden;
+}
+
+.menu-item-hover:before {
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-element-500 dark:bg-element-400 transition-all duration-300 content-[''];
+}
+
+.menu-item-hover:hover:before {
+  @apply w-full;
+}
+
+/* Text effects */
+.text-gradient {
+  background-image: linear-gradient(90deg, #0055b8, #4dabf7);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  display: inline-block;
+  position: relative;
+}
+
+.glow-text {
+  text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+/* Dark mode */
+.dark {
+  color-scheme: dark;
+}
+
+/* Responsive text sizing */
+@screen lg {
   html {
-    scrollbar-gutter: stable;
-    scroll-behavior: smooth !important;
+    font-size: 16.5px;
   }
+}
 
-  /* Responsive text sizing - non-critical */
-  @screen lg {
-    html {
-      font-size: 16.5px;
-    }
-  }
-
-  @screen 2xl {
-    html {
-      font-size: 17px;
-    }
+@screen 2xl {
+  html {
+    font-size: 17px;
   }
 }
 

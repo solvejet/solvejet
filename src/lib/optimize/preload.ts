@@ -11,7 +11,8 @@ export function preloadCriticalAssets(): void {
   const criticalImages = [
     '/images/industries/real-estate.webp',
     '/images/industries/ecommerce.webp',
-    '/services/custom-software-development.svg',
+    '/images/services/custom-software-development.svg',
+    '/images/team-effort.jpg'
   ];
 
   // Preload critical JavaScript chunks
