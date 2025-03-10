@@ -3,8 +3,15 @@
 
 import React, { lazy, Suspense, useEffect } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { ToastProvider } from '@/components/ui/toast/ToastProvider';
 import { initLenis } from '@/lib/lenis';
+import { preloadCriticalAssets, prefetchResources } from '@/lib/optimize/preload';
+
+// Lazy load ToastProvider which is not immediately needed
+const ToastProvider = lazy(() =>
+  import('@/components/ui/toast/ToastProvider').then(mod => ({
+    default: mod.ToastProvider,
+  }))
+);
 
 // Lazy load SpeedInsights only in production
 const SpeedInsights = lazy(() =>
@@ -23,21 +30,39 @@ export function Providers({ children }: ProvidersProps): React.ReactElement {
   const [isMounted, setIsMounted] = React.useState(false);
 
   useEffect(() => {
+    // Mark as mounted after hydration
     setIsMounted(true);
 
-    // Initialize Lenis for smooth scrolling site-wide
+    // Initialize Lenis for smooth scrolling
     initLenis();
 
-    // No need for cleanup as Lenis will be active throughout the site
+    // Preload critical assets in first idle period
+    preloadCriticalAssets();
+
+    // Prefetch non-critical resources after page load
+    if (document.readyState === 'complete') {
+      prefetchResources();
+    } else {
+      window.addEventListener('load', prefetchResources, { once: true });
+    }
+
+    // Clean up
+    return (): void => {
+      window.removeEventListener('load', prefetchResources);
+      // No need to destroy Lenis as it's managed globally
+    };
   }, []);
 
+  // Only show a minimal shell before hydration to prevent flicker
   if (!isMounted) {
-    return <></>;
+    return <>{children}</>;
   }
 
   return (
     <ErrorBoundary>
-      <ToastProvider />
+      <Suspense fallback={null}>
+        <ToastProvider />
+      </Suspense>
       <Suspense fallback={null}>
         <SpeedInsights />
       </Suspense>

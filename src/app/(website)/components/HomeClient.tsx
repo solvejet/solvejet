@@ -1,15 +1,21 @@
 // src/app/(website)/components/HomeClient.tsx
 'use client';
 
-import React, { lazy, Suspense } from 'react';
-import type { ReactElement } from 'react';
-import HeroSection from '@/components/Home/HeroSection';
-import { Skeleton } from '@/components/ui/skeleton';
+import React, { lazy, Suspense, type ReactElement, useEffect, useState } from 'react';
 
-// Lazy load non-critical components
+// Import skeletons for suspended components
+import {
+  HeroSectionSkeleton,
+  IndustriesGridSkeleton,
+  ServiceSectionSkeleton,
+  ClientsSectionSkeleton,
+} from '@/components/Home/skeletons';
+
+// Lazy load all heavy components
+const HeroSection = lazy(() => import('@/components/Home/HeroSection'));
+const IndustriesGrid = lazy(() => import('@/components/Home/IndustriesGrid'));
 const ServiceSection = lazy(() => import('@/components/Home/ServiceSection'));
 const ClientsSection = lazy(() => import('@/components/Home/ClientsSection'));
-const IndustriesGrid = lazy(() => import('@/components/Home/IndustriesGrid'));
 
 // Industry and services data
 const industries = [
@@ -65,84 +71,141 @@ const industries = [
   },
 ];
 
-// Move services data to a separate file to reduce bundle size
-import { services } from '@/data/services';
-
-// Skeleton loaders for each section
-const IndustriesGridSkeleton = (): ReactElement => (
-  <div className="py-24 bg-white rounded-t-3xl">
-    <div className="container mx-auto px-4 max-w-7xl">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-16">
-        <Skeleton className="h-12 w-48 mb-6 md:mb-0" />
-        <Skeleton className="h-8 w-64" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Skeleton className="h-64 w-full rounded-2xl" />
-        <Skeleton className="h-64 w-full rounded-2xl" />
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Skeleton className="h-48 w-full rounded-2xl" />
-        <Skeleton className="h-48 w-full rounded-2xl" />
-        <Skeleton className="h-48 w-full rounded-2xl" />
-      </div>
-    </div>
-  </div>
-);
-
-const ServiceSectionSkeleton = (): ReactElement => (
-  <div className="py-24 bg-[#F5F5FB]">
-    <div className="container mx-auto px-4 max-w-[95rem]">
-      <div className="text-center mb-16">
-        <Skeleton className="h-6 w-32 mx-auto mb-4" />
-        <Skeleton className="h-12 w-64 mx-auto mb-4" />
-        <Skeleton className="h-8 w-96 mx-auto" />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {[1, 2, 3, 4].map(i => (
-          <Skeleton key={i} className="h-64 w-full rounded-3xl" />
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
-const ClientsSectionSkeleton = (): ReactElement => (
-  <section className="py-16 bg-gray-900">
-    <div className="container mx-auto px-4">
-      <div className="text-center mb-12">
-        <Skeleton className="h-6 w-32 bg-gray-700 mx-auto mb-4" />
-        <Skeleton className="h-10 w-64 bg-gray-700 mx-auto mb-4" />
-        <Skeleton className="h-6 w-96 bg-gray-700 mx-auto" />
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-        <div>
-          <Skeleton className="h-8 w-48 bg-gray-700 mb-4" />
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <Skeleton key={i} className="h-24 w-full bg-gray-700 rounded-xl" />
-            ))}
-          </div>
-        </div>
-        <div className="lg:col-span-2">
-          <Skeleton className="h-8 w-48 bg-gray-700 mb-4" />
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-              <Skeleton key={i} className="h-36 w-full bg-gray-700 rounded-xl" />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-);
+// Services data
+const services = [
+  {
+    id: 'custom-software-development',
+    title: 'Custom Software Development',
+    description:
+      'We build custom, scalable software solutions tailored to your business needs, from web applications to enterprise systems.',
+    iconPath: '/images/services/custom-software-development.svg',
+    href: '/services/custom-software-development',
+    tags: [
+      { text: 'Web Apps', className: 'bg-blue-100 text-blue-700' },
+      { text: 'API', className: 'bg-green-100 text-green-700' },
+      { text: 'Enterprise', className: 'bg-purple-100 text-purple-700' },
+    ],
+  },
+  {
+    id: 'cloud-services',
+    title: 'Cloud Services',
+    description:
+      'Our cloud experts help migrate, optimize, and manage your infrastructure on AWS, Azure, or Google Cloud.',
+    iconPath: '/images/services/cloud-services.svg',
+    href: '/services/cloud-services',
+    tags: [
+      { text: 'AWS', className: 'bg-yellow-100 text-yellow-700' },
+      { text: 'Azure', className: 'bg-blue-100 text-blue-700' },
+      { text: 'GCP', className: 'bg-red-100 text-red-700' },
+    ],
+  },
+  {
+    id: 'artificial-intelligence',
+    title: 'Artificial Intelligence',
+    description:
+      'We develop AI solutions that drive business value through machine learning, NLP, and computer vision.',
+    iconPath: '/images/services/artificial-intelligence.svg',
+    href: '/services/artificial-intelligence',
+    tags: [
+      { text: 'ML', className: 'bg-purple-100 text-purple-700' },
+      { text: 'NLP', className: 'bg-blue-100 text-blue-700' },
+      { text: 'Computer Vision', className: 'bg-green-100 text-green-700' },
+    ],
+  },
+  {
+    id: 'mobile-app-development',
+    title: 'Mobile App Development',
+    description:
+      'We specialize in developing native and cross-platform mobile applications for iOS and Android.',
+    iconPath: '/images/services/mobile-app-development.svg',
+    href: '/services/mobile-app-development',
+    tags: [
+      { text: 'Swift', className: 'bg-orange-100 text-orange-700' },
+      { text: 'React Native', className: 'bg-blue-100 text-blue-700' },
+      { text: 'Flutter', className: 'bg-cyan-100 text-cyan-700' },
+      { text: 'Kotlin', className: 'bg-purple-100 text-purple-700' },
+    ],
+  },
+  {
+    id: 'mvp-development',
+    title: 'MVP Development',
+    description:
+      'Quickly validate your product ideas with our rapid MVP development approach focused on core functionality.',
+    iconPath: '/images/services/mvp-development.svg',
+    href: '/services/mvp-development',
+    tags: [
+      { text: 'Rapid', className: 'bg-red-100 text-red-700' },
+      { text: 'Agile', className: 'bg-blue-100 text-blue-700' },
+      { text: 'Scalable', className: 'bg-green-100 text-green-700' },
+    ],
+  },
+  {
+    id: 'data-analytics',
+    title: 'Data Analytics',
+    description:
+      'Transform raw data into actionable insights with our comprehensive data analytics and visualization solutions.',
+    iconPath: '/images/services/data-analytics.svg',
+    href: '/services/data-analytics',
+    tags: [
+      { text: 'Big Data', className: 'bg-blue-100 text-blue-700' },
+      { text: 'BI', className: 'bg-green-100 text-green-700' },
+      { text: 'Visualization', className: 'bg-purple-100 text-purple-700' },
+    ],
+  },
+  {
+    id: 'it-staff-augmentation',
+    title: 'IT Staff Augmentation',
+    description:
+      'We provide skilled engineers or dedicated teams tailored to your project, seamlessly aligning with your goals and company culture.',
+    iconPath: '/images/services/it-staff-augmentation.svg',
+    href: '/services/it-staff-augmentation',
+    tags: [
+      { text: 'Cultural fit', className: 'bg-purple-100 text-purple-700' },
+      { text: 'Top 1%', className: 'bg-yellow-100 text-yellow-700' },
+      { text: 'Instant hire', className: 'bg-blue-100 text-blue-700' },
+    ],
+  },
+  {
+    id: 'it-consulting',
+    title: 'IT Consulting',
+    description:
+      'Our experts provide strategic IT advisory, helping you align technology with business goals and maximize ROI.',
+    iconPath: '/images/services/it-consulting.svg',
+    href: '/services/it-consulting',
+    tags: [
+      { text: 'Strategy', className: 'bg-blue-100 text-blue-700' },
+      { text: 'Architecture', className: 'bg-gray-100 text-gray-700' },
+      { text: 'Assessment', className: 'bg-green-100 text-green-700' },
+    ],
+  },
+];
 
 export default function HomeClient(): ReactElement {
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Hydration safety - only show components after initial render to avoid mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <>
+        <HeroSectionSkeleton />
+        <IndustriesGridSkeleton />
+        <ServiceSectionSkeleton />
+        <ClientsSectionSkeleton />
+      </>
+    );
+  }
+
   return (
     <>
-      {/* Hero is not lazy loaded as it's critical for LCP */}
-      <HeroSection />
+      {/* Use suspense boundaries around each major component */}
+      <Suspense fallback={<HeroSectionSkeleton />}>
+        <HeroSection />
+      </Suspense>
 
-      {/* Lazy load below-the-fold sections with suspense fallbacks */}
       <Suspense fallback={<IndustriesGridSkeleton />}>
         <IndustriesGrid industries={industries} />
       </Suspense>
