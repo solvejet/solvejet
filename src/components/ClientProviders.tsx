@@ -1,4 +1,4 @@
-// src/components/ClientProviders.tsx - Optimized
+// src/components/ClientProviders.tsx
 'use client';
 
 import type { ReactNode, JSX } from 'react';
@@ -12,57 +12,112 @@ interface ProviderChildrenProps {
   children: ReactNode;
 }
 
-// Lazily load non-critical providers with proper typing and prefetching
+// Define prop types for providers
+interface SecurityProviderProps {
+  children: ReactNode;
+}
+
+interface AnalyticsProviderProps {
+  children: ReactNode;
+}
+
+interface AnimationProviderProps {
+  children: ReactNode;
+}
+
+// More efficient lazy loading with load prioritization
 const SecurityProvider = lazy(() => {
-  // Start prefetching as soon as possible
-  const promise = import('@/components/SecurityProvider').then(mod => ({
-    default: mod.SecurityProvider,
-  }));
+  let loadPromise: Promise<{ default: React.ComponentType<SecurityProviderProps> }>;
 
-  // Prefetch in background
-  void promise;
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    // Load during idle time for better performance
+    loadPromise = new Promise(resolve => {
+      (window as Window).requestIdleCallback(() => {
+        import('@/components/SecurityProvider')
+          .then(mod => {
+            resolve({ default: mod.SecurityProvider });
+          })
+          .catch((err: unknown) => {
+            console.error('Failed to load SecurityProvider:', err);
+            // Fallback component if loading fails
+            const FallbackProvider: React.FC<SecurityProviderProps> = ({ children }) => (
+              <>{children}</>
+            );
+            resolve({ default: FallbackProvider });
+          });
+      });
+    });
+  } else {
+    // Fallback for browsers without requestIdleCallback
+    loadPromise = import('@/components/SecurityProvider')
+      .then(mod => ({ default: mod.SecurityProvider }))
+      .catch((err: unknown) => {
+        console.error('Failed to load SecurityProvider:', err);
+        const FallbackProvider: React.FC<SecurityProviderProps> = ({ children }) => <>{children}</>;
+        return { default: FallbackProvider };
+      });
+  }
 
-  return promise;
+  return loadPromise;
 });
 
+// Load analytics only when browser is idle
 const AnalyticsProvider = lazy(() => {
-  const promise = import('@/components/Analytics').then(mod => ({
-    default: mod.AnalyticsProvider,
-  }));
-
-  void promise;
-
-  return promise;
+  // Use a lower priority for analytics as it's not critical for UX
+  return new Promise<{ default: React.ComponentType<AnalyticsProviderProps> }>(resolve => {
+    setTimeout(() => {
+      import('@/components/Analytics')
+        .then(mod => {
+          resolve({ default: mod.AnalyticsProvider });
+        })
+        .catch(() => {
+          // Provide a no-op fallback
+          const FallbackProvider: React.FC<AnalyticsProviderProps> = ({ children }) => (
+            <>{children}</>
+          );
+          resolve({ default: FallbackProvider });
+        });
+    }, 500); // Short delay for initial rendering to complete
+  });
 });
 
+// Load animations with lowest priority
 const AnimationProvider = lazy(() => {
-  const promise = import('@/components/AnimationProvider').then(mod => ({
-    default: mod.AnimationProvider,
-  }));
-
-  void promise;
-
-  return promise;
+  // Delay animations to prioritize core content
+  return new Promise<{ default: React.ComponentType<AnimationProviderProps> }>(resolve => {
+    setTimeout(() => {
+      import('@/components/AnimationProvider')
+        .then(mod => {
+          resolve({ default: mod.AnimationProvider });
+        })
+        .catch(() => {
+          // Provide a no-op fallback
+          const FallbackProvider: React.FC<AnimationProviderProps> = ({ children }) => (
+            <>{children}</>
+          );
+          resolve({ default: FallbackProvider });
+        });
+    }, 1000); // Longer delay for animations
+  });
 });
 
-// Memoized components for nested providers to prevent unnecessary re-renders
+// Memoized components for nested providers
 const MemoizedAuthInitializer = memo(() => <AuthInitializer />);
 
 // Create stable fallback to avoid re-renders
 const DefaultFallback = memo(({ children }: ProviderChildrenProps) => <>{children}</>);
 
-// Define query client options once outside component
+// Optimized query client options
 const QUERY_CLIENT_OPTIONS: QueryClientConfig = {
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       retry: 1,
       refetchOnWindowFocus: false,
-      refetchOnReconnect: 'always' as const, // Fixed type with 'as const'
-      gcTime: 10 * 60 * 1000, // Modern replacement for cacheTime
+      refetchOnReconnect: 'always' as const,
+      gcTime: 10 * 60 * 1000,
     },
     mutations: {
-      // Add mutation options for better performance
       retry: 0,
       networkMode: 'always' as const,
     },
@@ -74,23 +129,27 @@ interface ClientProvidersProps {
 }
 
 export function ClientProviders({ children }: ClientProvidersProps): JSX.Element {
-  // Use a ref for the QueryClient to ensure it's truly stable across renders
+  // Create stable query client instance
   const [queryClient] = useState(() => new QueryClient(QUERY_CLIENT_OPTIONS));
 
-  // Avoid hydration mismatch with a dedicated state
+  // Track component mounting for hydration safety
   const [mounted, setMounted] = useState(false);
+
+  // Track when to load non-critical providers
+  const [shouldLoadAnimations, setShouldLoadAnimations] = useState(false);
 
   useEffect(() => {
     // Only mark as mounted after hydration
     setMounted(true);
 
-    // Prefetch critical modules when browser is idle
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as Window).requestIdleCallback(() => {
-        void import('@/components/SecurityProvider');
-        void import('@/components/Analytics');
-      });
-    }
+    // Schedule animations to load after critical content
+    const animationTimer = setTimeout(() => {
+      setShouldLoadAnimations(true);
+    }, 2000); // 2 second delay for animations
+
+    return (): void => {
+      clearTimeout(animationTimer);
+    };
   }, []);
 
   // Return a simple loading state during SSR to prioritize fast initial load
@@ -106,9 +165,14 @@ export function ClientProviders({ children }: ClientProvidersProps): JSX.Element
           <SecurityProvider>
             <Suspense fallback={<DefaultFallback>{children}</DefaultFallback>}>
               <AnalyticsProvider>
-                <Suspense fallback={<DefaultFallback>{children}</DefaultFallback>}>
-                  <AnimationProvider>{children}</AnimationProvider>
-                </Suspense>
+                {shouldLoadAnimations ? (
+                  <Suspense fallback={<DefaultFallback>{children}</DefaultFallback>}>
+                    <AnimationProvider>{children}</AnimationProvider>
+                  </Suspense>
+                ) : (
+                  // Render children directly until animations are ready to load
+                  children
+                )}
               </AnalyticsProvider>
             </Suspense>
           </SecurityProvider>

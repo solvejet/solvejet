@@ -23,16 +23,16 @@ const nextConfig = {
 
   // Image optimization configuration
   images: {
+    formats: ['image/avif', 'image/webp'], // Prioritize modern formats
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**',
       },
     ],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
-    formats: ['image/webp'],
-    minimumCacheTTL: 60,
+    minimumCacheTTL: 60 * 60 * 24 * 7, // Cache for 7 days
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
@@ -79,9 +79,9 @@ const nextConfig = {
       if (!config.optimization.splitChunks) {
         config.optimization.splitChunks = {
           chunks: 'all',
-          maxInitialRequests: 30,
-          maxAsyncRequests: 30,
-          minSize: 10000,
+          maxInitialRequests: 10, // Reduced from 30
+          maxAsyncRequests: 10, // Reduced from 30
+          minSize: 20000, // Increased from 10000
           maxSize: 244000, // ~240KB limit helps with caching
           cacheGroups: {
             default: false,
@@ -119,37 +119,6 @@ const nextConfig = {
               chunks: 'async',
               reuseExistingChunk: true,
             },
-            // Smaller libraries - group similar types together
-            analytics: {
-              test: /[\\/]lib[\\/]analytics[\\/]/,
-              name: 'analytics',
-              priority: 15,
-              chunks: 'async',
-              reuseExistingChunk: true,
-            },
-            // Other libs - dynamic naming but with path limit to avoid too many chunks
-            lib: {
-              test: /[\\/]node_modules[\\/]/,
-              name(module: any) {
-                // Get package name
-                const packageNameMatch = module.context.match(
-                  /[\\/]node_modules[\\/](.*?)([\\/]|$)/
-                );
-                if (!packageNameMatch) return 'vendors';
-
-                const packageName = packageNameMatch[1];
-                // Group by first letter to reduce chunk count, with special handling for @scoped packages
-                const firstChar =
-                  packageName.charAt(0) === '@'
-                    ? packageName.split('/')[0].slice(1, 2)
-                    : packageName.charAt(0);
-                return `vendor-${firstChar}`;
-              },
-              priority: 10,
-              minChunks: 1,
-              chunks: 'async',
-              reuseExistingChunk: true,
-            },
           },
         };
       }
@@ -158,69 +127,27 @@ const nextConfig = {
     return config;
   },
 
-  // Security headers configuration
-  headers: (): Promise<
-    {
-      source: string;
-      headers: {
-        key: string;
-        value: string;
-      }[];
-    }[]
-  > => {
-    return Promise.resolve([
-      {
-        source: '/:path*',
-        headers: Object.entries(SECURITY_HEADERS).map(([key, value]) => ({
-          key,
-          value: Array.isArray(value) ? value.join(',') : value,
-        })),
-      },
-      {
-        source: '/api/:path*',
-        headers: [
-          ...Object.entries(SECURITY_HEADERS).map(([key, value]) => ({
-            key,
-            value: Array.isArray(value) ? value.join(',') : value,
-          })),
-          {
-            key: 'Cache-Control',
-            value: 'no-store, max-age=0',
-          },
-        ],
-      },
-      // Add caching for static assets
-      {
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-    ]);
-  },
-
   // Enhanced compiler options for faster builds
   compiler: {
     // Remove console logs in production
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
-  // SWC minification is enabled by default in Next.js 13+
+  experimental: {
+    // Enable optimizeCss for production builds
+    optimizeCss: process.env.NODE_ENV === 'production',
+
+    // Enable concurrent features for better performance
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+
+    // Use newer React optimizations
+    serverComponentsExternalPackages: ['mongoose'],
+  },
 } satisfies NextConfig;
 
-// PWA Configuration
+// PWA Configuration - simplified for better performance
 const withPWAConfig = withPWA({
   dest: 'public',
   disable: process.env.NODE_ENV === 'development',
@@ -228,18 +155,8 @@ const withPWAConfig = withPWA({
   skipWaiting: true,
   buildExcludes: [/middleware-manifest\.json$/],
   publicExcludes: ['!noprecache/**/*'],
+  // Simpler runtimeCaching configuration
   runtimeCaching: [
-    {
-      urlPattern: /\/offline$/i,
-      handler: 'CacheFirst',
-      options: {
-        cacheName: 'offline-page',
-        expiration: {
-          maxEntries: 1,
-          maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-        },
-      },
-    },
     {
       urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
       handler: 'CacheFirst',
@@ -264,18 +181,18 @@ const withPWAConfig = withPWA({
     },
     {
       urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
-      handler: 'StaleWhileRevalidate',
+      handler: 'CacheFirst', // Changed from StaleWhileRevalidate
       options: {
         cacheName: 'static-image-assets',
         expiration: {
           maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+          maxAgeSeconds: 24 * 60 * 60 * 7, // 7 days (increased)
         },
       },
     },
     {
       urlPattern: /\.(?:js)$/i,
-      handler: 'StaleWhileRevalidate',
+      handler: 'CacheFirst', // Changed from StaleWhileRevalidate
       options: {
         cacheName: 'static-js-assets',
         expiration: {
@@ -286,36 +203,13 @@ const withPWAConfig = withPWA({
     },
     {
       urlPattern: /\.(?:css)$/i,
-      handler: 'StaleWhileRevalidate',
+      handler: 'CacheFirst', // Changed from StaleWhileRevalidate
       options: {
         cacheName: 'static-style-assets',
         expiration: {
           maxEntries: 32,
           maxAgeSeconds: 24 * 60 * 60, // 24 hours
         },
-      },
-    },
-    {
-      urlPattern: /\.(?:json|xml|csv)$/i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'static-data-assets',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60, // 24 hours
-        },
-      },
-    },
-    {
-      urlPattern: /.*/i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'others',
-        expiration: {
-          maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60, // 24 hours
-        },
-        networkTimeoutSeconds: 10,
       },
     },
   ],
