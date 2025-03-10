@@ -5,6 +5,7 @@
   "scripts": {
     "clean": "rimraf .next out",
     "build": "pnpm clean && next build",
+    "build:analyze": "cross-env ANALYZE=true pnpm build",
     "dev": "next dev",
     "start": "next start",
     "lint": "next lint",
@@ -31,6 +32,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-fast-marquee": "^1.6.5",
+    "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "uuid": "^11.1.0",
     "zod": "^3.24.2",
@@ -39,6 +41,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
     "@fullhuman/postcss-purgecss": "^7.0.2",
+    "@next/bundle-analyzer": "^15.2.1",
     "@next/eslint-plugin-next": "^15.1.7",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.9",
@@ -50,6 +53,8 @@
     "@typescript-eslint/eslint-plugin": "^8.24.1",
     "@typescript-eslint/parser": "^8.24.1",
     "autoprefixer": "^10.4.20",
+    "compression-webpack-plugin": "^11.1.0",
+    "cross-env": "^7.0.3",
     "cssnano": "^7.0.6",
     "eslint": "^9.21.0",
     "eslint-config-next": "^15.1.7",

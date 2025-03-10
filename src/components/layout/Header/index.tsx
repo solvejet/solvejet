@@ -209,9 +209,9 @@ export default function Header(): React.ReactElement {
   // Determine background styling - we set a default background even before isLoaded is true
   const headerBackground = isLoaded
     ? isScrolled
-      ? 'bg-gray-900/95 backdrop-blur-lg border-gray-800/30'
+      ? 'bg-gray-900/95 backdrop-blur-lg'
       : 'bg-gray-900/90 backdrop-blur-md'
-    : 'bg-gray-900/95 backdrop-blur-lg border-gray-800/30'; // Default state during load
+    : 'bg-gray-900/95 backdrop-blur-lg'; // Default state during load
 
   return (
     <>
@@ -254,11 +254,12 @@ export default function Header(): React.ReactElement {
           {/* Single container for the header */}
           <div
             className={cn(
-              'relative rounded-lg',
+              'relative rounded-lg border border-gray-800/30',
               headerBackground, // Use the computed background
               'py-3 px-4',
               'transition-all duration-200 ease-in-out',
-              openMegaMenu ? 'rounded-b-none border-b-0' : 'rounded-b-lg'
+              openMegaMenu ? 'rounded-b-none border-b-0' : 'rounded-lg',
+              isMobileMenuOpen ? 'rounded-b-none border-b-0' : ''
             )}
           >
             <div className="flex items-center justify-between">
@@ -413,12 +414,12 @@ export default function Header(): React.ReactElement {
             )}
           </div>
 
-          {/* Mobile menu - separate from desktop mega menu */}
+          {/* Mobile menu - integrated with main header container for visual consistency */}
           <div
             className={cn(
               'md:hidden transition-all duration-300 ease-in-out w-full overflow-hidden',
-              'border-0 lg:border border-gray-800/30 rounded-b-lg border-t-0',
-              'bg-black/90 backdrop-blur-lg',
+              'border-t-0 border border-gray-800/30 rounded-b-lg',
+              headerBackground, // Use same background as header for consistency
               isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 border-0'
             )}
             id="mobile-menu"

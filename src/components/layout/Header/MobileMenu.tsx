@@ -29,16 +29,16 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
   onLinkClick,
 }) => {
   return (
-    <div className="border-b border-gray-800 last:border-b-0">
+    <div className="border-b border-gray-800/40 last:border-b-0">
       {/* Main navigation item */}
       <div
-        className="flex items-center justify-between px-5 py-4 cursor-pointer"
+        className="flex items-center justify-between px-4 py-3.5 cursor-pointer"
         onClick={toggleAccordion}
       >
         <Link
           href={item.href}
           className={cn(
-            'text-lg font-medium transition-colors duration-200',
+            'text-base font-medium transition-colors duration-200',
             item.current ? 'text-element-400' : 'text-white'
           )}
           onClick={e => {
@@ -51,7 +51,7 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
 
         {item.megaMenu && (
           <button
-            className="p-1 rounded-full text-gray-400 hover:text-white hover:bg-gray-800/50 transition-colors"
+            className="p-1.5 rounded-full text-gray-400 hover:text-white hover:bg-gray-800/50 transition-colors"
             aria-expanded={isOpen}
             aria-label={isOpen ? `Collapse ${item.name} menu` : `Expand ${item.name} menu`}
           >
@@ -64,28 +64,28 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
       {item.megaMenu && (
         <div
           className={cn(
-            'overflow-hidden transition-all duration-300 ease-in-out bg-gray-900/50',
-            isOpen ? 'max-h-screen opacity-100 py-2' : 'max-h-0 opacity-0 py-0'
+            'overflow-hidden transition-all duration-300 ease-in-out bg-gray-800/20',
+            isOpen ? 'max-h-screen opacity-100 pb-2' : 'max-h-0 opacity-0 py-0'
           )}
         >
           {item.megaMenu.columns.map((column, colIndex) => (
-            <div key={colIndex} className="mb-4 px-5">
+            <div key={colIndex} className="mb-2 px-4 mt-2">
               <h4 className="text-element-400 text-sm font-medium mb-2 flex items-center">
                 <span className="w-1 h-4 bg-element-500 rounded-full mr-2"></span>
                 {column.title}
               </h4>
-              <ul className="space-y-2 ml-3">
+              <ul className="space-y-1.5 ml-3">
                 {column.items.map((subItem, subIndex) => (
                   <li key={subIndex}>
                     <Link
                       href={subItem.href}
-                      className="text-gray-300 hover:text-element-300 text-base py-1.5 flex items-center transition-colors"
+                      className="text-gray-300 hover:text-element-300 text-sm py-1.5 flex items-center transition-colors"
                       onClick={() => {
                         onLinkClick(item.name, subItem.title);
                       }}
                     >
                       {subItem.icon && (
-                        <span className="mr-3 text-element-400">{subItem.icon}</span>
+                        <span className="mr-2.5 text-element-400">{subItem.icon}</span>
                       )}
                       {subItem.title}
                     </Link>
@@ -137,8 +137,8 @@ function MobileMenuComponent({ isOpen, navItems }: MobileMenuProps): React.React
   };
 
   return (
-    <div className="py-3 animate-fade-in">
-      <nav className="py-3">
+    <div className="py-2 animate-fade-in">
+      <nav className="py-2">
         {navItems.map(item => (
           <AccordionSection
             key={item.name}
@@ -153,14 +153,14 @@ function MobileMenuComponent({ isOpen, navItems }: MobileMenuProps): React.React
       </nav>
 
       {/* CTA Section with enhanced styling */}
-      <div className="py-4 px-5 border-t border-gray-800/50 mt-4 bg-gradient-to-b from-transparent to-gray-900/30">
-        <div className="p-4 bg-gray-800/80 rounded-lg border border-gray-700/70 mb-4 relative overflow-hidden">
+      <div className="py-4 px-4 border-t border-gray-800/40 mt-4 bg-gray-900/30">
+        <div className="p-4 bg-gradient-to-br from-gray-800/80 to-gray-800/60 rounded-lg border border-gray-700/50 mb-4 relative overflow-hidden">
           {/* Background accent */}
           <div className="absolute -right-8 -bottom-8 w-24 h-24 rounded-full bg-element-900/20 blur-xl"></div>
 
           <h4 className="font-medium text-white text-base">Ready to Transform Your Business?</h4>
           <p className="mt-1 text-sm text-gray-300 mb-3">
-            Let our experts help you build scalable solutions tailored to your needs.
+            Let our experts help you build scalable solutions.
           </p>
           <TrackedButton
             variant="default"
@@ -183,7 +183,7 @@ function MobileMenuComponent({ isOpen, navItems }: MobileMenuProps): React.React
         <TrackedButton
           variant="outline"
           size="lg"
-          className="w-full flex justify-center py-3 px-4 border-element-400 text-element-400 hover:bg-element-900/50 group"
+          className="w-full flex justify-center py-2.5 px-4 border-element-400 text-element-400 hover:bg-element-900/50 group"
           onClick={() => (window.location.href = '/contact')}
           trackingEvent={{
             name: 'mobile_contact_click',
@@ -197,7 +197,7 @@ function MobileMenuComponent({ isOpen, navItems }: MobileMenuProps): React.React
           Get in Touch
         </TrackedButton>
 
-        <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-gray-400">
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-gray-400">
           <div className="flex items-center">
             <Phone className="h-4 w-4 mr-2" />
             <span>+1 (123) 456-7890</span>

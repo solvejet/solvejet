@@ -16,11 +16,10 @@ import {
   Handshake,
   FileText,
   BookText,
-  Database,
-  Shield,
-  Cpu,
-  Share2,
   Puzzle,
+  BarChart3,
+  UserPlus,
+  HeadphonesIcon,
 } from 'lucide-react';
 import type { NavItem } from './types';
 
@@ -39,7 +38,7 @@ export const navigation: NavItem[] = [
         'Discover how we can transform your business with cutting-edge technology solutions tailored to your specific needs.',
       columns: [
         {
-          title: 'Core Solutions',
+          title: 'Core Services',
           items: [
             {
               title: 'Custom Software Development',
@@ -49,6 +48,12 @@ export const navigation: NavItem[] = [
               icon: <Code className="h-5 w-5" />,
             },
             {
+              title: 'Cloud Services',
+              href: '/services/cloud-services',
+              description: 'AWS, Azure, and Google Cloud solutions for optimized infrastructure.',
+              icon: <Cloud className="h-5 w-5" />,
+            },
+            {
               title: 'Artificial Intelligence',
               href: '/services/artificial-intelligence',
               description:
@@ -56,46 +61,43 @@ export const navigation: NavItem[] = [
               icon: <Brain className="h-5 w-5" />,
             },
             {
-              title: 'Enterprise Systems',
-              href: '/services/enterprise-systems',
-              description: 'Scalable, secure, and integrated solutions for large-scale operations.',
-              icon: <Database className="h-5 w-5" />,
-            },
-            {
-              title: 'Digital Transformation',
-              href: '/services/digital-transformation',
-              description: 'Strategic initiatives to evolve your business in the digital era.',
-              icon: <Share2 className="h-5 w-5" />,
-            },
-          ],
-        },
-        {
-          title: 'Technical Expertise',
-          items: [
-            {
-              title: 'Cloud Services',
-              href: '/services/cloud-services',
-              description: 'AWS, Azure, and Google Cloud solutions for optimized infrastructure.',
-              icon: <Cloud className="h-5 w-5" />,
-            },
-            {
-              title: 'Mobile Development',
+              title: 'Mobile App Development',
               href: '/services/mobile-app-development',
               description: 'Native and cross-platform solutions for iOS and Android.',
               icon: <Smartphone className="h-5 w-5" />,
             },
+          ],
+        },
+        {
+          title: 'Additional Services',
+          items: [
             {
-              title: 'IoT Solutions',
-              href: '/services/iot-solutions',
-              description: 'Connect your devices and systems for intelligent data exchange.',
-              icon: <Cpu className="h-5 w-5" />,
+              title: 'MVP Development',
+              href: '/services/mvp-development',
+              description:
+                'Rapidly build and validate your product ideas with a minimum viable product.',
+              icon: <Rocket className="h-5 w-5" />,
             },
             {
-              title: 'Cybersecurity',
-              href: '/services/cybersecurity',
+              title: 'Data Analytics',
+              href: '/services/data-analytics',
               description:
-                'Protect your data and systems with our comprehensive security approach.',
-              icon: <Shield className="h-5 w-5" />,
+                'Transform raw data into actionable insights for smarter business decisions.',
+              icon: <BarChart3 className="h-5 w-5" />,
+            },
+            {
+              title: 'IT Staff Augmentation',
+              href: '/services/it-staff-augmentation',
+              description:
+                'Extend your team with our skilled tech professionals to meet your project needs.',
+              icon: <UserPlus className="h-5 w-5" />,
+            },
+            {
+              title: 'IT Consulting',
+              href: '/services/it-consulting',
+              description:
+                'Strategic technology advice to align your IT investments with business goals.',
+              icon: <HeadphonesIcon className="h-5 w-5" />,
             },
           ],
         },

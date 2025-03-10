@@ -4,6 +4,12 @@ import type { Configuration as WebpackConfig } from 'webpack';
 import withPWA from 'next-pwa';
 import { SECURITY_HEADERS } from './src/lib/security/constants';
 
+// Import webpack bundle analyzer conditionally
+const withBundleAnalyzer =
+  process.env.ANALYZE === 'true'
+    ? require('@next/bundle-analyzer')({ enabled: true })
+    : (config: NextConfig) => config;
+
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -52,39 +58,92 @@ const nextConfig = {
       // Enable module concatenation
       config.optimization.concatenateModules = true;
 
-      // Improve code splitting
+      // Add aggressive compression in production
+      if (process.env.NODE_ENV === 'production') {
+        const CompressionPlugin = require('compression-webpack-plugin');
+        if (!config.plugins) {
+          config.plugins = [];
+        }
+        config.plugins.push(
+          new CompressionPlugin({
+            test: /\.(js|css|html|svg)$/,
+            filename: '[path][base].gz',
+            algorithm: 'gzip',
+            threshold: 10240, // Only compress files > 10KB
+            minRatio: 0.8, // Only compress if compression ratio is better than 0.8
+          })
+        );
+      }
+
+      // Optimize code splitting for smaller bundles
       if (!config.optimization.splitChunks) {
         config.optimization.splitChunks = {
           chunks: 'all',
-          maxInitialRequests: 25,
-          minSize: 20000,
+          maxInitialRequests: 30,
+          maxAsyncRequests: 30,
+          minSize: 10000,
+          maxSize: 244000, // ~240KB limit helps with caching
           cacheGroups: {
             default: false,
             vendors: false,
-            // Create a framework chunk for React and related libraries
+            // Critical framework chunk - keep these together for better caching
             framework: {
               name: 'framework',
               test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
+              priority: 50,
+              chunks: 'all',
+              enforce: true,
+            },
+            // UI library components
+            ui: {
+              name: 'ui-components',
+              test: /[\\/]components[\\/]ui[\\/]/,
               priority: 40,
+              minChunks: 2,
+              reuseExistingChunk: true,
               chunks: 'all',
             },
-            // Create a commons chunk for shared code
+            // Commons chunk with tighter minChunks threshold
             commons: {
               name: 'commons',
-              minChunks: 2,
-              priority: 20,
+              minChunks: 3, // Stricter - only truly common code
+              priority: 30,
               chunks: 'all',
               reuseExistingChunk: true,
             },
-            // Separate Lib chunks for third party libraries
+            // Separate heavy dependencies
+            heavy: {
+              test: /[\\/]node_modules[\\/](recharts|lucide-react|gsap)[\\/]/,
+              name: 'heavy-vendors',
+              priority: 20,
+              chunks: 'async',
+              reuseExistingChunk: true,
+            },
+            // Smaller libraries - group similar types together
+            analytics: {
+              test: /[\\/]lib[\\/]analytics[\\/]/,
+              name: 'analytics',
+              priority: 15,
+              chunks: 'async',
+              reuseExistingChunk: true,
+            },
+            // Other libs - dynamic naming but with path limit to avoid too many chunks
             lib: {
               test: /[\\/]node_modules[\\/]/,
               name(module: any) {
-                // Extract the package name from the path
-                const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+                // Get package name
+                const packageNameMatch = module.context.match(
+                  /[\\/]node_modules[\\/](.*?)([\\/]|$)/
+                );
+                if (!packageNameMatch) return 'vendors';
 
-                // npm package names are URL-safe, but some servers don't like @ symbols
-                return `npm.${packageName.replace('@', '')}`;
+                const packageName = packageNameMatch[1];
+                // Group by first letter to reduce chunk count, with special handling for @scoped packages
+                const firstChar =
+                  packageName.charAt(0) === '@'
+                    ? packageName.split('/')[0].slice(1, 2)
+                    : packageName.charAt(0);
+                return `vendor-${firstChar}`;
               },
               priority: 10,
               minChunks: 1,
@@ -262,4 +321,5 @@ const withPWAConfig = withPWA({
   ],
 });
 
-export default withPWAConfig(nextConfig);
+// Apply bundle analyzer if ANALYZE flag is set
+export default withBundleAnalyzer(withPWAConfig(nextConfig));

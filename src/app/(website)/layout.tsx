@@ -1,12 +1,19 @@
 // src/app/(website)/layout.tsx
 import type { JSX, ReactNode } from 'react';
-import Header from '@/components/layout/Header';
+import { Suspense, lazy } from 'react';
+import dynamic from 'next/dynamic';
 
-// Create a simple footer component
-const SimpleFooter = (): JSX.Element => (
+// Dynamic import for Header with SSR enabled
+const Header = dynamic(() => import('@/components/layout/Header'), { ssr: true });
+
+// Lazy load footer to prioritize main content
+const Footer = lazy(() => import('@/components/layout/Footer'));
+
+// Simple loading placeholder for footer
+const FooterFallback = (): JSX.Element => (
   <footer className="bg-gray-900 py-12">
     <div className="container mx-auto px-4">
-      <div className="text-center text-white">
+      <div className="text-center text-white opacity-0">
         <p>© {new Date().getFullYear()} SolveJet. All rights reserved.</p>
       </div>
     </div>
@@ -18,7 +25,9 @@ export default function WebsiteLayout({ children }: { children: ReactNode }): JS
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">{children}</main>
-      <SimpleFooter />
+      <Suspense fallback={<FooterFallback />}>
+        <Footer />
+      </Suspense>
     </div>
   );
 }

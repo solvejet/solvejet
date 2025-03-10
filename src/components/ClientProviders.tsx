@@ -3,28 +3,46 @@
 
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-
-// Import components directly
 import { AuthInitializer } from '@/components/AuthInitializer';
-import { SecurityProvider } from '@/components/SecurityProvider';
-import { AnalyticsProvider } from '@/components/Analytics';
-import { AnimationProvider } from '@/components/AnimationProvider'; // Add AnimationProvider
+
+// Lazily load non-critical providers
+const SecurityProvider = lazy(() =>
+  import('@/components/SecurityProvider').then(mod => ({
+    default: mod.SecurityProvider,
+  }))
+);
+
+const AnalyticsProvider = lazy(() =>
+  import('@/components/Analytics').then(mod => ({
+    default: mod.AnalyticsProvider,
+  }))
+);
+
+const AnimationProvider = lazy(() =>
+  import('@/components/AnimationProvider').then(mod => ({
+    default: mod.AnimationProvider,
+  }))
+);
 
 interface ClientProvidersProps {
   children: ReactNode;
 }
 
 export function ClientProviders({ children }: ClientProvidersProps): React.ReactElement {
-  // Create a new QueryClient instance for each session
+  // Create a stable QueryClient with optimized settings
   const [queryClient] = useState(
-    (): QueryClient =>
+    () =>
       new QueryClient({
         defaultOptions: {
           queries: {
             staleTime: 5 * 60 * 1000, // 5 minutes
             retry: 1,
+            // Add these optimizations:
+            refetchOnWindowFocus: false, // Reduce unnecessary refetches
+            refetchOnReconnect: 'always', // Only refetch when truly needed
+            // cacheTime: 10 * 60 * 1000, // 10 minutes cache time
           },
         },
       })
@@ -47,11 +65,17 @@ export function ClientProviders({ children }: ClientProvidersProps): React.React
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthInitializer />
-        <SecurityProvider>
-          <AnalyticsProvider>
-            <AnimationProvider>{children}</AnimationProvider>
-          </AnalyticsProvider>
-        </SecurityProvider>
+        <Suspense fallback={<>{children}</>}>
+          <SecurityProvider>
+            <Suspense fallback={<>{children}</>}>
+              <AnalyticsProvider>
+                <Suspense fallback={<>{children}</>}>
+                  <AnimationProvider>{children}</AnimationProvider>
+                </Suspense>
+              </AnalyticsProvider>
+            </Suspense>
+          </SecurityProvider>
+        </Suspense>
       </QueryClientProvider>
     </ErrorBoundary>
   );

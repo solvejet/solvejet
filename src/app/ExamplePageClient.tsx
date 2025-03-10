@@ -10,7 +10,6 @@ import type { CellValue, Column } from '@/components/ui/table/types';
 import { useToastStore } from '@/components/ui/toast/toast-store';
 import { useCSRF } from '@/hooks/useCSRF';
 import { useForm } from '@/hooks/useForm';
-import { usePerformance } from '@/hooks/usePerformance';
 import { AlertCircle, ArrowRight, Camera, Check, Lock, Mail } from 'lucide-react';
 import React, { useCallback, useEffect, useState, type JSX } from 'react';
 import { z } from 'zod';
@@ -75,7 +74,6 @@ export function ExamplePageClient(): JSX.Element {
   const [selectedImage, setSelectedImage] = useState<string>('/api/placeholder/400/300');
 
   // Hooks
-  const renderCount = usePerformance('ExamplePage');
   const toast = useToastStore();
   const { token } = useCSRF();
 
@@ -189,7 +187,6 @@ export function ExamplePageClient(): JSX.Element {
         {/* Header Section */}
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold mb-4">UI Components & Hooks</h1>
-          <p className="text-gray-600 dark:text-gray-400">Render count: {renderCount}</p>
           {token && <p className="text-sm text-gray-500">CSRF Protection Active</p>}
         </div>
 
