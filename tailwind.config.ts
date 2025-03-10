@@ -8,6 +8,12 @@ const config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   darkMode: 'class',
+  // Add future configuration
+  future: {
+    hoverOnlyWhenSupported: true, // Respects 'hover: none' media query
+    respectDefaultRingColorOpacity: true, // Better focus ring behavior
+    disableColorOpacityUtilitiesByDefault: true, // More efficient opacity utilities
+  },
   theme: {
     extend: {
       fontFamily: {

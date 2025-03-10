@@ -20,6 +20,7 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "critters": "^0.0.25",
     "dotenv": "^16.4.7",
     "express-rate-limit": "^7.5.0",
     "gsap": "^3.12.7",
