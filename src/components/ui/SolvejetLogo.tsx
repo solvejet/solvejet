@@ -26,12 +26,16 @@ export const SolvejetLogo: React.FC<SolvejetLogoProps> = ({
   // Calculate viewBox based on whether we show text or just the logo dots
   const viewBox = withText ? '0 0 1800 600' : '1430 130 250 250';
 
+  // Convert width and height to fixed numbers or strings that aren't "auto"
+  const svgWidth = width === 'auto' ? '180' : width;
+  const svgHeight = height === 'auto' ? '60' : height;
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox={viewBox}
-      width={width}
-      height={height}
+      width={svgWidth}
+      height={svgHeight}
       className={cn('inline-block', className)}
       aria-labelledby="solvejet-logo-title"
     >

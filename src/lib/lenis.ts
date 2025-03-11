@@ -30,8 +30,10 @@ interface LenisOptions {
   autoResize?: boolean;
 }
 
-// Track animation frame for performance optimization
+// Global variables to track Lenis instance and animation frame
 let rafId: number | null = null;
+let lenisInstance: Lenis | null = null;
+let isDestroyed = false;
 
 // Memoize media query to avoid recalculating
 let reducedMotionQuery: MediaQueryList | null = null;
@@ -61,39 +63,82 @@ function getPrefersReducedMotion(): boolean {
 }
 
 /**
+ * Handle the RAF loop for Lenis scrolling
+ */
+function startRaf(): void {
+  // Clean up any existing animation frame first
+  if (rafId !== null) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+
+  // Only start if we have a valid instance
+  if (!lenisInstance || isDestroyed) return;
+
+  // The RAF handler function
+  const handleRaf = (time: number): void => {
+    if (lenisInstance && !isDestroyed) {
+      lenisInstance.raf(time);
+      rafId = requestAnimationFrame(handleRaf);
+    }
+  };
+
+  // Start the animation loop
+  rafId = requestAnimationFrame(handleRaf);
+}
+
+/**
+ * Reinitializes Lenis if it's been destroyed or is not functioning
+ * This is the primary function to call if Lenis stops working
+ */
+export function reinitializeLenis(): Lenis | null {
+  // Reset the destroyed flag
+  isDestroyed = false;
+
+  // If Lenis is already initialized and running, just return it
+  if (lenisInstance && typeof window !== 'undefined' && window.lenis === lenisInstance) {
+    return lenisInstance;
+  }
+
+  // Otherwise initialize a new instance
+  return initLenis();
+}
+
+/**
  * Initializes Lenis smooth scrolling with performance optimizations
+ * Will reuse an existing instance if available
  */
 export function initLenis(customOptions?: Partial<LenisOptions>): Lenis | null {
   // Server-side or reduced motion checks
   if (typeof window === 'undefined' || getPrefersReducedMotion()) return null;
 
-  // Return existing instance if already initialized
-  if (window.lenis) return window.lenis;
+  // If we already have a Lenis instance and it's not destroyed, return it
+  if (lenisInstance && !isDestroyed) {
+    // Ensure it's also set on the window
+    window.lenis = lenisInstance;
+    return lenisInstance;
+  }
 
   try {
-    // Merge default options with any custom options - only create object if needed
+    // Reset the destroyed flag
+    isDestroyed = false;
+
+    // Merge default options with any custom options
     const lenisOptions = customOptions ? { ...DEFAULT_OPTIONS, ...customOptions } : DEFAULT_OPTIONS;
 
     // Create new Lenis instance
-    const lenis = new Lenis(lenisOptions);
-    window.lenis = lenis;
+    lenisInstance = new Lenis(lenisOptions);
+    window.lenis = lenisInstance;
 
-    // Clean up any existing animation frame
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId);
+    // Start the RAF loop
+    startRaf();
+
+    // Add listener for document visibility changes to handle tab switching
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
     }
 
-    // Optimized RAF loop with proper cleanup tracking
-    const handleRaf = (time: number): void => {
-      if (window.lenis) {
-        window.lenis.raf(time);
-        rafId = requestAnimationFrame(handleRaf);
-      }
-    };
-
-    // Start animation loop
-    rafId = requestAnimationFrame(handleRaf);
-    return lenis;
+    return lenisInstance;
   } catch (error) {
     console.error('Lenis initialization failed:', error instanceof Error ? error.message : error);
     return null;
@@ -101,10 +146,47 @@ export function initLenis(customOptions?: Partial<LenisOptions>): Lenis | null {
 }
 
 /**
+ * Handle visibility changes (tab switching)
+ */
+function handleVisibilityChange(): void {
+  if (document.visibilityState === 'visible') {
+    // Restart RAF loop when tab becomes visible again
+    startRaf();
+  } else if (rafId !== null) {
+    // Pause animation when tab is not visible
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+}
+
+/**
  * Gets the current Lenis instance if available
  */
 export function getLenis(): Lenis | null {
+  // First check our module variable
+  if (lenisInstance && !isDestroyed) {
+    return lenisInstance;
+  }
+
+  // Then check the window object as fallback
   return typeof window !== 'undefined' ? window.lenis ?? null : null;
+}
+
+/**
+ * Cleans up the Lenis instance resources
+ * Doesn't fully destroy it so it can be reinitialized more easily
+ */
+export function stopLenis(): void {
+  // Cancel animation frame
+  if (rafId !== null) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+
+  // Remove visibility change listener
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }
 }
 
 /**
@@ -113,19 +195,36 @@ export function getLenis(): Lenis | null {
 export function destroyLenis(): void {
   if (typeof window === 'undefined') return;
 
+  // Set the destroyed flag
+  isDestroyed = true;
+
   // Cancel animation frame to prevent memory leaks
   if (rafId !== null) {
     cancelAnimationFrame(rafId);
     rafId = null;
   }
 
+  // Remove visibility change listener
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }
+
   // Destroy Lenis instance
-  if (window.lenis) {
+  if (lenisInstance) {
     try {
-      window.lenis.destroy();
+      lenisInstance.destroy();
+      lenisInstance = null;
       window.lenis = null;
     } catch (error) {
       console.error('Error destroying Lenis:', error instanceof Error ? error.message : error);
     }
   }
+}
+
+// Initialize on import if window is available
+if (typeof window !== 'undefined' && !window.lenis) {
+  // Use setTimeout to avoid blocking the main thread on initial load
+  setTimeout(() => {
+    initLenis();
+  }, 0);
 }

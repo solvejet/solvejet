@@ -3,7 +3,6 @@
 
 import React, { lazy, Suspense, useEffect } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { initLenis } from '@/lib/lenis';
 import { preloadCriticalAssets, prefetchResources } from '@/lib/optimize/preload';
 
 // Lazy load ToastProvider which is not immediately needed
@@ -33,8 +32,17 @@ export function Providers({ children }: ProvidersProps): React.ReactElement {
     // Mark as mounted after hydration
     setIsMounted(true);
 
-    // Initialize Lenis for smooth scrolling
-    initLenis();
+    // Initialize Lenis for smooth scrolling using the improved method
+    const initializeLenis = async (): Promise<void> => {
+      try {
+        const { reinitializeLenis } = await import('@/lib/lenis');
+        reinitializeLenis();
+      } catch (error) {
+        console.error('Error initializing Lenis:', error);
+      }
+    };
+
+    void initializeLenis();
 
     // Preload critical assets in first idle period
     preloadCriticalAssets();
@@ -49,7 +57,7 @@ export function Providers({ children }: ProvidersProps): React.ReactElement {
     // Clean up
     return (): void => {
       window.removeEventListener('load', prefetchResources);
-      // No need to destroy Lenis as it's managed globally
+      // Don't stop or destroy Lenis here - it's managed globally
     };
   }, []);
 

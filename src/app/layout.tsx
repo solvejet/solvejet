@@ -35,17 +35,56 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${poppins.variable} scroll-smooth`} suppressHydrationWarning>
       <head>
-        {/* Preconnect to origins */}
+        {/* Resource hints for important origins */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
 
-        {/* Preload critical hero image */}
+        {/* DNS prefetch for commonly used external domains */}
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+        {/* Preload LCP hero image with high priority */}
         <link
           rel="preload"
           href="/images/industries/real-estate.webp"
           as="image"
           type="image/webp"
           fetchPriority="high"
+        />
+
+        {/* Preload critical CSS */}
+        <link rel="preload" href="/_next/static/css/app/layout.css" as="style" />
+
+        {/* Add viewport-based preloads */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Add preloads based on viewport size to prevent unnecessary resource loading
+              (function() {
+                const isMobile = window.innerWidth < 768;
+                const addPreload = (href, as, priority = 'low') => {
+                  const link = document.createElement('link');
+                  link.rel = 'preload';
+                  link.href = href;
+                  link.as = as;
+                  link.fetchPriority = priority;
+                  document.head.appendChild(link);
+                };
+
+                // Only load desktop-specific resources on desktop
+                if (!isMobile) {
+                  // Preload main hero image
+                  addPreload('/images/industries/ecommerce.webp', 'image');
+                }
+
+                // Defer non-critical JS
+                document.addEventListener('DOMContentLoaded', () => {
+                  setTimeout(() => {
+                    // Add additional resources after main content is loaded
+                  }, 3000);
+                });
+              })();
+            `,
+          }}
         />
 
         {/* Critical CSS for above-the-fold content */}
@@ -101,7 +140,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-poppins antialiased bg-white dark:bg-black">
-        {/* Use the client wrapper instead of directly using ClientProviders */}
+        {/* Use progressive enhancement with the client wrapper */}
         <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
       </body>
     </html>

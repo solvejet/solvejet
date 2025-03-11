@@ -4,60 +4,19 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
+import type { JSX } from 'react';
 
-// Optimized version - removes unnecessary analytics, simplifies state management
-export default function HeroSection(): React.ReactElement {
-  const [textIndex, setTextIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  // Define rotating texts - these won't change so no need for state
-  const rotatingTexts = [
-    'Intelligent Solutions',
-    'Enterprise Systems',
-    'AI Technologies',
-    'Scalable Products',
-    'Digital Experiences',
-  ];
+// Pre-define constants to avoid recreating objects on every render
+const ROTATING_TEXTS = [
+  'Intelligent Solutions',
+  'Enterprise Systems',
+  'AI Technologies',
+  'Scalable Products',
+  'Digital Experiences',
+];
 
-  const textSwitcherRef = useRef<HTMLSpanElement>(null);
-  const isInitialRender = useRef(true);
-
-  // Simplified scroll function
-  const scrollToContent = useCallback((): void => {
-    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-  }, []);
-
-  // Optimized text rotation effect - only runs once after first render
-  useEffect(() => {
-    if (!isInitialRender.current) return;
-    isInitialRender.current = false;
-
-    const rotateText = (): void => {
-      if (!textSwitcherRef.current) return;
-      setIsAnimating(true);
-      setTimeout(() => {
-        setTextIndex(prevIndex => (prevIndex + 1) % rotatingTexts.length);
-        setTimeout(() => {
-          setIsAnimating(false);
-        }, 50);
-      }, 300);
-    };
-
-    // Delayed initial rotation
-    const initialDelay = setTimeout(() => {
-      // Start rotation after initial delay
-      rotateText();
-      const intervalId = setInterval(rotateText, 5000);
-
-      return (): void => {
-        clearInterval(intervalId);
-      };
-    }, 2000);
-
-    return (): void => {
-      clearTimeout(initialDelay);
-    };
-  }, [rotatingTexts.length]);
-
+// Fixed ClientLogos component - no longer lazy-loaded to prevent disappearing
+const ClientLogos = (): JSX.Element => {
   // Client logos with fixed dimensions for better CLS
   const clientLogos = [
     {
@@ -85,6 +44,137 @@ export default function HeroSection(): React.ReactElement {
       height: 40,
     },
   ];
+
+  return (
+    <div className="hidden md:flex items-center space-x-8">
+      {clientLogos.map((logo, i) => (
+        <div key={i} className="h-12 w-32 relative flex items-center justify-center">
+          <Image
+            src={logo.path}
+            alt={logo.alt}
+            width={logo.width}
+            height={logo.height}
+            className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Mobile client logos component for better visibility on small screens
+const MobileClientLogos = (): JSX.Element => {
+  // Client logos with fixed dimensions for better CLS
+  const clientLogos = [
+    {
+      path: '/images/clients/kelsi_organics.webp',
+      alt: 'Kelsi Organics Logo',
+      width: 140,
+      height: 40,
+    },
+    {
+      path: '/images/clients/riya-logo.webp',
+      alt: 'Riya Logo',
+      width: 140,
+      height: 40,
+    },
+    {
+      path: '/images/clients/logo.webp',
+      alt: '7Eventzz Logo',
+      width: 140,
+      height: 40,
+    },
+    {
+      path: '/images/clients/tyent.webp',
+      alt: 'Tyent Australia Logo',
+      width: 140,
+      height: 40,
+    },
+  ];
+
+  return (
+    <div className="flex md:hidden items-center justify-center space-x-4 mt-4">
+      {clientLogos.map((logo, i) => (
+        <div key={i} className="h-10 w-24 relative flex items-center justify-center">
+          <Image
+            src={logo.path}
+            alt={logo.alt}
+            width={logo.width}
+            height={logo.height}
+            className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
+            loading="lazy"
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Main component with optimizations to prevent disappearing
+export default function HeroSection(): React.ReactElement {
+  const [textIndex, setTextIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const textSwitcherRef = useRef<HTMLSpanElement>(null);
+
+  // Remove state that was causing issues
+  // const [showLogos, setShowLogos] = useState(false);
+
+  // Simplified scroll function using a dedicated ref to improve performance
+  const scrollToContent = useCallback((): void => {
+    // Check if window.lenis exists (from your implementation in src/lib/lenis.ts)
+    if (typeof window !== 'undefined') {
+      if (window.lenis) {
+        // Use Lenis smooth scroll if available
+        window.lenis.scrollTo(window.innerHeight, {
+          duration: 1.2,
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Ease out expo
+        });
+      } else {
+        // Fallback to native smooth scroll
+        window.scrollTo({
+          top: window.innerHeight,
+          behavior: 'smooth',
+        });
+      }
+    }
+  }, []);
+
+  // Optimized text rotation effect
+  useEffect(() => {
+    // Define the rotation function
+    const rotateText = (): void => {
+      if (!textSwitcherRef.current) return;
+
+      setIsAnimating(true);
+      setTimeout(() => {
+        setTextIndex(prevIndex => (prevIndex + 1) % ROTATING_TEXTS.length);
+
+        // Remove animation class after the state updates
+        setTimeout(() => {
+          setIsAnimating(false);
+        }, 50);
+      }, 300);
+    };
+
+    // Start rotation after a delay to ensure component is fully mounted
+    const initialDelay = setTimeout(() => {
+      rotateText();
+
+      // Set up interval for rotation
+      const intervalId = setInterval(rotateText, 5000);
+
+      // Cleanup interval in the effect's cleanup function
+      return (): void => {
+        clearInterval(intervalId);
+      };
+    }, 2000);
+
+    // Return the cleanup function
+    return (): void => {
+      clearTimeout(initialDelay);
+    };
+  }, []); // Empty dependency array ensures this only runs once
 
   return (
     <section
@@ -146,7 +236,7 @@ export default function HeroSection(): React.ReactElement {
                     isAnimating ? 'text-rotate-out' : 'text-rotate-in'
                   }`}
                 >
-                  {rotatingTexts[textIndex]}
+                  {ROTATING_TEXTS[textIndex]}
                 </span>
               </div>
             </div>
@@ -185,21 +275,11 @@ export default function HeroSection(): React.ReactElement {
               digital landscape.
             </p>
 
-            {/* Client logos - deferred loading to prioritize critical content */}
-            <div className="hidden md:flex items-center space-x-8">
-              {clientLogos.map((logo, i) => (
-                <div key={i} className="h-12 w-32 relative flex items-center justify-center">
-                  <Image
-                    src={logo.path}
-                    alt={logo.alt}
-                    width={logo.width}
-                    height={logo.height}
-                    className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-            </div>
+            {/* Client logos - always render them instead of conditional loading */}
+            <ClientLogos />
+
+            {/* Mobile client logos */}
+            <MobileClientLogos />
           </div>
         </div>
       </div>
