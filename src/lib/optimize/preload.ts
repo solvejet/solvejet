@@ -12,7 +12,6 @@ export function preloadCriticalAssets(): void {
     '/images/industries/real-estate.webp',
     '/images/industries/ecommerce.webp',
     '/images/services/custom-software-development.svg',
-    '/images/team-effort.jpg'
   ];
 
   // Preload critical JavaScript chunks
