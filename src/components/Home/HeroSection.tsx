@@ -268,7 +268,11 @@ export default function HeroSection(): React.ReactElement {
         {/* Hero description - Critical LCP element */}
         <div className="absolute bottom-16 left-0 right-0 container mx-auto px-4 sm:px-6 max-w-[95rem]">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
-            <p id="hero-description" className="text-gray-300 leading-relaxed md:leading-loose" data-lcp-element="true">
+            <p
+              id="hero-description"
+              className="text-gray-300 leading-relaxed md:leading-loose"
+              data-lcp-element="true"
+            >
               SolveJet pioneers technology solutions that transcend conventional boundaries. We
               leverage cutting-edge innovation to empower businesses with scalable, future-proof
               systems that drive growth and operational excellence in today's rapidly evolving

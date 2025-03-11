@@ -1,4 +1,7 @@
 // next.config.js
+
+const { optimize } = require('webpack');
+
 /** @type {import('next').NextConfig} */
 const withPWA = require('next-pwa')({
   dest: 'public',
@@ -241,7 +244,7 @@ const nextConfig = {
   },
 
   experimental: {
-    // Disable optimizeCss until we've installed critters
+    optimizeCss: true,
     // optimizeCss: process.env.NODE_ENV === 'production',
   },
 

@@ -93,18 +93,18 @@ export default function RootLayout({
             __html: `
               /* Critical CSS for hero section and header */
               #hero-description {
-                color: #f3f4f6;
-                font-size: 1rem;
-                line-height: 1.7;
-                max-width: 32rem;
-                padding-right: 1rem;
-              }
-              @media (min-width: 768px) {
-                #hero-description {
-                  font-size: 0.875rem;
-                  max-width: 48rem;
-                }
-              }
+        color: #f3f4f6;
+        font-size: 1rem;
+        line-height: 1.7;
+        max-width: 32rem;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+      @media (min-width: 768px) {
+        #hero-description {
+          font-size: 0.875rem;
+          max-width: 48rem;
+        }
+      }
               @media (min-width: 1024px) {
                 #hero-description {
                   max-width: 56rem;

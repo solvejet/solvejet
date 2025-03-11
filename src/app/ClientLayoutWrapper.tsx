@@ -42,7 +42,7 @@ export default function ClientLayoutWrapper({ children }: ChildrenProps): React.
     // Schedule delayed loading of providers
     const timer = setTimeout(() => {
       setLoadProviders(true);
-    }, 500); // Reduced delay to 500ms for faster provider loading
+    }, 1000); // Reduced delay to 500ms for faster provider loading
 
     return (): void => {
       clearTimeout(timer);
