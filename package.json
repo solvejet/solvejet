@@ -5,6 +5,7 @@
   "scripts": {
     "clean": "rimraf .next out",
     "build": "pnpm clean && next build",
+    "generate:seo": "node src/scripts/generate-seo-files-runner.js",
     "build:analyze": "cross-env ANALYZE=true pnpm build",
     "dev": "next dev",
     "start": "next start",
@@ -23,6 +24,7 @@
     "critters": "^0.0.25",
     "dotenv": "^16.4.7",
     "express-rate-limit": "^7.5.0",
+    "glob": "^11.0.1",
     "gsap": "^3.12.7",
     "jsonwebtoken": "^9.0.2",
     "lenis": "^1.1.22",
@@ -45,6 +47,7 @@
     "@next/bundle-analyzer": "^15.2.1",
     "@next/eslint-plugin-next": "^15.1.7",
     "@types/bcryptjs": "^2.4.6",
+    "@types/glob": "^8.1.0",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/next-pwa": "^5.6.9",
     "@types/node": "^20.17.19",

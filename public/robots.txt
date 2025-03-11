@@ -1,0 +1,15 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /404
+Disallow: /500
+
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/*
+Disallow: /api/*
+
+# Sitemaps
+Sitemap: http://localhost:3000/sitemap.xml
