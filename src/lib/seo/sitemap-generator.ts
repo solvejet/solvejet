@@ -104,8 +104,9 @@ export function generateSitemap(config: SitemapConfig): void {
     if (existingPathIndex >= 0) {
       sitemapUrls[existingPathIndex] = {
         ...sitemapUrls[existingPathIndex],
-        changeFrequency: customPath.changeFrequency,
-        priority: customPath.priority,
+        url: sitemapUrls[existingPathIndex]?.url ?? '',
+        changeFrequency: customPath.changeFrequency ?? defaultChangeFreq,
+        priority: customPath.priority ?? defaultPriority,
       };
     } else {
       sitemapUrls.push({
@@ -113,7 +114,7 @@ export function generateSitemap(config: SitemapConfig): void {
         url: customPath.url.startsWith('http')
           ? customPath.url
           : `${normalizedBaseUrl}${customPath.url}`,
-        lastModified: customPath.lastModified || new Date().toISOString(),
+        lastModified: customPath.lastModified ?? new Date().toISOString(),
       });
     }
   });

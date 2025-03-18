@@ -9,18 +9,43 @@ export interface CaseStudy {
   challenge: string;
   approach: string;
   solution: string;
+  solutionDetails?: {
+    architecture?: string;
+    keyFeatures?: string[];
+    technicalHighlights?: string[];
+    innovativeApproaches?: string[];
+    architectureDiagram?: {
+      layers: {
+        name: string;
+        color: string;
+        components: {
+          name: string;
+          description?: string;
+          icon?: string;
+        }[];
+      }[];
+    };
+  };
   results: {
     metrics: {
       label: string;
       value: string;
       icon?: string;
     }[];
+    summary?: string;
+    keyAchievements?: string[];
   };
   technologies: {
     name: string;
     icon?: string;
     category?: string;
   }[];
+  implementationDetails?: {
+    architecture: string;
+    timeline: string;
+    team: string;
+    keyFeatures: string[];
+  };
   nextSteps?: {
     title: string;
     description: string;
@@ -30,8 +55,6 @@ export interface CaseStudy {
     };
   };
   relatedCaseStudies?: string[]; // IDs of related case studies
-  publishedAt: string; // ISO date string
-  updatedAt?: string; // ISO date string
   featured: boolean;
   coverImage: {
     src: string;
@@ -54,7 +77,6 @@ export interface CaseStudySummary {
   title: string;
   subtitle: string;
   overview: string;
-  publishedAt: string;
   featured: boolean;
   coverImage: {
     src: string;
