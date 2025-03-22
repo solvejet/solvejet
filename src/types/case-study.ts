@@ -1,87 +1,68 @@
 // src/types/case-study.ts
+
 export interface CaseStudy {
   id: string;
   slug: string;
   title: string;
-  subtitle: string;
-  industry: string;
   overview: string;
-  challenge: string;
-  approach: string;
-  solution: string;
-  solutionDetails?: {
-    architecture?: string;
-    keyFeatures?: string[];
-    technicalHighlights?: string[];
-    innovativeApproaches?: string[];
-    architectureDiagram?: {
-      layers: {
-        name: string;
-        color: string;
-        components: {
-          name: string;
-          description?: string;
-          icon?: string;
-        }[];
-      }[];
-    };
-  };
-  results: {
-    metrics: {
-      label: string;
-      value: string;
-      icon?: string;
-    }[];
-    summary?: string;
-    keyAchievements?: string[];
-  };
-  technologies: {
-    name: string;
-    icon?: string;
-    category?: string;
-  }[];
-  implementationDetails?: {
-    architecture: string;
-    timeline: string;
-    team: string;
-    keyFeatures: string[];
-  };
-  nextSteps?: {
-    title: string;
-    description: string;
-    cta: {
-      label: string;
-      href: string;
-    };
-  };
-  relatedCaseStudies?: string[]; // IDs of related case studies
-  featured: boolean;
+  industry: string;
+  duration: string;
+  services: string[];
   coverImage: {
     src: string;
     alt: string;
-    width: number;
-    height: number;
+  };
+  challenge: string;
+  approach: string;
+  solution: string;
+  results: {
+    summary: string;
+    metrics: {
+      label: string;
+      value: string;
+      description?: string;
+      icon?: string;
+      color?: string;
+    }[];
+  };
+  architecture: {
+    description: string;
+    technologies: {
+      name: string;
+      icon?: string;
+      description: string;
+      category: 'frontend' | 'backend' | 'database' | 'infrastructure' | 'cloud' | 'tools';
+      purpose?: string;
+    }[];
+    components: {
+      name: string;
+      type: 'service' | 'database' | 'client' | 'external' | 'container';
+      // Making description optional as requested
+      description?: string;
+      technologies?: string[];
+      connections?: string[]; // Names of other components this connects to
+    }[];
+    flows?: {
+      from: string;
+      to: string;
+      name?: string;
+      // Making flow description optional as requested
+      description?: string;
+    }[];
+    highlights: {
+      title: string;
+      description: string;
+      icon?: string;
+    }[];
+    keyFeatures: {
+      name: string;
+      description: string;
+      icon?: string;
+    }[];
   };
   metaData?: {
     title?: string;
     description?: string;
     keywords?: string[];
-    ogImage?: string;
-  };
-}
-
-export interface CaseStudySummary {
-  industry: string;
-  id: string;
-  slug: string;
-  title: string;
-  subtitle: string;
-  overview: string;
-  featured: boolean;
-  coverImage: {
-    src: string;
-    alt: string;
-    width: number;
-    height: number;
   };
 }

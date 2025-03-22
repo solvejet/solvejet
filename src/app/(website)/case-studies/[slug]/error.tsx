@@ -13,10 +13,7 @@ interface ErrorComponentProps {
   reset: () => void;
 }
 
-export default function CaseStudyError({
-  error,
-  reset,
-}: ErrorComponentProps): React.ReactElement {
+export default function CaseStudyError({ error, reset }: ErrorComponentProps): React.ReactElement {
   const { trackEvent } = useAnalytics();
 
   useEffect(() => {

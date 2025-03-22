@@ -53,8 +53,9 @@ export function getCaseStudyStructuredData(caseStudy: CaseStudy): Record<string,
 
 /**
  * Generates structured data for a case studies list page
+ * No parameters required for the list page
  */
-export function getCaseStudiesListStructuredData(): Record<string, unknown> {
+export default function getCaseStudiesListStructuredData(): Record<string, unknown> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://solvejet.net';
 
   return {
@@ -75,6 +76,26 @@ export function getCaseStudiesListStructuredData(): Record<string, unknown> {
       '@type': 'ItemList',
       itemListElement: [], // This would be populated with case study summaries when used
     },
+  };
+}
+
+/**
+ * Generates breadcrumb structured data
+ */
+export function getBreadcrumbStructuredData(
+  items: { name: string; url: string }[]
+): Record<string, unknown> {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://solvejet.net';
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url.startsWith('http') ? item.url : `${baseUrl}${item.url}`,
+    })),
   };
 }
 
@@ -119,25 +140,5 @@ export function getCommonFaqStructuredData(): Record<string, unknown> {
         },
       },
     ],
-  };
-}
-
-/**
- * Generates breadcrumb structured data
- */
-export function getBreadcrumbStructuredData(
-  items: { name: string; url: string }[]
-): Record<string, unknown> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://solvejet.net';
-
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: item.name,
-      item: `${baseUrl}${item.url}`,
-    })),
   };
 }
