@@ -118,7 +118,6 @@ export default function RootLayout({
                 background-position: -0.5px -0.5px;
                 opacity: 0.3;
               }
-              .section-placeholder { min-height: 100px; width: 100%; }
               .text-rotate-out {
                 animation: textRotateOut 0.5s forwards;
                 transform-origin: center center;

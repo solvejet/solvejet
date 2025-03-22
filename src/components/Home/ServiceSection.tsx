@@ -139,7 +139,8 @@ const ServiceSection: React.FC<ServiceSectionProps> = ({ services, className }) 
   }, [services, trackEvent]);
 
   return (
-    <section className={cn('py-24 bg-[#F5F5FB] dark:bg-gray-900', className)}>
+    <section className={cn('py-24 bg-[#F5F5FB] dark:bg-gray-900 pb-16', className)}>
+      {/* Reduced bottom padding to 16px (pb-16) */}
       <div className="container mx-auto px-4 max-w-[95rem]">
         <div className="text-center mb-16">
           <span className="text-md font-medium text-element-500 dark:text-element-400">

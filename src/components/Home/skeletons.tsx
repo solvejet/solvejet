@@ -122,58 +122,86 @@ export function ServiceSectionSkeleton(): React.ReactElement {
   );
 }
 
-/**
- * Skeleton loader for the Clients Section
- */
-export function ClientsSectionSkeleton(): React.ReactElement {
+export function TrustSectionSkeleton(): React.JSX.Element {
   return (
-    <section className="relative bg-gradient-to-b from-gray-900 to-gray-950 py-16 overflow-hidden">
-      <div className="container mx-auto px-4 max-w-[95rem] relative z-10">
-        {/* Section header skeleton */}
-        <div className="text-center mb-12">
+    <section className="py-24 bg-white dark:bg-gray-900">
+      <div className="container mx-auto px-4 max-w-[95rem]">
+        {/* Section Header skeleton */}
+        <div className="text-center mb-16">
           <Skeleton className="h-6 w-40 mx-auto mb-3" />
-          <Skeleton className="h-10 w-96 mx-auto mb-3" />
+          <Skeleton className="h-12 w-96 mx-auto mb-4" />
           <Skeleton className="h-6 w-2/3 mx-auto" />
         </div>
 
-        {/* Main content sections skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-          {/* Certifications */}
-          <div className="lg:col-span-1">
-            <Skeleton className="h-8 w-48 mb-4" />
+        {/* Filter tabs skeleton */}
+        <div className="flex justify-center flex-wrap gap-3 mb-12">
+          <Skeleton className="h-10 w-36 rounded-lg" />
+          <Skeleton className="h-10 w-36 rounded-lg" />
+          <Skeleton className="h-10 w-36 rounded-lg" />
+          <Skeleton className="h-10 w-36 rounded-lg" />
+        </div>
 
-            <div className="space-y-3">
-              {Array(3)
-                .fill(0)
-                .map((_, i) => (
-                  <Skeleton key={i} className="h-24 w-full rounded-xl" />
-                ))}
-            </div>
+        {/* Credentials Grid skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+          {Array(6)
+            .fill(0)
+            .map((_, i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm h-64"
+              >
+                <div className="p-6 h-full">
+                  <div className="flex items-center mb-4">
+                    <Skeleton className="w-16 h-16 rounded-lg mr-4" />
+                    <div>
+                      <Skeleton className="h-6 w-32 mb-1" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-5/6 mb-2" />
+                  <Skeleton className="h-4 w-4/6" />
+                  <div className="mt-auto pt-6">
+                    <Skeleton className="h-9 w-32 rounded-full" />
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+
+        {/* Credentials Marquee skeleton */}
+        <div className="mt-16">
+          <div className="text-center mb-10">
+            <Skeleton className="h-8 w-64 mx-auto" />
           </div>
 
-          {/* Client Logo Grid */}
-          <div className="lg:col-span-2">
-            <Skeleton className="h-8 w-48 mb-4" />
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {Array(8)
+          <div className="relative overflow-hidden py-8">
+            <div className="flex space-x-6 overflow-hidden">
+              {Array(5)
                 .fill(0)
                 .map((_, i) => (
-                  <Skeleton key={i} className="h-36 w-full rounded-xl" />
+                  <Skeleton key={i} className="h-20 w-64 rounded-xl flex-shrink-0" />
                 ))}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Marquee skeleton */}
-      <div className="py-6">
-        <div className="flex overflow-hidden">
-          {Array(8)
-            .fill(0)
-            .map((_, i) => (
-              <Skeleton key={i} className="h-20 w-32 mx-12 flex-shrink-0" />
-            ))}
+        {/* Client logos section skeleton */}
+        <div className="mt-16">
+          <div className="text-center mb-10">
+            <Skeleton className="h-8 w-64 mx-auto mb-3" />
+            <Skeleton className="h-4 w-96 mx-auto" />
+          </div>
+
+          <div className="relative overflow-hidden py-4">
+            <div className="flex space-x-8 overflow-hidden">
+              {Array(6)
+                .fill(0)
+                .map((_, i) => (
+                  <Skeleton key={i} className="h-16 w-48 rounded-md flex-shrink-0" />
+                ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

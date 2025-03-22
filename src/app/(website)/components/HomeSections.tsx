@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import {
   IndustriesGridSkeleton,
   ServiceSectionSkeleton,
-  ClientsSectionSkeleton,
+  TrustSectionSkeleton,
 } from '@/components/Home/skeletons';
 import type { Industry, Service } from '@/data/home-page-data';
 
@@ -33,35 +33,35 @@ const ServiceSection = dynamic(() => import('@/components/Home/ServiceSection'),
   ssr: false,
 });
 
-const ClientsSection = dynamic(() => import('@/components/Home/ClientsSection'), {
-  loading: () => <ClientsSectionSkeleton />,
+// Add the new TrustSection component
+const TrustSection = dynamic(() => import('@/components/Home/TrustSection'), {
+  loading: () => <TrustSectionSkeleton />,
   ssr: false,
 });
 
 // TypeSafe section components
-export function IndustriesSection({ industries, id }: IndustriesProps): React.JSX.Element {
+export function IndustriesSection({ industries }: IndustriesProps): React.JSX.Element {
   return (
     <>
-      <div id={id} className="section-placeholder" />
       <IndustriesGrid industries={industries} />
     </>
   );
 }
 
-export function ServicesSection({ services, id }: ServicesProps): React.JSX.Element {
+export function ServicesSection({ services }: ServicesProps): React.JSX.Element {
   return (
     <>
-      <div id={id} className="section-placeholder" />
       <ServiceSection services={services} />
     </>
   );
 }
 
-export function ClientsGridSection({ id }: SectionProps): React.JSX.Element {
+export function TrustCredentialsSection({ id }: SectionProps): React.JSX.Element {
   return (
     <>
-      <div id={id} className="section-placeholder" />
-      <ClientsSection />
+      <div id={id}>
+        <TrustSection />
+      </div>
     </>
   );
 }
@@ -80,7 +80,7 @@ export default function HomeSections({
     <>
       <IndustriesSection id="industries-section" industries={industries} />
       <ServicesSection id="services-section" services={services} />
-      <ClientsGridSection id="clients-section" />
+      <TrustCredentialsSection id="trust-section" />
     </>
   );
 }
