@@ -15,39 +15,39 @@ const ROTATING_TEXTS = [
   'Digital Experiences',
 ];
 
-// Fixed ClientLogos component - no longer lazy-loaded to prevent disappearing
-const ClientLogos = (): JSX.Element => {
-  // Client logos with fixed dimensions for better CLS
-  const clientLogos = [
-    {
-      path: '/images/clients/kelsi_organics.webp',
-      alt: 'Kelsi Organics Logo',
-      width: 140,
-      height: 40,
-    },
-    {
-      path: '/images/clients/riya-logo.webp',
-      alt: 'Riya Logo',
-      width: 140,
-      height: 40,
-    },
-    {
-      path: '/images/clients/logo.webp',
-      alt: '7Eventzz Logo',
-      width: 140,
-      height: 40,
-    },
-    {
-      path: '/images/clients/tyent.webp',
-      alt: 'Tyent Australia Logo',
-      width: 140,
-      height: 40,
-    },
-  ];
+// Pre-defined client logos with proper dimensions
+const CLIENT_LOGOS = [
+  {
+    path: '/images/clients/kelsi_organics.webp',
+    alt: 'Kelsi Organics Logo',
+    width: 120,
+    height: 34,
+  },
+  {
+    path: '/images/clients/riya-logo.webp',
+    alt: 'Riya Logo',
+    width: 120,
+    height: 34,
+  },
+  {
+    path: '/images/clients/logo.webp',
+    alt: '7Eventzz Logo',
+    width: 120,
+    height: 34,
+  },
+  {
+    path: '/images/clients/tyent.webp',
+    alt: 'Tyent Australia Logo',
+    width: 120,
+    height: 34,
+  },
+];
 
+// Optimized ClientLogos component
+const ClientLogos = (): JSX.Element => {
   return (
     <div className="hidden md:flex items-center space-x-8">
-      {clientLogos.map((logo, i) => (
+      {CLIENT_LOGOS.map((logo, i) => (
         <div key={i} className="h-12 w-32 relative flex items-center justify-center">
           <Image
             src={logo.path}
@@ -55,7 +55,9 @@ const ClientLogos = (): JSX.Element => {
             width={logo.width}
             height={logo.height}
             className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
-            loading="lazy"
+            // Use eager loading for above-the-fold content
+            loading="eager"
+            priority={true}
           />
         </div>
       ))}
@@ -63,47 +65,21 @@ const ClientLogos = (): JSX.Element => {
   );
 };
 
-// Mobile client logos component for better visibility on small screens
+// Mobile client logos component with optimized images
 const MobileClientLogos = (): JSX.Element => {
-  // Client logos with fixed dimensions for better CLS
-  const clientLogos = [
-    {
-      path: '/images/clients/kelsi_organics.webp',
-      alt: 'Kelsi Organics Logo',
-      width: 140,
-      height: 40,
-    },
-    {
-      path: '/images/clients/riya-logo.webp',
-      alt: 'Riya Logo',
-      width: 140,
-      height: 40,
-    },
-    {
-      path: '/images/clients/logo.webp',
-      alt: '7Eventzz Logo',
-      width: 140,
-      height: 40,
-    },
-    {
-      path: '/images/clients/tyent.webp',
-      alt: 'Tyent Australia Logo',
-      width: 140,
-      height: 40,
-    },
-  ];
-
   return (
     <div className="flex md:hidden items-center justify-center space-x-4 mt-4">
-      {clientLogos.map((logo, i) => (
+      {CLIENT_LOGOS.map((logo, i) => (
         <div key={i} className="h-10 w-24 relative flex items-center justify-center">
           <Image
             src={logo.path}
             alt={logo.alt}
-            width={logo.width}
-            height={logo.height}
+            width={logo.width / 1.2}
+            height={logo.height / 1.2}
             className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
-            loading="lazy"
+            // Use eager loading for above-the-fold content
+            loading="eager"
+            priority={true}
           />
         </div>
       ))}
@@ -116,9 +92,6 @@ export default function HeroSection(): React.ReactElement {
   const [textIndex, setTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const textSwitcherRef = useRef<HTMLSpanElement>(null);
-
-  // Remove state that was causing issues
-  // const [showLogos, setShowLogos] = useState(false);
 
   // Simplified scroll function using a dedicated ref to improve performance
   const scrollToContent = useCallback((): void => {
@@ -265,7 +238,7 @@ export default function HeroSection(): React.ReactElement {
           </div>
         </div>
 
-        {/* Hero description - Critical LCP element */}
+        {/* Hero description - Critical LCP element - Preloaded */}
         <div className="absolute bottom-16 left-0 right-0 container mx-auto px-4 sm:px-6 max-w-[95rem]">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
             <p
@@ -279,7 +252,7 @@ export default function HeroSection(): React.ReactElement {
               digital landscape.
             </p>
 
-            {/* Client logos - always render them instead of conditional loading */}
+            {/* Client logos - always render them for above-the-fold content */}
             <ClientLogos />
 
             {/* Mobile client logos */}

@@ -1,8 +1,7 @@
 // src/app/(website)/components/HomeSections.tsx
 'use client';
 
-import React from 'react';
-import dynamic from 'next/dynamic';
+import React, { Suspense, lazy } from 'react';
 import {
   IndustriesGridSkeleton,
   ServiceSectionSkeleton,
@@ -29,67 +28,71 @@ interface CaseStudiesProps extends SectionProps {
   caseStudies: CaseStudy[];
 }
 
-// Create typesafe dynamic components
-const IndustriesGrid = dynamic(() => import('@/components/Home/IndustriesGrid'), {
-  loading: () => <IndustriesGridSkeleton />,
-  ssr: false,
-});
+// Create typesafe dynamic components with improved loading behavior
+const IndustriesGrid = lazy(() =>
+  import('@/components/Home/IndustriesGrid').then(mod => ({
+    default: mod.default,
+  }))
+);
 
-const ServiceSection = dynamic(() => import('@/components/Home/ServiceSection'), {
-  loading: () => <ServiceSectionSkeleton />,
-  ssr: false,
-});
+const ServiceSection = lazy(() =>
+  import('@/components/Home/ServiceSection').then(mod => ({
+    default: mod.default,
+  }))
+);
 
-// Add the new TrustSection component
-const TrustSection = dynamic(() => import('@/components/Home/TrustSection'), {
-  loading: () => <TrustSectionSkeleton />,
-  ssr: false,
-});
+// Add the TrustSection component
+const TrustSection = lazy(() =>
+  import('@/components/Home/TrustSection').then(mod => ({
+    default: mod.default,
+  }))
+);
 
-// Add the new CaseStudySection component
-const CaseStudySection = dynamic(() => import('@/components/Home/CaseStudySection'), {
-  loading: () => <CaseStudySectionSkeleton />,
-  ssr: false,
-});
+// Add the CaseStudySection component
+const CaseStudySection = lazy(() =>
+  import('@/components/Home/CaseStudySection').then(mod => ({
+    default: mod.default,
+  }))
+);
 
 // TypeSafe section components
 export function IndustriesSection({ industries }: IndustriesProps): React.JSX.Element {
   return (
-    <>
+    <Suspense fallback={<IndustriesGridSkeleton />}>
       <IndustriesGrid industries={industries} />
-    </>
+    </Suspense>
   );
 }
 
 export function ServicesSection({ services }: ServicesProps): React.JSX.Element {
   return (
-    <>
+    <Suspense fallback={<ServiceSectionSkeleton />}>
       <ServiceSection services={services} />
-    </>
+    </Suspense>
   );
 }
 
 export function TrustCredentialsSection({ id }: SectionProps): React.JSX.Element {
   return (
-    <>
-      <div id={id}>
+    <div id={id}>
+      <Suspense fallback={<TrustSectionSkeleton />}>
         <TrustSection />
-      </div>
-    </>
+      </Suspense>
+    </div>
   );
 }
 
 export function CaseStudiesSection({ caseStudies, id }: CaseStudiesProps): React.JSX.Element {
   return (
-    <>
-      <div id={id}>
+    <div id={id}>
+      <Suspense fallback={<CaseStudySectionSkeleton />}>
         <CaseStudySection caseStudies={caseStudies} />
-      </div>
-    </>
+      </Suspense>
+    </div>
   );
 }
 
-// Main component that renders all sections
+// Main component that renders all sections with improved loading priority
 interface HomeSectionsProps {
   industries: Industry[];
   services: Service[];
@@ -103,6 +106,7 @@ export default function HomeSections({
 }: HomeSectionsProps): React.JSX.Element {
   return (
     <>
+      {/* Each section is wrapped in Suspense with appropriate fallbacks */}
       <IndustriesSection id="industries-section" industries={industries} />
       <ServicesSection id="services-section" services={services} />
       <CaseStudiesSection id="case-studies-section" caseStudies={caseStudies} />

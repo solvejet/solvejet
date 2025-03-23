@@ -63,6 +63,10 @@ function IndustryCard({
   // Aspect ratio and sizing based on card type
   const aspectRatio = isLarge ? 'aspect-[16/9]' : 'aspect-square';
 
+  // Define optimized dimensions based on card type
+  const imgWidth = isLarge ? 800 : 400;
+  const imgHeight = isLarge ? 450 : 400;
+
   return (
     <div
       className={`relative group overflow-hidden rounded-2xl bg-gray-50 transition-all duration-300 hover:shadow-lg`}
@@ -76,16 +80,18 @@ function IndustryCard({
         <Image
           src={industry.imagePath ?? `/images/industries/${industry.id}.webp`}
           alt={`${industry.title} industry visualization`}
-          fill
+          width={imgWidth}
+          height={imgHeight}
           sizes={
             isLarge
               ? '(max-width: 768px) 100vw, 50vw'
               : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'
           }
           className="object-cover transition-transform duration-700 group-hover:scale-105"
-          priority={priority}
+          priority={priority} // Only prioritize first row images
           loading={priority ? 'eager' : 'lazy'}
-          quality={isLarge ? 75 : 70} // Reduced quality for better performance
+          quality={65} // Reduced quality for better performance
+          style={{ width: '100%', height: '100%', position: 'absolute' }}
         />
         <div
           className="absolute inset-0 transition-colors duration-300"

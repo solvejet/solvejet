@@ -1,7 +1,7 @@
 // src/components/Home/CaseStudySection.tsx
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, ExternalLink } from 'lucide-react';
@@ -18,9 +18,7 @@ interface CaseStudySectionProps {
 const CaseStudyCard: React.FC<{
   caseStudy: CaseStudy;
   index: number;
-  isVisible: boolean;
-  isExiting: boolean;
-}> = ({ caseStudy, index, isVisible, isExiting }) => {
+}> = ({ caseStudy, index }) => {
   const { trackEvent } = useAnalytics();
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -41,16 +39,7 @@ const CaseStudyCard: React.FC<{
     <div
       ref={cardRef}
       id={`case-study-${caseStudy.id}`}
-      className={cn(
-        'w-full mb-12 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg',
-        'transition-all duration-700 transform',
-        isExiting
-          ? 'opacity-0 -translate-y-12'
-          : isVisible
-          ? 'opacity-100 translate-y-0'
-          : 'opacity-0 translate-y-12',
-        `transition-all duration-700 delay-${String(Math.min(100 + index * 150, 500))}`
-      )}
+      className="w-full mb-12 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg"
     >
       {/* Card layout - with image on left for desktop, top for mobile */}
       <div className="flex flex-col md:flex-row bg-white dark:bg-gray-800">
@@ -59,10 +48,14 @@ const CaseStudyCard: React.FC<{
           <Image
             src={caseStudy.coverImage.src}
             alt={caseStudy.coverImage.alt}
-            fill
+            width={600}
+            height={450}
             sizes="(max-width: 768px) 100vw, 40vw"
             className="object-cover"
             priority={index === 0}
+            loading={index === 0 ? 'eager' : 'lazy'}
+            style={{ width: '100%', height: '100%', position: 'absolute' }}
+            quality={70}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent md:from-black/70 md:via-black/40 md:to-transparent" />
 
@@ -145,15 +138,12 @@ export default function CaseStudySection({
   className,
 }: CaseStudySectionProps): React.ReactElement {
   const { trackEvent } = useAnalytics();
-  const [visibleCards, setVisibleCards] = useState<Record<string, boolean>>({});
-  const [exitingCards, setExitingCards] = useState<Record<string, boolean>>({});
   const sectionRef = useRef<HTMLElement>(null);
-  const lastScrollY = useRef<number>(0);
 
   // Limit to only 4 case studies
   const limitedCaseStudies = caseStudies.slice(0, 4);
 
-  // Track section view and setup observers for animation on scroll
+  // Track section view
   useEffect(() => {
     trackEvent({
       name: 'case_study_section_view',
@@ -164,95 +154,7 @@ export default function CaseStudySection({
         industries: limitedCaseStudies.map(cs => cs.industry).join(','),
       },
     });
-
-    // Set up intersection observer for each card to trigger animations
-    const appearOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.2, // 20% of the card needs to be visible
-    };
-
-    const exitOptions = {
-      root: null,
-      rootMargin: '-100px 0px',
-      threshold: 0, // Card is completely out of view (plus margin)
-    };
-
-    // Observer for cards entering the viewport
-    const appearObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          // Extract the case study ID from the element ID
-          const id = entry.target.id.replace('case-study-', '');
-
-          // Mark this card as visible for animation
-          setVisibleCards(prev => ({
-            ...prev,
-            [id]: true,
-          }));
-
-          // Reset exiting state if it was exiting before
-          setExitingCards(prev => ({
-            ...prev,
-            [id]: false,
-          }));
-
-          // Track which case study is being viewed
-          trackEvent({
-            name: 'case_study_view',
-            category: 'engagement',
-            label: `case_study_${id}_view`,
-            properties: {
-              case_study_id: id,
-            },
-          });
-        }
-      });
-    }, appearOptions);
-
-    // Observer for cards exiting the viewport (scrolling up)
-    const exitObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) {
-          // Only trigger exit animation when scrolling up
-          const currentScrollY = window.scrollY;
-          if (currentScrollY < lastScrollY.current) {
-            // Extract the case study ID from the element ID
-            const id = entry.target.id.replace('case-study-', '');
-
-            // Mark this card as exiting for animation
-            setExitingCards(prev => ({
-              ...prev,
-              [id]: true,
-            }));
-          }
-          lastScrollY.current = currentScrollY;
-        }
-      });
-    }, exitOptions);
-
-    // Update last scroll position on scroll
-    const handleScroll = (): void => {
-      lastScrollY.current = window.scrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
-    // Start observing each case study card
-    setTimeout(() => {
-      const cards = document.querySelectorAll('[id^="case-study-"]');
-      cards.forEach(card => {
-        appearObserver.observe(card);
-        exitObserver.observe(card);
-      });
-    }, 100);
-
-    return (): void => {
-      appearObserver.disconnect();
-      exitObserver.disconnect();
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [trackEvent, caseStudies]);
+  }, [trackEvent, limitedCaseStudies]);
 
   return (
     <section
@@ -295,13 +197,7 @@ export default function CaseStudySection({
       {/* Vertical stack of case study cards - limited to 4 */}
       <div className="container mx-auto px-4 max-w-[95rem]">
         {limitedCaseStudies.map((caseStudy, index) => (
-          <CaseStudyCard
-            key={caseStudy.id}
-            caseStudy={caseStudy}
-            index={index}
-            isVisible={visibleCards[caseStudy.id] ?? false}
-            isExiting={exitingCards[caseStudy.id] ?? false}
-          />
+          <CaseStudyCard key={caseStudy.id} caseStudy={caseStudy} index={index} />
         ))}
       </div>
 

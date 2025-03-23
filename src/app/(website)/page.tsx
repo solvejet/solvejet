@@ -36,6 +36,7 @@ export const metadata: Metadata = {
   },
 };
 
+// Preload the hero assets to improve LCP
 export default function HomePage(): ReactElement {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://solvejet.net';
   const structuredData = generateCredentialsStructuredData(baseUrl);
@@ -47,6 +48,9 @@ export default function HomePage(): ReactElement {
     <>
       {/* Add JSON-LD structured data for SEO */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structuredData }} />
+
+      {/* Add preload for key hero image resources */}
+      <link rel="preload" href="/images/clients/kelsi_organics.webp" as="image" type="image/webp" />
 
       {/* Hero section is critical for LCP so load it directly */}
       <HeroSection />
