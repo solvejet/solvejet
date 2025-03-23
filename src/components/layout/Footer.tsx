@@ -546,7 +546,7 @@ const FooterComponent: React.FC = () => {
                       >
                         <div className="w-12 h-12 rounded-full bg-black/30 flex items-center justify-center mr-4 group-hover:bg-element-900/50 transition-all duration-300">
                           <Image
-                            src="/images/certifications/iso-certification.svg"
+                            src="/images/crdentials/iso-27001-2022:webp"
                             alt="ISO Certified"
                             width={30}
                             height={30}
@@ -567,7 +567,7 @@ const FooterComponent: React.FC = () => {
                       >
                         <div className="w-12 h-12 rounded-full bg-black/30 flex items-center justify-center mr-4 group-hover:bg-element-900/50 transition-all duration-300">
                           <Image
-                            src="/images/certifications/google-cloud-partner.svg"
+                            src="/images/credentials/google-cloud-partner.webp"
                             alt="Google Cloud Partner"
                             width={30}
                             height={30}

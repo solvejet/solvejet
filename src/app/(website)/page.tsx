@@ -3,6 +3,7 @@ import React from 'react';
 import HeroSection from '@/components/Home/HeroSection';
 import HomeSections from './components/HomeSections';
 import { industries, services } from '@/data/home-page-data';
+import { getAllCaseStudies } from '@/data/case-studies';
 import { generateCredentialsStructuredData } from '@/lib/seo/credentialsStructuredData';
 import type { Metadata } from 'next';
 import type { ReactElement } from 'react';
@@ -39,6 +40,9 @@ export default function HomePage(): ReactElement {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://solvejet.net';
   const structuredData = generateCredentialsStructuredData(baseUrl);
 
+  // Get case studies data
+  const caseStudies = getAllCaseStudies();
+
   return (
     <>
       {/* Add JSON-LD structured data for SEO */}
@@ -48,7 +52,7 @@ export default function HomePage(): ReactElement {
       <HeroSection />
 
       {/* Load remaining sections via client component */}
-      <HomeSections industries={industries} services={services} />
+      <HomeSections industries={industries} services={services} caseStudies={caseStudies} />
     </>
   );
 }
