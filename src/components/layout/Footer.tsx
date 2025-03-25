@@ -546,7 +546,7 @@ const FooterComponent: React.FC = () => {
                       >
                         <div className="w-12 h-12 rounded-full bg-black/30 flex items-center justify-center mr-4 group-hover:bg-element-900/50 transition-all duration-300">
                           <Image
-                            src="/images/crdentials/iso-27001-2022:webp"
+                            src="/images/crdentials/iso-27001-2022.webp"
                             alt="ISO Certified"
                             width={30}
                             height={30}
@@ -571,7 +571,7 @@ const FooterComponent: React.FC = () => {
                             alt="Google Cloud Partner"
                             width={30}
                             height={30}
-                            className="filter brightness-0 invert opacity-90 group-hover:scale-110 transition-transform duration-300"
+                            className="filter invert opacity-90 group-hover:scale-110 transition-transform duration-300"
                           />
                         </div>
                         <div>

@@ -7,6 +7,7 @@ import {
   ServiceSectionSkeleton,
   TrustSectionSkeleton,
   CaseStudySectionSkeleton,
+  AboutUsSectionSkeleton,
 } from '@/components/Home/skeletons';
 import type { Industry, Service } from '@/data/home-page-data';
 import type { CaseStudy } from '@/types/case-study';
@@ -29,6 +30,12 @@ interface CaseStudiesProps extends SectionProps {
 }
 
 // Create typesafe dynamic components with improved loading behavior
+const AboutUsSection = lazy(() =>
+  import('@/components/Home/AboutUsSection').then(mod => ({
+    default: mod.default,
+  }))
+);
+
 const IndustriesGrid = lazy(() =>
   import('@/components/Home/IndustriesGrid').then(mod => ({
     default: mod.default,
@@ -56,6 +63,16 @@ const CaseStudySection = lazy(() =>
 );
 
 // TypeSafe section components
+export function AboutSection({ id }: SectionProps): React.JSX.Element {
+  return (
+    <div id={id}>
+      <Suspense fallback={<AboutUsSectionSkeleton />}>
+        <AboutUsSection />
+      </Suspense>
+    </div>
+  );
+}
+
 export function IndustriesSection({ industries }: IndustriesProps): React.JSX.Element {
   return (
     <Suspense fallback={<IndustriesGridSkeleton />}>
@@ -110,6 +127,7 @@ export default function HomeSections({
       <IndustriesSection id="industries-section" industries={industries} />
       <ServicesSection id="services-section" services={services} />
       <CaseStudiesSection id="case-studies-section" caseStudies={caseStudies} />
+      <AboutSection id="about-us-section" />
       <TrustCredentialsSection id="trust-section" />
     </>
   );

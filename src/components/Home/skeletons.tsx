@@ -301,3 +301,53 @@ export function CaseStudySectionSkeleton(): React.ReactElement {
     </section>
   );
 }
+
+/**
+ * Skeleton loader for the About Us section
+ */
+export function AboutUsSectionSkeleton(): React.ReactElement {
+  return (
+    <section className="py-24 bg-gray-50 dark:bg-gray-900">
+      <div className="container mx-auto px-4 max-w-[95rem]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left column - About content skeleton */}
+          <div>
+            <Skeleton className="h-6 w-32 mb-2" />
+            <Skeleton className="h-12 w-3/4 mb-2" />
+            <Skeleton className="h-12 w-2/3 mb-6" />
+
+            <div className="space-y-6">
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-5/6 mb-2" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-4/5 mb-6" />
+
+              <div className="pt-4">
+                <Skeleton className="h-10 w-48 rounded-md" />
+              </div>
+            </div>
+          </div>
+
+          {/* Right column - Stats & Image skeleton */}
+          <div>
+            {/* Company image skeleton */}
+            <div className="mb-10 rounded-3xl overflow-hidden aspect-[16/9]">
+              <Skeleton className="h-full w-full" />
+            </div>
+
+            {/* Stats grid skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {Array(3)
+                .fill(0)
+                .map((_, i) => (
+                  <Skeleton key={i} className="h-36 rounded-3xl" />
+                ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
