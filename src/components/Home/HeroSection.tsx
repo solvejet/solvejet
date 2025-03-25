@@ -6,17 +6,8 @@ import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import type { JSX } from 'react';
 import dynamic from 'next/dynamic';
-
-// Import directly from the internal path as a workaround
-// This is a hack but might work with your Next.js setup
-import type { SplineProps } from '@splinetool/react-spline';
+import { useAnalytics } from '@/lib/analytics/hooks/useAnalytics';
 import Spline from '@splinetool/react-spline';
-
-// Then wrap it with dynamic to avoid SSR issues
-const SplineComponent = dynamic(() => Promise.resolve(Spline as React.FC<SplineProps>), {
-  ssr: false,
-  loading: () => <div className="w-full h-full flex items-center justify-center bg-black" />,
-});
 
 // Pre-define constants to avoid recreating objects on every render
 const ROTATING_TEXTS = [
@@ -54,6 +45,16 @@ const CLIENT_LOGOS = [
     height: 34,
   },
 ];
+
+// Use dynamic import for Spline to avoid blocking the main thread
+const DynamicSpline = dynamic(() => Promise.resolve(Spline), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center bg-black">
+      <div className="text-white text-opacity-50">Loading 3D scene...</div>
+    </div>
+  ),
+});
 
 // Memoized ClientLogos component
 const ClientLogos = React.memo((): JSX.Element => {
@@ -103,20 +104,82 @@ MobileClientLogos.displayName = 'MobileClientLogos';
 const BackgroundScene = React.memo(
   ({ splineFilePath }: { splineFilePath: string }): JSX.Element => {
     const [isSplineLoaded, setIsSplineLoaded] = useState(false);
+    const [isSplineVisible, setIsSplineVisible] = useState(false);
+    const [shouldLoadSpline, setShouldLoadSpline] = useState(false);
+    const { trackEvent } = useAnalytics();
+
+    // Deferred loading of Spline
+    useEffect((): (() => void) => {
+      // First, check if user prefers reduced motion
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // If user prefers reduced motion, don't load Spline at all
+      if (prefersReducedMotion) {
+        return (): void => {
+          /* empty cleanup */
+        };
+      }
+
+      // Otherwise, defer loading until after main content renders
+      const timer = setTimeout(() => {
+        setShouldLoadSpline(true);
+      }, 1000); // 1 second delay
+
+      return (): void => {
+        clearTimeout(timer);
+      };
+    }, []);
+
+    // Track load event
+    useEffect((): (() => void) => {
+      if (isSplineLoaded) {
+        trackEvent({
+          name: 'spline_3d_loaded',
+          category: 'performance',
+          label: 'hero_3d_scene',
+        });
+
+        // Wait a bit then show the 3D scene with a fade-in
+        const showTimer = setTimeout(() => {
+          setIsSplineVisible(true);
+        }, 500);
+
+        return (): void => {
+          clearTimeout(showTimer);
+        };
+      }
+      return (): void => {
+        /* empty cleanup */
+      };
+    }, [isSplineLoaded, trackEvent]);
 
     return (
-      <div className="absolute inset-0 w-full h-full z-0" aria-hidden="true">
-        <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
-          <SplineComponent
-            scene={splineFilePath}
-            onLoad={() => { setIsSplineLoaded(true); }}
-          />
-        </div>
+      <div className="absolute inset-0 w-full h-full z-0 bg-black" aria-hidden="true">
+        {/* Add a static background gradient */}
+        <div
+          className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black"
+          aria-hidden="true"
+        />
 
-        {/* Loading indicator */}
-        {!isSplineLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-white">Loading 3D scene...</div>
+        {/* Only render Spline when shouldLoadSpline is true */}
+        {shouldLoadSpline && (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              opacity: isSplineVisible ? 1 : 0, // Use isSplineVisible
+              transition: 'opacity 1s ease-in-out',
+            }}
+          >
+            <DynamicSpline
+              scene={splineFilePath}
+              onLoad={() => {
+                setIsSplineLoaded(true);
+              }}
+            />
           </div>
         )}
       </div>
@@ -125,27 +188,24 @@ const BackgroundScene = React.memo(
 );
 BackgroundScene.displayName = 'BackgroundScene';
 
-// Main component with optimizations to prevent disappearing
 export default function HeroSection(): React.ReactElement {
   const [textIndex, setTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const textSwitcherRef = useRef<HTMLSpanElement>(null);
+  const { trackEvent } = useAnalytics();
 
   // Path to your local Spline file
   const splineFilePath = '/models/titanium.spline';
 
-  // Simplified scroll function using a dedicated ref to improve performance
+  // Simplified scroll function
   const scrollToContent = useCallback((): void => {
-    // Check if window.lenis exists (from your implementation in src/lib/lenis.ts)
     if (typeof window !== 'undefined') {
       if (window.lenis) {
-        // Use Lenis smooth scroll if available
         window.lenis.scrollTo(window.innerHeight, {
           duration: 1.2,
-          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Ease out expo
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         });
       } else {
-        // Fallback to native smooth scroll
         window.scrollTo({
           top: window.innerHeight,
           behavior: 'smooth',
@@ -154,127 +214,139 @@ export default function HeroSection(): React.ReactElement {
     }
   }, []);
 
-  // Optimized text rotation effect
-  useEffect(() => {
-    let rotationInterval: NodeJS.Timeout;
-    // Using const since this is only assigned once
-    const initialDelay: NodeJS.Timeout = setTimeout(() => {
+  // Text rotation effect - fixing visibility issues
+  useEffect((): (() => void) => {
+    // Skip if in SSR
+    if (typeof window === 'undefined') {
+      return (): void => {
+        /* empty cleanup */
+      };
+    }
+
+    const timeouts: NodeJS.Timeout[] = [];
+    let rotationInterval: NodeJS.Timeout | null = null;
+    let mounted = true;
+
+    const safeSetTimeout = (callback: () => void, delay: number): NodeJS.Timeout => {
+      const id = setTimeout(callback, delay);
+      timeouts.push(id);
+      return id;
+    };
+
+    // Function to perform one rotation cycle
+    const rotateText = (): void => {
+      if (!mounted) return;
+
+      // Step 1: Start fade out animation
+      setIsAnimating(true);
+
+      // Step 2: After fade out animation completes, change the text content
+      safeSetTimeout(() => {
+        if (!mounted) return;
+
+        // Update to the next text index
+        setTextIndex(prevIndex => {
+          const nextIndex = (prevIndex + 1) % ROTATING_TEXTS.length;
+
+          return nextIndex;
+        });
+
+        // Step 3: After changing text content, start fade in animation
+        safeSetTimeout(() => {
+          if (!mounted) return;
+          setIsAnimating(false);
+
+          // Track for analytics
+          trackEvent({
+            name: 'rotating_text_changed',
+            category: 'ui_interaction',
+            label: `text_${String(textIndex)}`,
+          });
+        }, 50);
+      }, 300);
+    };
+
+    // Delay the start of rotation by 2 seconds
+    safeSetTimeout(() => {
+      if (!mounted) return;
+
+      // Perform first rotation after delay
       rotateText();
 
-      // Set up interval for rotation
+      // Then set up interval for subsequent rotations
       rotationInterval = setInterval(rotateText, 5000);
     }, 2000);
 
-    // Define the rotation function
-    const rotateText = (): void => {
-      if (!textSwitcherRef.current) return;
-
-      setIsAnimating(true);
-      const animationTimeout = setTimeout(() => {
-        setTextIndex(prevIndex => (prevIndex + 1) % ROTATING_TEXTS.length);
-
-        // Remove animation class after the state updates
-        setTimeout(() => {
-          setIsAnimating(false);
-        }, 50);
-      }, 300);
-
-      clearTimeout(animationTimeout);
-    };
-
-    // Start rotation already happens in the const initialDelay above
-
-    // Return the cleanup function
+    // Clean up function
     return (): void => {
-      clearTimeout(initialDelay);
-      clearInterval(rotationInterval);
+      mounted = false;
+      timeouts.forEach(clearTimeout);
+      if (rotationInterval) clearInterval(rotationInterval);
     };
-  }, []); // Empty dependency array ensures this only runs once
-
-  // Force refresh when component mounts
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.dispatchEvent(new Event('resize'));
-    }, 500);
-
-    return (): void => {
-      clearTimeout(timer);
-    };
-  }, []);
-
-  // Memoize static elements to prevent unnecessary re-renders
-  const staticCircles = React.useMemo(
-    () => (
-      <>
-        <div
-          className="absolute opacity-40 rounded-full"
-          style={{
-            width: '500px',
-            height: '500px',
-            left: '15%',
-            top: '30%',
-            background:
-              'radial-gradient(circle, rgba(0, 85, 184, 0.3) 0%, rgba(0, 85, 184, 0) 70%)',
-            filter: 'blur(50px)',
-            transform: 'translate(-50%, -50%)',
-          }}
-          aria-hidden="true"
-        />
-        <div
-          className="absolute opacity-30 rounded-full"
-          style={{
-            width: '400px',
-            height: '400px',
-            right: '10%',
-            bottom: '20%',
-            background:
-              'radial-gradient(circle, rgba(255, 204, 0, 0.2) 0%, rgba(255, 204, 0, 0) 70%)',
-            filter: 'blur(50px)',
-            transform: 'translate(50%, 50%)',
-          }}
-          aria-hidden="true"
-        />
-      </>
-    ),
-    []
-  );
+  }, [trackEvent]); // Remove textIndex from dependencies to avoid re-creating effect
 
   return (
     <section
       className="relative w-full h-screen overflow-hidden bg-black"
       aria-label="Hero section"
     >
-      {/* Spline background - separated for better performance */}
+      {/* Spline background */}
       <BackgroundScene splineFilePath={splineFilePath} />
 
-      {/* Static accent circles - memoized */}
-      {staticCircles}
+      {/* Static accent circles */}
+      <div
+        className="absolute opacity-40 rounded-full"
+        style={{
+          width: '500px',
+          height: '500px',
+          left: '15%',
+          top: '30%',
+          background: 'radial-gradient(circle, rgba(0, 85, 184, 0.3) 0%, rgba(0, 85, 184, 0) 70%)',
+          filter: 'blur(50px)',
+          transform: 'translate(-50%, -50%)',
+        }}
+        aria-hidden="true"
+      />
+      <div
+        className="absolute opacity-30 rounded-full"
+        style={{
+          width: '400px',
+          height: '400px',
+          right: '10%',
+          bottom: '20%',
+          background:
+            'radial-gradient(circle, rgba(255, 204, 0, 0.2) 0%, rgba(255, 204, 0, 0) 70%)',
+          filter: 'blur(50px)',
+          transform: 'translate(50%, 50%)',
+        }}
+        aria-hidden="true"
+      />
 
-      {/* Content container - no initial animations */}
+      {/* Content container */}
       <div className="container mx-auto px-4 sm:px-6 max-w-[95rem] relative z-10 h-full flex flex-col justify-center">
         <div className="max-w-7xl sm:ml-0 ml-0 md:pt-0">
-          {/* Main heading - render immediately */}
+          {/* Main heading */}
           <div className="flex justify-between items-start mb-12 pt-4 md:pt-16">
             <div className="w-full max-w-4xl mr-8">
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-normal text-white leading-tight tracking-tight">
                 Engineering Tomorrow
               </h1>
-
-              {/* Subheading with highlighted text */}
+              {/* Subheading with rotating text */}
               <div className="mt-4 text-2xl md:text-4xl font-normal">
                 <span className="text-white">Crafting </span>
                 <span
                   ref={textSwitcherRef}
-                  className={`text-yellow-500 inline-block ${
-                    isAnimating ? 'text-rotate-out' : 'text-rotate-in'
+                  className={`text-yellow-500 inline-block transition-opacity duration-300 ease-in-out ${
+                    isAnimating ? 'opacity-0' : 'opacity-100'
                   }`}
+                  aria-live="polite"
                 >
                   {ROTATING_TEXTS[textIndex]}
                 </span>
               </div>
             </div>
 
-            {/* Scroll indicator - only visible on desktop */}
+            {/* Scroll indicator */}
             <div
               className="hidden md:flex items-center text-white cursor-pointer hover:text-white/90 transition-colors mt-4 md:mt-8"
               onClick={scrollToContent}
@@ -298,7 +370,7 @@ export default function HeroSection(): React.ReactElement {
           </div>
         </div>
 
-        {/* Hero description - Critical LCP element - Preloaded */}
+        {/* Hero description and client logos */}
         <div className="absolute bottom-16 left-0 right-0 container mx-auto px-4 sm:px-6 max-w-[95rem]">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
             <p
@@ -311,10 +383,8 @@ export default function HeroSection(): React.ReactElement {
               systems that drive growth and operational excellence in today's rapidly evolving
               digital landscape.
             </p>
-
-            {/* Client logos - always render them for above-the-fold content */}
+            {/* Client logos */}
             <ClientLogos />
-
             {/* Mobile client logos */}
             <MobileClientLogos />
           </div>
