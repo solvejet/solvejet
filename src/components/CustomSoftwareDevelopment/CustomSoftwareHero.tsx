@@ -5,18 +5,6 @@ import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import Image from 'next/image';
 import type { JSX } from 'react';
-import dynamic from 'next/dynamic';
-
-// Import directly from the internal path as a workaround
-// This is a hack but might work with your Next.js setup
-import type { SplineProps } from '@splinetool/react-spline';
-import Spline from '@splinetool/react-spline';
-
-// Then wrap it with dynamic to avoid SSR issues
-const SplineComponent = dynamic(() => Promise.resolve(Spline as React.FC<SplineProps>), {
-  ssr: false,
-  loading: () => <div className="w-full h-full flex items-center justify-center bg-black" />,
-});
 
 // Pre-define constants to avoid recreating objects on every render
 const ROTATING_TEXTS = [
@@ -55,8 +43,8 @@ const CLIENT_LOGOS = [
   },
 ];
 
-// Memoized ClientLogos component
-const ClientLogos = React.memo((): JSX.Element => {
+// Optimized ClientLogos component
+const ClientLogos = (): JSX.Element => {
   return (
     <div className="hidden md:flex items-center space-x-8">
       {CLIENT_LOGOS.map((logo, i) => (
@@ -67,6 +55,7 @@ const ClientLogos = React.memo((): JSX.Element => {
             width={logo.width}
             height={logo.height}
             className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
+            // Use eager loading for above-the-fold content
             loading="eager"
             priority={true}
           />
@@ -74,11 +63,10 @@ const ClientLogos = React.memo((): JSX.Element => {
       ))}
     </div>
   );
-});
-ClientLogos.displayName = 'ClientLogos';
+};
 
-// Memoized MobileClientLogos component
-const MobileClientLogos = React.memo((): JSX.Element => {
+// Mobile client logos component with optimized images
+const MobileClientLogos = (): JSX.Element => {
   return (
     <div className="flex md:hidden items-center justify-center space-x-4 mt-4">
       {CLIENT_LOGOS.map((logo, i) => (
@@ -89,6 +77,7 @@ const MobileClientLogos = React.memo((): JSX.Element => {
             width={logo.width / 1.2}
             height={logo.height / 1.2}
             className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
+            // Use eager loading for above-the-fold content
             loading="eager"
             priority={true}
           />
@@ -96,43 +85,13 @@ const MobileClientLogos = React.memo((): JSX.Element => {
       ))}
     </div>
   );
-});
-MobileClientLogos.displayName = 'MobileClientLogos';
-
-// Background component separated for better performance
-const BackgroundScene = React.memo(
-  ({ splineFilePath }: { splineFilePath: string }): JSX.Element => {
-    const [isSplineLoaded, setIsSplineLoaded] = useState(false);
-
-    return (
-      <div className="absolute inset-0 w-full h-full z-0" aria-hidden="true">
-        <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
-          <SplineComponent
-            scene={splineFilePath}
-            onLoad={() => { setIsSplineLoaded(true); }}
-          />
-        </div>
-
-        {/* Loading indicator */}
-        {!isSplineLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-white">Loading 3D scene...</div>
-          </div>
-        )}
-      </div>
-    );
-  }
-);
-BackgroundScene.displayName = 'BackgroundScene';
+};
 
 // Main component with optimizations to prevent disappearing
 export default function HeroSection(): React.ReactElement {
   const [textIndex, setTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const textSwitcherRef = useRef<HTMLSpanElement>(null);
-
-  // Path to your local Spline file
-  const splineFilePath = '/models/titanium.spline';
 
   // Simplified scroll function using a dedicated ref to improve performance
   const scrollToContent = useCallback((): void => {
@@ -156,21 +115,12 @@ export default function HeroSection(): React.ReactElement {
 
   // Optimized text rotation effect
   useEffect(() => {
-    let rotationInterval: NodeJS.Timeout;
-    // Using const since this is only assigned once
-    const initialDelay: NodeJS.Timeout = setTimeout(() => {
-      rotateText();
-
-      // Set up interval for rotation
-      rotationInterval = setInterval(rotateText, 5000);
-    }, 2000);
-
     // Define the rotation function
     const rotateText = (): void => {
       if (!textSwitcherRef.current) return;
 
       setIsAnimating(true);
-      const animationTimeout = setTimeout(() => {
+      setTimeout(() => {
         setTextIndex(prevIndex => (prevIndex + 1) % ROTATING_TEXTS.length);
 
         // Remove animation class after the state updates
@@ -178,77 +128,67 @@ export default function HeroSection(): React.ReactElement {
           setIsAnimating(false);
         }, 50);
       }, 300);
-
-      clearTimeout(animationTimeout);
     };
 
-    // Start rotation already happens in the const initialDelay above
+    // Start rotation after a delay to ensure component is fully mounted
+    const initialDelay = setTimeout(() => {
+      rotateText();
+
+      // Set up interval for rotation
+      const intervalId = setInterval(rotateText, 5000);
+
+      // Cleanup interval in the effect's cleanup function
+      return (): void => {
+        clearInterval(intervalId);
+      };
+    }, 2000);
 
     // Return the cleanup function
     return (): void => {
       clearTimeout(initialDelay);
-      clearInterval(rotationInterval);
     };
   }, []); // Empty dependency array ensures this only runs once
 
-  // Force refresh when component mounts
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.dispatchEvent(new Event('resize'));
-    }, 500);
-
-    return (): void => {
-      clearTimeout(timer);
-    };
-  }, []);
-
-  // Memoize static elements to prevent unnecessary re-renders
-  const staticCircles = React.useMemo(
-    () => (
-      <>
-        <div
-          className="absolute opacity-40 rounded-full"
-          style={{
-            width: '500px',
-            height: '500px',
-            left: '15%',
-            top: '30%',
-            background:
-              'radial-gradient(circle, rgba(0, 85, 184, 0.3) 0%, rgba(0, 85, 184, 0) 70%)',
-            filter: 'blur(50px)',
-            transform: 'translate(-50%, -50%)',
-          }}
-          aria-hidden="true"
-        />
-        <div
-          className="absolute opacity-30 rounded-full"
-          style={{
-            width: '400px',
-            height: '400px',
-            right: '10%',
-            bottom: '20%',
-            background:
-              'radial-gradient(circle, rgba(255, 204, 0, 0.2) 0%, rgba(255, 204, 0, 0) 70%)',
-            filter: 'blur(50px)',
-            transform: 'translate(50%, 50%)',
-          }}
-          aria-hidden="true"
-        />
-      </>
-    ),
-    []
-  );
-
   return (
     <section
-      className="relative w-full h-screen overflow-hidden bg-black"
+      className="relative w-full h-screen overflow-hidden bg-gray-900"
       aria-label="Hero section"
     >
-      {/* Spline background - separated for better performance */}
-      <BackgroundScene splineFilePath={splineFilePath} />
+      {/* Static background - pre-rendered */}
+      <div className="absolute inset-0 bg-[rgba(17, 24, 39, 1)]" aria-hidden="true" />
 
-      {/* Static accent circles - memoized */}
-      {staticCircles}
+      {/* Grid background - more visible */}
+      <div className="absolute inset-0 opacity-30 hero-grid" aria-hidden="true" />
+
+      {/* Static accent circles - pre-rendered */}
+      <div
+        className="absolute opacity-40 rounded-full"
+        style={{
+          width: '500px',
+          height: '500px',
+          left: '15%',
+          top: '30%',
+          background: 'radial-gradient(circle, rgba(0, 85, 184, 0.3) 0%, rgba(0, 85, 184, 0) 70%)',
+          filter: 'blur(50px)',
+          transform: 'translate(-50%, -50%)',
+        }}
+        aria-hidden="true"
+      />
+
+      <div
+        className="absolute opacity-30 rounded-full"
+        style={{
+          width: '400px',
+          height: '400px',
+          right: '10%',
+          bottom: '20%',
+          background:
+            'radial-gradient(circle, rgba(255, 204, 0, 0.2) 0%, rgba(255, 204, 0, 0) 70%)',
+          filter: 'blur(50px)',
+          transform: 'translate(50%, 50%)',
+        }}
+        aria-hidden="true"
+      />
 
       {/* Content container - no initial animations */}
       <div className="container mx-auto px-4 sm:px-6 max-w-[95rem] relative z-10 h-full flex flex-col justify-center">
