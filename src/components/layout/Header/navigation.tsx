@@ -31,7 +31,7 @@ export const navigation: NavItem[] = [
   },
   {
     name: 'What We Do',
-    href: '/services',
+    href: '/what-we-do',
     megaMenu: {
       title: 'Our Solutions & Services',
       description:
@@ -42,27 +42,27 @@ export const navigation: NavItem[] = [
           items: [
             {
               title: 'Custom Software Development',
-              href: '/services/custom-software-development',
+              href: '/what-we-do/custom-software-development',
               description:
                 'Bespoke software solutions designed to address your unique business challenges.',
               icon: <Code className="h-5 w-5" />,
             },
             {
               title: 'Cloud Services',
-              href: '/services/cloud-services',
+              href: '/what-we-do/cloud-services',
               description: 'AWS, Azure, and Google Cloud solutions for optimized infrastructure.',
               icon: <Cloud className="h-5 w-5" />,
             },
             {
               title: 'Artificial Intelligence',
-              href: '/services/artificial-intelligence',
+              href: '/what-we-do/artificial-intelligence',
               description:
                 'Harness the power of AI and ML to automate processes and gain valuable insights.',
               icon: <Brain className="h-5 w-5" />,
             },
             {
               title: 'Mobile App Development',
-              href: '/services/mobile-app-development',
+              href: '/what-we-do/mobile-app-development',
               description: 'Native and cross-platform solutions for iOS and Android.',
               icon: <Smartphone className="h-5 w-5" />,
             },
@@ -73,28 +73,28 @@ export const navigation: NavItem[] = [
           items: [
             {
               title: 'MVP Development',
-              href: '/services/mvp-development',
+              href: '/what-we-do/mvp-development',
               description:
                 'Rapidly build and validate your product ideas with a minimum viable product.',
               icon: <Rocket className="h-5 w-5" />,
             },
             {
               title: 'Data Analytics',
-              href: '/services/data-analytics',
+              href: '/what-we-do/data-analytics',
               description:
                 'Transform raw data into actionable insights for smarter business decisions.',
               icon: <BarChart3 className="h-5 w-5" />,
             },
             {
               title: 'IT Staff Augmentation',
-              href: '/services/it-staff-augmentation',
+              href: '/what-we-do/it-staff-augmentation',
               description:
                 'Extend your team with our skilled tech professionals to meet your project needs.',
               icon: <UserPlus className="h-5 w-5" />,
             },
             {
               title: 'IT Consulting',
-              href: '/services/it-consulting',
+              href: '/what-we-do/it-consulting',
               description:
                 'Strategic technology advice to align your IT investments with business goals.',
               icon: <HeadphonesIcon className="h-5 w-5" />,

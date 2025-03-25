@@ -440,10 +440,10 @@ const FooterComponent: React.FC = () => {
                       )}
                     <li>
                       <Link
-                        href="/services"
+                        href="/what-we-do"
                         className="text-element-400 hover:text-element-300 transition-colors duration-300 flex items-center mt-2 font-medium group"
                         onClick={() => {
-                          handleLinkClick('View All Services', '/services');
+                          handleLinkClick('View All Services', '/what-we-do');
                         }}
                       >
                         <span>View All Services</span>
