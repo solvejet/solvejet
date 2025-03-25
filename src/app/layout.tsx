@@ -19,8 +19,8 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
   title: {
-    default: 'SolveJet - Product-driven Software Development Company',
-    template: '%s | SolveJet',
+    default: 'SolveJet - Top Software Development Company',
+    template: '%s ',
   },
   description:
     "Transform your business with SolveJet's innovative software solutions. We specialize in custom software development, enterprise solutions, and digital transformation with ISO certified quality standards.",

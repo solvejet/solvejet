@@ -107,7 +107,7 @@ const AboutUsSection: React.FC<AboutUsSectionProps> = ({ className }) => {
               {/* Stat 1 */}
               <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-5xl font-bold text-element-500 dark:text-element-400">
+                  <span className="text-4xl font-semibold text-element-500 dark:text-element-400">
                     50+
                   </span>
                   <div className="w-12 h-12 bg-element-100 dark:bg-element-900/50 rounded-full flex items-center justify-center">
@@ -122,7 +122,7 @@ const AboutUsSection: React.FC<AboutUsSectionProps> = ({ className }) => {
               {/* Stat 2 */}
               <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-5xl font-bold text-element-500 dark:text-element-400">
+                  <span className="text-4xl font-semibold text-element-500 dark:text-element-400">
                     15+
                   </span>
                   <div className="w-12 h-12 bg-element-100 dark:bg-element-900/50 rounded-full flex items-center justify-center">
@@ -137,7 +137,7 @@ const AboutUsSection: React.FC<AboutUsSectionProps> = ({ className }) => {
               {/* Stat 3 */}
               <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-5xl font-bold text-element-500 dark:text-element-400">
+                  <span className="text-4xl font-semibold text-element-500 dark:text-element-400">
                     70+
                   </span>
                   <div className="w-12 h-12 bg-element-100 dark:bg-element-900/50 rounded-full flex items-center justify-center">
@@ -150,8 +150,8 @@ const AboutUsSection: React.FC<AboutUsSectionProps> = ({ className }) => {
               {/* Stat 4 */}
               <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-5xl font-bold text-element-500 dark:text-element-400">
-                    200+
+                  <span className="text-4xl font-semibold text-element-500 dark:text-element-400">
+                    20+
                   </span>
                   <div className="w-12 h-12 bg-element-100 dark:bg-element-900/50 rounded-full flex items-center justify-center">
                     <Code className="h-6 w-6 text-element-600 dark:text-element-400" />

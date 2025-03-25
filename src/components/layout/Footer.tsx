@@ -546,10 +546,10 @@ const FooterComponent: React.FC = () => {
                       >
                         <div className="w-12 h-12 rounded-full bg-black/30 flex items-center justify-center mr-4 group-hover:bg-element-900/50 transition-all duration-300">
                           <Image
-                            src="/images/crdentials/iso-27001-2022.webp"
+                            src="/images/credentials/iso-27001-2022.webp"
                             alt="ISO Certified"
-                            width={30}
-                            height={30}
+                            width={50}
+                            height={50}
                             className="filter brightness-0 invert opacity-90 group-hover:scale-110 transition-transform duration-300"
                           />
                         </div>
@@ -569,8 +569,8 @@ const FooterComponent: React.FC = () => {
                           <Image
                             src="/images/credentials/google-cloud-partner.webp"
                             alt="Google Cloud Partner"
-                            width={30}
-                            height={30}
+                            width={70}
+                            height={70}
                             className="filter invert opacity-90 group-hover:scale-110 transition-transform duration-300"
                           />
                         </div>

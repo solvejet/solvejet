@@ -45,6 +45,11 @@ export default function Header(): React.ReactElement {
   const exitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
   const megaMenuContainerRef = useRef<HTMLDivElement>(null);
+  const navGroupRef = useRef<HTMLDivElement>(null);
+
+  // Track if we're hovering over either the nav item or the mega menu
+  const [navHovered, setNavHovered] = useState(false);
+  const [menuHovered, setMenuHovered] = useState(false);
 
   // Set initial header state and scroll position immediately to prevent flash
   useEffect(() => {
@@ -94,6 +99,30 @@ export default function Header(): React.ReactElement {
     };
   }, []);
 
+  // Effect to handle closing the menu when neither nav nor menu is hovered
+  useEffect(() => {
+    if (!navHovered && !menuHovered && openMegaMenu) {
+      // Both nav and menu are not hovered, start closing after a delay
+      exitTimeoutRef.current = setTimeout(() => {
+        setIsClosing(true);
+        setTimeout(() => {
+          setOpenMegaMenu(null);
+          setIsClosing(false);
+        }, 300);
+      }, 300); // Delay before starting close animation
+    } else if (exitTimeoutRef.current) {
+      // Clear the exit timeout if we're hovering either element
+      clearTimeout(exitTimeoutRef.current);
+      exitTimeoutRef.current = null;
+    }
+
+    return (): void => {
+      if (exitTimeoutRef.current) {
+        clearTimeout(exitTimeoutRef.current);
+      }
+    };
+  }, [navHovered, menuHovered, openMegaMenu]);
+
   // Find active nav item based on pathname
   const currentNavItems: NavItem[] = navigation.map(item => ({
     ...item,
@@ -114,14 +143,12 @@ export default function Header(): React.ReactElement {
     setIsMobileMenuOpen(prev => !prev);
   }, []);
 
-  // Simplified mega menu handlers
+  // Handle mouse enter for nav items - opens mega menu
   const handleNavItemMouseEnter = useCallback((name: string): void => {
+    setNavHovered(true);
+
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
-    }
-
-    if (exitTimeoutRef.current) {
-      clearTimeout(exitTimeoutRef.current);
     }
 
     hoverTimeoutRef.current = setTimeout(() => {
@@ -130,18 +157,29 @@ export default function Header(): React.ReactElement {
     }, 100);
   }, []);
 
+  // Handle mouse leave for nav items
   const handleNavItemMouseLeave = useCallback((): void => {
+    setNavHovered(false);
+
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
     }
+  }, []);
 
-    exitTimeoutRef.current = setTimeout(() => {
-      setIsClosing(true);
-      setTimeout(() => {
-        setOpenMegaMenu(null);
-        setIsClosing(false);
-      }, 300);
-    }, 100);
+  // Handle mouse enter for mega menu
+  const handleMegaMenuMouseEnter = useCallback((): void => {
+    setMenuHovered(true);
+
+    if (exitTimeoutRef.current) {
+      clearTimeout(exitTimeoutRef.current);
+      exitTimeoutRef.current = null;
+    }
+  }, []);
+
+  // Handle mouse leave for mega menu
+  const handleMegaMenuMouseLeave = useCallback((): void => {
+    setMenuHovered(false);
   }, []);
 
   return (
@@ -182,7 +220,11 @@ export default function Header(): React.ReactElement {
                 </div>
 
                 {/* Desktop navigation */}
-                <nav className="hidden md:flex space-x-2 lg:space-x-5" aria-label="Main Navigation">
+                <nav
+                  className="hidden md:flex space-x-2 lg:space-x-5"
+                  aria-label="Main Navigation"
+                  ref={navGroupRef}
+                >
                   {currentNavItems.map(item => (
                     <div
                       key={item.name}
@@ -283,8 +325,13 @@ export default function Header(): React.ReactElement {
             </div>
           </div>
 
-          {/* Mega menu panel - simplified container */}
-          <div ref={megaMenuContainerRef} className="relative z-50">
+          {/* Mega menu panel - simplified container with hover tracking */}
+          <div
+            ref={megaMenuContainerRef}
+            className="relative z-50"
+            onMouseEnter={handleMegaMenuMouseEnter}
+            onMouseLeave={handleMegaMenuMouseLeave}
+          >
             {openMegaMenu && (
               <MegaMenuPanel
                 navItems={navigation}
