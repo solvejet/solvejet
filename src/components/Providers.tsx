@@ -3,7 +3,11 @@
 
 import React, { lazy, Suspense, useEffect } from 'react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { preloadCriticalAssets, prefetchResources } from '@/lib/optimize/preload';
+import {
+  preloadCriticalAssets,
+  prefetchResources,
+  preloadSplineWhenReady,
+} from '@/lib/optimize/preload';
 
 // Lazy load ToastProvider which is not immediately needed
 const ToastProvider = lazy(() =>
@@ -32,20 +36,41 @@ export function Providers({ children }: ProvidersProps): React.ReactElement {
     // Mark as mounted after hydration
     setIsMounted(true);
 
-    // Initialize Lenis for smooth scrolling using the improved method
-    const initializeLenis = async (): Promise<void> => {
-      try {
-        const { reinitializeLenis } = await import('@/lib/lenis');
-        reinitializeLenis();
-      } catch (error) {
-        console.error('Error initializing Lenis:', error);
+    // Preload critical assets immediately
+    preloadCriticalAssets();
+
+    // Initialize Lenis for smooth scrolling, but with a slight delay to prioritize critical content
+    // Fix: Wrap async function to avoid returning Promise in setTimeout
+    const lenisTimeout = setTimeout(() => {
+      const initLenis = async (): Promise<void> => {
+        try {
+          const { reinitializeLenis } = await import('@/lib/lenis');
+          reinitializeLenis();
+        } catch (error) {
+          console.error('Error initializing Lenis:', error);
+        }
+      };
+
+      // Execute but don't return the promise
+      void initLenis();
+    }, 100); // Small delay to prioritize critical content
+
+    // User interaction monitoring for Spline preloading
+    let userHasInteracted = false;
+    const handleUserInteraction = (): void => {
+      if (!userHasInteracted) {
+        userHasInteracted = true;
+        // After user shows engagement, preload Spline
+        preloadSplineWhenReady();
+        // Remove listeners
+        document.removeEventListener('click', handleUserInteraction);
+        document.removeEventListener('scroll', handleUserInteraction);
       }
     };
 
-    void initializeLenis();
-
-    // Preload critical assets in first idle period
-    preloadCriticalAssets();
+    // Add interaction listeners
+    document.addEventListener('click', handleUserInteraction, { passive: true });
+    document.addEventListener('scroll', handleUserInteraction, { passive: true });
 
     // Prefetch non-critical resources after page load
     if (document.readyState === 'complete') {
@@ -56,8 +81,10 @@ export function Providers({ children }: ProvidersProps): React.ReactElement {
 
     // Clean up
     return (): void => {
+      clearTimeout(lenisTimeout);
       window.removeEventListener('load', prefetchResources);
-      // Don't stop or destroy Lenis here - it's managed globally
+      document.removeEventListener('click', handleUserInteraction);
+      document.removeEventListener('scroll', handleUserInteraction);
     };
   }, []);
 

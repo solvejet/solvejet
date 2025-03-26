@@ -51,9 +51,6 @@ export default function RootLayout({
           fetchPriority="high"
         />
 
-        {/* Preload critical CSS */}
-        <link rel="preload" href="/_next/static/css/app/layout.css" as="style" />
-
         {/* Add viewport-based preloads */}
         <script
           dangerouslySetInnerHTML={{
