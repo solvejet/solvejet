@@ -65,7 +65,6 @@
     background-position: -0.5px -0.5px;
   }
 
-
   /* Hide scrollbar for all browsers */
   .hide-scrollbar {
     -ms-overflow-style: none;
@@ -204,27 +203,6 @@
 }
 .ripple {
   animation: ripple 0.6s linear forwards;
-}
-
-/* Scrollbar styles - consolidated */
-::-webkit-scrollbar {
-  width: 0.375rem; /* w-1.5 */
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-200 dark:bg-gray-700 rounded-full
-         hover:bg-gray-300 dark:hover:bg-gray-600
-         transition-colors duration-200;
-}
-
-/* Firefox scrollbar */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #e5e7eb transparent;
 }
 
 /* Common utility classes */

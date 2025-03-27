@@ -44,19 +44,18 @@ const CLIENT_LOGOS = [
   },
 ];
 
-// Optimized ClientLogos component
+// Optimized static ClientLogos component for desktop
 const ClientLogos = (): JSX.Element => {
   return (
-    <div className="hidden md:flex items-center space-x-8">
+    <div className="hidden md:flex items-center justify-end space-x-8">
       {CLIENT_LOGOS.map((logo, i) => (
-        <div key={i} className="h-12 w-32 relative flex items-center justify-center">
+        <div key={i} className="h-12 flex-shrink-0 flex items-center justify-center">
           <Image
             src={logo.path}
             alt={logo.alt}
             width={logo.width}
             height={logo.height}
             className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
-            // Use eager loading for above-the-fold content
             loading="eager"
             priority={true}
           />
@@ -66,24 +65,26 @@ const ClientLogos = (): JSX.Element => {
   );
 };
 
-// Mobile client logos component with optimized images
+// Mobile client logos component with marquee effect
 const MobileClientLogos = (): JSX.Element => {
   return (
-    <div className="flex md:hidden items-center justify-center space-x-4 mt-4">
-      {CLIENT_LOGOS.map((logo, i) => (
-        <div key={i} className="h-10 w-24 relative flex items-center justify-center">
-          <Image
-            src={logo.path}
-            alt={logo.alt}
-            width={logo.width / 1.2}
-            height={logo.height / 1.2}
-            className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
-            // Use eager loading for above-the-fold content
-            loading="eager"
-            priority={true}
-          />
-        </div>
-      ))}
+    <div className="md:hidden w-full overflow-hidden mt-4 hide-scrollbar">
+      <div className="flex items-center space-x-8 animate-marquee whitespace-nowrap">
+        {/* Double the logos for continuous loop */}
+        {[...CLIENT_LOGOS, ...CLIENT_LOGOS].map((logo, i) => (
+          <div key={i} className="h-10 w-24 flex-shrink-0 flex items-center justify-center">
+            <Image
+              src={logo.path}
+              alt={logo.alt}
+              width={logo.width / 1.2}
+              height={logo.height / 1.2}
+              className="h-auto w-auto max-h-full max-w-full object-contain filter brightness-0 invert opacity-90"
+              loading="eager"
+              priority={true}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -166,7 +167,10 @@ const SplineBackground = (): JSX.Element => {
     // Cleanup function
     return (): void => {
       clearTimeout(initTimeout);
-      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
       if (appRef.current) {
         appRef.current.dispose();
         appRef.current = null;
@@ -256,7 +260,7 @@ export default function HeroSection(): React.ReactElement {
 
   return (
     <section
-      className="relative w-full h-screen overflow-hidden bg-black"
+      className="relative w-full h-screen overflow-hidden bg-black hide-scrollbar"
       aria-label="Hero section"
     >
       {/* Spline Background - Dynamically loaded */}
@@ -340,25 +344,53 @@ export default function HeroSection(): React.ReactElement {
           </div>
         </div>
 
-        {/* Hero description - Critical LCP element - Preloaded */}
+        {/* Hero description - Critical LCP element - Optimized */}
         <div className="absolute bottom-16 left-0 right-0 container mx-auto px-4 sm:px-6 max-w-[95rem]">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-8 md:space-y-0">
-            <p
-              id="hero-description"
-              className="text-gray-300 leading-relaxed md:leading-loose"
-              data-lcp-element="true"
-            >
-              SolveJet pioneers technology solutions that transcend conventional boundaries. We
-              leverage cutting-edge innovation to empower businesses with scalable, future-proof
-              systems that drive growth and operational excellence in today's rapidly evolving
-              digital landscape.
-            </p>
+          <div className="flex flex-col space-y-8">
+            {/* Desktop layout - paragraph and logos side by side */}
+            <div className="hidden md:flex items-start space-x-8 justify-between">
+              {/* Hero description with preconnect hint */}
+              <div className="md:max-w-[60%]">
+                <p
+                  id="hero-description"
+                  className="text-gray-300 leading-relaxed md:leading-loose text-base md:text-lg font-normal"
+                  data-lcp-element="true"
+                  style={{
+                    contentVisibility: 'auto',
+                    textRendering: 'optimizeLegibility',
+                  }}
+                >
+                  SolveJet pioneers technology solutions that transcend conventional boundaries. We
+                  leverage cutting-edge innovation to empower businesses with scalable, future-proof
+                  systems that drive growth.
+                </p>
+              </div>
 
-            {/* Client logos - always render them for above-the-fold content */}
-            <ClientLogos />
+              {/* Desktop client logos - static and positioned to the right */}
+              <div className="md:max-w-[35%]">
+                <ClientLogos />
+              </div>
+            </div>
 
-            {/* Mobile client logos */}
-            <MobileClientLogos />
+            {/* Mobile layout - stacked paragraph and marquee logos */}
+            <div className="md:hidden w-full">
+              <p
+                id="mobile-hero-description"
+                className="text-gray-300 leading-relaxed text-base font-normal mb-6"
+                data-lcp-element="true"
+                style={{
+                  contentVisibility: 'auto',
+                  textRendering: 'optimizeLegibility',
+                }}
+              >
+                SolveJet pioneers technology solutions that transcend conventional boundaries. We
+                leverage cutting-edge innovation to empower businesses with scalable, future-proof
+                systems that drive growth.
+              </p>
+
+              {/* Mobile client logos with marquee */}
+              <MobileClientLogos />
+            </div>
           </div>
         </div>
       </div>
