@@ -93,6 +93,7 @@ const SplineBackground = (): JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const appRef = useRef<Application | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Performance optimization: Only load Spline if not in a mobile device
@@ -101,9 +102,11 @@ const SplineBackground = (): JSX.Element => {
       typeof window !== 'undefined' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    // Force mobile devices to skip Spline loading completely
     const isMobile =
       typeof window !== 'undefined' &&
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        window.innerWidth < 768);
 
     // Skip loading Spline for mobile devices or users who prefer reduced motion
     if (prefersReducedMotion || isMobile) {
@@ -120,11 +123,27 @@ const SplineBackground = (): JSX.Element => {
     const app = new Application(canvas);
     appRef.current = app;
 
+    // Set a timeout to cancel loading if it takes too long (3 seconds)
+    loadTimeoutRef.current = setTimeout(() => {
+      console.warn('Spline scene loading timed out after 3 seconds');
+      setIsLoaded(true);
+      if (appRef.current) {
+        appRef.current.dispose();
+        appRef.current = null;
+      }
+    }, 3000);
+
     // Load the spline scene with a timeout to avoid blocking the main thread for too long
-    const timeout = setTimeout(() => {
+    const initTimeout = setTimeout(() => {
       app
         .load('/models/titanium.splinecode')
         .then(() => {
+          // Clear the timeout since loading succeeded
+          if (loadTimeoutRef.current) {
+            clearTimeout(loadTimeoutRef.current);
+            loadTimeoutRef.current = null;
+          }
+
           setIsLoaded(true);
           console.warn('Spline scene loaded successfully');
 
@@ -146,7 +165,8 @@ const SplineBackground = (): JSX.Element => {
 
     // Cleanup function
     return (): void => {
-      clearTimeout(timeout);
+      clearTimeout(initTimeout);
+      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
       if (appRef.current) {
         appRef.current.dispose();
         appRef.current = null;
