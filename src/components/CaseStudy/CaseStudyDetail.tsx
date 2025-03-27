@@ -1068,34 +1068,6 @@ export default function CaseStudyDetail({ caseStudy }: CaseStudyDetailProps): Re
           </div>
         </div>
       </section>
-      {/* Add a custom style for the bar chart animation */}
-      <style jsx global>{`
-        @keyframes bar-rise {
-          0% {
-            height: 0;
-            opacity: 0;
-          }
-          100% {
-            opacity: 1;
-          }
-        }
-        .animate-bar-rise {
-          animation: bar-rise 1s ease-out forwards;
-        }
-
-        .bg-grid {
-          background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-          background-size: 20px 20px;
-        }
-
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
     </>
   );
 }

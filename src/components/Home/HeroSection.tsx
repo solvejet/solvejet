@@ -68,7 +68,7 @@ const ClientLogos = (): JSX.Element => {
 // Mobile client logos component with marquee effect
 const MobileClientLogos = (): JSX.Element => {
   return (
-    <div className="md:hidden w-full overflow-hidden mt-4 hide-scrollbar">
+    <div className="md:hidden w-full overflow-hidden mt-4">
       <div className="flex items-center space-x-8 animate-marquee whitespace-nowrap">
         {/* Double the logos for continuous loop */}
         {[...CLIENT_LOGOS, ...CLIENT_LOGOS].map((logo, i) => (
@@ -260,7 +260,7 @@ export default function HeroSection(): React.ReactElement {
 
   return (
     <section
-      className="relative w-full h-screen overflow-hidden bg-black hide-scrollbar"
+      className="relative w-full h-screen overflow-hidden bg-black"
       aria-label="Hero section"
     >
       {/* Spline Background - Dynamically loaded */}

@@ -33,7 +33,7 @@ export default function RootLayout({
   children: ReactNode;
 }>): React.JSX.Element {
   return (
-    <html lang="en" className={`${poppins.variable} scroll-smooth`} suppressHydrationWarning>
+    <html lang="en" className={`${poppins.variable} scroll-smooth hide-scrollbar`} suppressHydrationWarning>
       <head>
         {/* Resource hints for important origins */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

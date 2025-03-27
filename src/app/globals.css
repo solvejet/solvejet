@@ -26,6 +26,16 @@
   :focus-visible {
     @apply outline-none ring-2 ring-element-500 ring-offset-2;
   }
+
+  /* Hide scrollbar for all browsers */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Critical container styles needed for layout */
@@ -63,16 +73,6 @@
       linear-gradient(90deg, rgba(55, 65, 81, 0.4) 1px, transparent 1px);
     background-size: 40px 40px;
     background-position: -0.5px -0.5px;
-  }
-
-  /* Hide scrollbar for all browsers */
-  .hide-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .hide-scrollbar::-webkit-scrollbar {
-    display: none;
   }
 }
 
