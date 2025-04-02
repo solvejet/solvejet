@@ -31,28 +31,28 @@ const QUERY_CLIENT_OPTIONS: QueryClientConfig = {
   },
 };
 
-// Deferred AuthInitializer
+// Deferred AuthInitializer with proper loading
 const AuthInitializer = lazy(() =>
   import('@/components/AuthInitializer').then(mod => ({
     default: mod.AuthInitializer,
   }))
 );
 
-// More efficient lazy loading with load prioritization
+// Security provider with proper loading
 const SecurityProvider = lazy(() =>
   import('@/components/SecurityProvider').then(mod => ({
     default: mod.SecurityProvider,
   }))
 );
 
-// Load analytics only when browser is idle
+// Analytics provider with proper loading
 const AnalyticsProvider = lazy(() =>
   import('@/components/Analytics').then(mod => ({
     default: mod.AnalyticsProvider,
   }))
 );
 
-// Load animations with lowest priority
+// Animation provider with proper loading
 const AnimationProvider = lazy(() =>
   import('@/components/AnimationProvider').then(mod => ({
     default: mod.AnimationProvider,
@@ -70,8 +70,8 @@ export function ClientProviders({ children }: ClientProvidersProps): JSX.Element
   // Track component mounting for hydration safety
   const [mounted, setMounted] = useState(false);
 
-  // Track when to load providers in a staggered manner
-  const [loadState, setLoadState] = useState({
+  // Create a more straightforward loading approach that prioritizes QueryClient availability
+  const [providersReady, setProvidersReady] = useState({
     security: false,
     analytics: false,
     animation: false,
@@ -82,26 +82,26 @@ export function ClientProviders({ children }: ClientProvidersProps): JSX.Element
     // Only mark as mounted after hydration
     setMounted(true);
 
-    // Schedule providers to load progressively:
+    // Schedule providers to load progressively but ensure QueryClient is always available
     const timers = [
       // Security is higher priority
       setTimeout(() => {
-        setLoadState(prev => ({ ...prev, security: true }));
+        setProvidersReady(prev => ({ ...prev, security: true }));
       }, 100),
 
       // Auth initializer
       setTimeout(() => {
-        setLoadState(prev => ({ ...prev, auth: true }));
+        setProvidersReady(prev => ({ ...prev, auth: true }));
       }, 300),
 
       // Analytics can wait a bit longer
       setTimeout(() => {
-        setLoadState(prev => ({ ...prev, analytics: true }));
+        setProvidersReady(prev => ({ ...prev, analytics: true }));
       }, 2000),
 
       // Animations are lowest priority
       setTimeout(() => {
-        setLoadState(prev => ({ ...prev, animation: true }));
+        setProvidersReady(prev => ({ ...prev, animation: true }));
       }, 3500),
     ];
 
@@ -115,22 +115,27 @@ export function ClientProviders({ children }: ClientProvidersProps): JSX.Element
     return <>{children}</>;
   }
 
+  // Always wrap everything in QueryClientProvider first to ensure it's available
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        {loadState.auth && (
+        {/* Important: Auth initializer should be loaded unconditionally */}
+        {providersReady.auth && (
           <Suspense fallback={null}>
             <AuthInitializer />
           </Suspense>
         )}
 
-        {loadState.security ? (
+        {/* Security provider with fallback */}
+        {providersReady.security ? (
           <Suspense fallback={<DefaultFallback>{children}</DefaultFallback>}>
             <SecurityProvider>
-              {loadState.analytics ? (
+              {/* Analytics provider with fallback */}
+              {providersReady.analytics ? (
                 <Suspense fallback={<DefaultFallback>{children}</DefaultFallback>}>
                   <AnalyticsProvider>
-                    {loadState.animation ? (
+                    {/* Animation provider with fallback */}
+                    {providersReady.animation ? (
                       <Suspense fallback={<DefaultFallback>{children}</DefaultFallback>}>
                         <AnimationProvider>{children}</AnimationProvider>
                       </Suspense>

@@ -7,6 +7,91 @@
 
 /* Base styles for the initial viewport - critical for LCP */
 @layer base {
+  /* Shadcn UI variables */
+  :root {
+    /* Keep Shadcn UI system variables */
+    --radius: 0.5rem;
+
+    /* Map Shadcn UI colors to your element colors */
+    --background: 0 0% 100%; /* primary-light */
+    --foreground: 210 24% 19%; /* primary-dark */
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 24% 19%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 24% 19%;
+
+    /* Using your element-500 color for primary */
+    --primary: 210 100% 36%; /* #0055B8 - element-500 */
+    --primary-foreground: 0 0% 100%; /* white */
+
+    --secondary: 210 100% 90%; /* lighter shade of element */
+    --secondary-foreground: 210 100% 36%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 100% 97%; /* very light element */
+    --accent-foreground: 210 100% 36%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 210 100% 36%; /* element-500 */
+
+    /* Chart colors */
+    --chart-1: 210 100% 36%; /* element-500 */
+    --chart-2: 210 80% 45%;
+    --chart-3: 210 60% 60%;
+    --chart-4: 210 40% 75%;
+    --chart-5: 210 20% 90%;
+  }
+
+  .dark {
+    /* Dark mode variables */
+    --background: 210 24% 7%; /* primary-dark */
+    --foreground: 0 0% 100%; /* primary-light */
+
+    --card: 210 24% 7%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 210 24% 7%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Dark mode primary still uses element color */
+    --primary: 210 100% 30%; /* element-500 darker for dark mode */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 32% 18%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 215 32% 18%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 215 32% 18%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 32% 18%;
+    --input: 215 32% 18%;
+    --ring: 210 100% 65%; /* lighter element for dark mode */
+
+    /* Dark mode chart colors */
+    --chart-1: 210 100% 45%; /* element-400 */
+    --chart-2: 210 80% 60%;
+    --chart-3: 210 60% 75%;
+    --chart-4: 210 40% 85%;
+    --chart-5: 210 20% 95%;
+
+    color-scheme: dark;
+  }
+
+  /* Original styles */
   html {
     font-family: var(--font-poppins), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -16,6 +101,8 @@
 
   body {
     @apply bg-primary-light text-primary-dark dark:bg-primary-dark dark:text-primary-light min-h-screen;
+    /* Add shadcn compatibility */
+    @apply bg-background text-foreground;
   }
 
   /* Ensure consistent focus outlines */
@@ -35,6 +122,11 @@
 
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Border support for Shadcn */
+  * {
+    @apply border-border;
   }
 }
 
@@ -283,11 +375,6 @@
   text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
   position: relative;
   z-index: 1;
-}
-
-/* Dark mode */
-.dark {
-  color-scheme: dark;
 }
 
 /* Responsive text sizing */

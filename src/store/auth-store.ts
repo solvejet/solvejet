@@ -157,14 +157,17 @@ export const useAuthStore = create<AuthState>()(
             isInitializing: false, // Set to false after logout
           });
 
-          // Clear localStorage
+          // Clear localStorage and sessionStorage
           if (typeof window !== 'undefined') {
             try {
               localStorage.removeItem('admin_token');
               localStorage.removeItem('admin_user');
               sessionStorage.removeItem('auth_initialized'); // Clear the initialization flag too
+
+              // Add this to clear any persisted store data
+              localStorage.removeItem('auth-storage');
             } catch (storageError) {
-              console.warn('Failed to remove auth data from localStorage:', storageError);
+              console.warn('Failed to remove auth data from storage:', storageError);
             }
           }
         }

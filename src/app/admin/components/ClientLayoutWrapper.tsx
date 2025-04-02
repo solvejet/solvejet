@@ -7,6 +7,7 @@ import { ProtectedAdminLayout } from './ProtectedAdminLayout';
 import { TopBar } from './TopBar';
 import { usePathname } from 'next/navigation';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Custom fallback component for admin errors
 function AdminErrorFallback(): JSX.Element {
@@ -41,6 +42,23 @@ function AdminErrorFallback(): JSX.Element {
   );
 }
 
+// Create a stable query client configuration
+const queryClientOptions = {
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: 'always' as const,
+      gcTime: 10 * 60 * 1000,
+    },
+    mutations: {
+      retry: 0,
+      networkMode: 'always' as const,
+    },
+  },
+};
+
 export default function ClientLayoutWrapper({
   children,
 }: {
@@ -49,6 +67,8 @@ export default function ClientLayoutWrapper({
   const [isMounted, setIsMounted] = useState(false);
   const [currentPath, setCurrentPath] = useState<string>('/');
   const pathname = usePathname();
+  // Create a stable QueryClient instance that won't get recreated on rerenders
+  const [queryClient] = useState(() => new QueryClient(queryClientOptions));
 
   useEffect((): void => {
     setIsMounted(true);
@@ -72,15 +92,16 @@ export default function ClientLayoutWrapper({
 
   const isLoginPage = currentPath === '/admin/login';
 
-  // Default protection for all admin routes - requires at least VIEWER role
   return (
-    <ProtectedAdminLayout requiredRole="VIEWER">
-      <ErrorBoundary fallback={<AdminErrorFallback />}>
-        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-          {!isLoginPage && <TopBar />}
-          <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
-        </div>
-      </ErrorBoundary>
-    </ProtectedAdminLayout>
+    <QueryClientProvider client={queryClient}>
+      <ProtectedAdminLayout requiredRole="VIEWER">
+        <ErrorBoundary fallback={<AdminErrorFallback />}>
+          <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+            {!isLoginPage && <TopBar />}
+            <main className="flex-grow container mx-auto px-4 py-8">{children}</main>
+          </div>
+        </ErrorBoundary>
+      </ProtectedAdminLayout>
+    </QueryClientProvider>
   );
 }

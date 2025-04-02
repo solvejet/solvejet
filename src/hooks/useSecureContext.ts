@@ -22,9 +22,20 @@ export const useSecureContext = (): SecurityContextReturn => {
   const context = useContext(SecurityContext);
   const [lastActivityTime, setLastActivityTime] = useState<Date>(new Date());
 
-  if (!context) {
-    throw new Error('useSecureContext must be used within a SecurityProvider');
+  if (!context && typeof window !== 'undefined') {
+    console.warn('useSecureContext: SecurityProvider not found. Using default security context.');
   }
+
+  // Provide default values if context is not available
+  const defaultContext = {
+    isAuthenticated: false,
+    csrfToken: null,
+    user: null,
+    securityLevel: 'medium' as const,
+  };
+
+  // Use context values if available, otherwise use defaults
+  const { isAuthenticated, csrfToken, user, securityLevel } = context ?? defaultContext;
 
   useEffect(() => {
     const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart'];
@@ -60,11 +71,12 @@ export const useSecureContext = (): SecurityContextReturn => {
   }, []);
 
   const checkPermission = (permission: string): boolean => {
-    return !!context.user?.permissions.includes(permission);
+    if (!user) return false;
+    return user.permissions.includes(permission);
   };
 
   const requireAuth = (requiredRole?: string): boolean => {
-    if (!context.isAuthenticated) {
+    if (!isAuthenticated) {
       // Use window.location for navigation
       if (typeof window !== 'undefined') {
         window.location.href = '/auth/login';
@@ -72,9 +84,9 @@ export const useSecureContext = (): SecurityContextReturn => {
       return false;
     }
 
-    if (requiredRole && context.user?.role !== requiredRole) {
+    if (requiredRole && user?.role !== requiredRole) {
       // Super admin bypass
-      if (context.user?.role === 'SUPER_ADMIN') {
+      if (user?.role === 'SUPER_ADMIN') {
         return true;
       }
 
@@ -89,7 +101,10 @@ export const useSecureContext = (): SecurityContextReturn => {
   };
 
   return {
-    ...context,
+    isAuthenticated,
+    csrfToken,
+    user,
+    securityLevel,
     lastActivity: lastActivityTime,
     checkPermission,
     requireAuth,

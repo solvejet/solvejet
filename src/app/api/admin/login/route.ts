@@ -73,7 +73,7 @@ async function initializeSuperAdmin(): Promise<void> {
       const newAdmin = new UserModel({
         email: 'karan@solvejet.net',
         password: hashedPassword,
-        name: 'Super Admin',
+        name: 'Karan Shah',
         role: 'SUPER_ADMIN' as UserRole,
         permissions: ['*'], // All permissions
       }) as UserDocument;
@@ -176,20 +176,11 @@ export async function POST(request: Request): Promise<Response> {
 
     // Set HTTP-only cookie for added security
     try {
-      const cookieStore = cookies();
-      const setCookie = cookieStore as unknown as {
-        set: (options: {
-          name: string;
-          value: string;
-          httpOnly: boolean;
-          path: string;
-          secure: boolean;
-          maxAge: number;
-          sameSite: 'strict' | 'lax' | 'none';
-        }) => void;
-      };
+      // FIXED: Properly await the cookies() API
+      const cookieStore = await cookies();
 
-      setCookie.set({
+      // Set the cookie
+      cookieStore.set({
         name: 'admin_session',
         value: token,
         httpOnly: true,

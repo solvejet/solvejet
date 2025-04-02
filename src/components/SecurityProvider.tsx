@@ -1,103 +1,71 @@
 // src/components/SecurityProvider.tsx
 'use client';
 
-import type { ReactNode } from 'react';
-import { createContext, useState, useEffect } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
-import { getCSRFToken, validateCSRFProtection } from '@/lib/security/csrf';
-import type { JSX } from 'react';
+import { getCSRFToken } from '@/lib/security/csrf';
 
-interface User {
-  id: string;
-  role: string;
-  permissions: string[];
-}
-
+// Define the security context type
 interface SecurityContextType {
   isAuthenticated: boolean;
   csrfToken: string | null;
-  user: User | null;
+  user: {
+    id: string;
+    role: string;
+    permissions: string[];
+  } | null;
   securityLevel: 'high' | 'medium' | 'low';
-  lastActivity: Date;
 }
 
-// Create context with a default undefined value
-export const SecurityContext = createContext<SecurityContextType | undefined>(undefined);
+// Create the security context with default values
+export const SecurityContext = createContext<SecurityContextType | null>(null);
 
 interface SecurityProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-export function SecurityProvider({ children }: SecurityProviderProps): JSX.Element {
-  const { isAuthenticated, user } = useAuthStore();
+export function SecurityProvider({ children }: SecurityProviderProps): React.ReactElement {
   const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const { isAuthenticated, user } = useAuthStore();
   const [securityLevel, setSecurityLevel] = useState<'high' | 'medium' | 'low'>('medium');
-  const [lastActivity, setLastActivity] = useState<Date>(new Date());
 
-  // Fetch CSRF token on mount
-  useEffect((): void => {
-    const fetchCSRFToken = async (): Promise<void> => {
+  // Effect to fetch CSRF token
+  useEffect(() => {
+    const fetchToken = async (): Promise<void> => {
       try {
-        // First try to get from cookies
-        const tokenFromCookies = getCSRFToken();
-        if (tokenFromCookies) {
-          setCsrfToken(tokenFromCookies);
-          return;
-        }
-
-        // If no token in cookies, request a new one
-        const validCSRF = await validateCSRFProtection();
-        if (validCSRF) {
-          // Check again after validation
-          const newToken = getCSRFToken();
-          if (newToken) {
-            setCsrfToken(newToken);
-          }
-        }
+        const token = typeof getCSRFToken === 'function' ? await Promise.resolve(getCSRFToken()) : getCSRFToken;
+        setCsrfToken(token);
       } catch (error) {
         console.error('Error fetching CSRF token:', error);
       }
     };
 
-    void fetchCSRFToken();
+    void fetchToken();
   }, []);
 
-  // Determine security level based on connection and environment
-  useEffect((): void => {
-    // Check if using HTTPS
-    const isSecureConnection =
-      typeof window !== 'undefined' && window.location.protocol === 'https:';
+  // Effect to determine security level based on environment and factors
+  useEffect(() => {
+    const determineSecurityLevel = (): 'high' | 'medium' | 'low' => {
+      // Check for HTTPS
+      const isSecureConnection =
+        typeof window !== 'undefined' && window.location.protocol === 'https:';
 
-    // Example logic - adjust according to your security requirements
-    if (isSecureConnection && process.env.NODE_ENV === 'production') {
-      setSecurityLevel('high');
-    } else if (isSecureConnection || process.env.NODE_ENV === 'production') {
-      setSecurityLevel('medium');
-    } else {
-      setSecurityLevel('low');
-    }
-  }, []);
+      // Check for production environment
+      const isProduction = process.env.NODE_ENV === 'production';
 
-  // Monitor user activity
-  useEffect((): (() => void) => {
-    const updateActivity = (): void => {
-      setLastActivity(new Date());
+      if (isProduction && isSecureConnection) {
+        return 'high';
+      } else if (isProduction || isSecureConnection) {
+        return 'medium';
+      } else {
+        return 'low';
+      }
     };
 
-    // Track various user interactions
-    const events = ['mousedown', 'keydown', 'touchstart', 'scroll'];
-    events.forEach(event => {
-      window.addEventListener(event, updateActivity);
-    });
-
-    return (): void => {
-      events.forEach(event => {
-        window.removeEventListener(event, updateActivity);
-      });
-    };
+    setSecurityLevel(determineSecurityLevel());
   }, []);
 
-  // Create the context value object
+  // Create the context value
   const contextValue: SecurityContextType = {
     isAuthenticated,
     csrfToken,
@@ -105,11 +73,10 @@ export function SecurityProvider({ children }: SecurityProviderProps): JSX.Eleme
       ? {
           id: user.id,
           role: user.role,
-          permissions: user.permissions ?? [], // Using nullish coalescing operator
+          permissions: user.permissions ?? [],
         }
       : null,
     securityLevel,
-    lastActivity,
   };
 
   return <SecurityContext.Provider value={contextValue}>{children}</SecurityContext.Provider>;

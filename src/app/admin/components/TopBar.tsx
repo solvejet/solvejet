@@ -1,11 +1,9 @@
 // src/app/admin/components/TopBar.tsx
 'use client';
 
-import { Button } from '@/components/ui/Button';
 import { useToastStore } from '@/components/ui/toast/toast-store';
 import { useAuthStore } from '@/store/auth-store';
 import {
-  Bell,
   ChevronDown,
   LogOut,
   Settings,
@@ -17,12 +15,14 @@ import {
   ShoppingBag,
   BarChart2,
   Search,
+  Inbox,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import type { JSX } from 'react';
 import { useState, useEffect, useRef, memo } from 'react';
 import { SolvejetLogo, SolvejetIcon } from '@/components/ui/SolvejetLogo';
+import { NotificationsPanel } from '@/components/admin/Notifications/NotificationsPanel';
 import { cn } from '@/lib/utils';
 
 interface NavItem {
@@ -33,14 +33,13 @@ interface NavItem {
 }
 
 function TopBarComponent(): JSX.Element {
-  const [notifications] = useState(3); // Example notification count
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const userMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname() || '';
-  const router = useRouter();
+
   const { logout, user } = useAuthStore();
   const toast = useToastStore();
 
@@ -50,6 +49,12 @@ function TopBarComponent(): JSX.Element {
       href: '/admin/dashboard',
       icon: <Home className="h-5 w-5" />,
       active: pathname === '/admin/dashboard',
+    },
+    {
+      name: 'Contacts',
+      href: '/admin/contacts',
+      icon: <Inbox className="h-5 w-5" />,
+      active: pathname.startsWith('/admin/contacts'),
     },
     {
       name: 'Users',
@@ -114,14 +119,18 @@ function TopBarComponent(): JSX.Element {
 
   const handleLogout = async (): Promise<void> => {
     try {
+      // Call logout first
       await logout();
+
+      // Show success toast
       toast.addToast({
         title: 'Logged out',
         message: 'You have been successfully logged out',
         variant: 'info',
       });
 
-      router.push('/admin/login');
+      // Use direct window location change to ensure complete page reload and state reset
+      window.location.href = '/admin/login';
     } catch (error) {
       console.error('Logout error:', error instanceof Error ? error.message : 'Unknown error');
       toast.addToast({
@@ -210,18 +219,8 @@ function TopBarComponent(): JSX.Element {
 
             {/* Actions Menu */}
             <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-              >
-                <Bell className="h-5 w-5" />
-                {notifications > 0 && (
-                  <span className="absolute top-0 right-0 h-4 w-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
-              </Button>
+              {/* Notifications Panel Component */}
+              <NotificationsPanel />
 
               <div className="relative" ref={userMenuRef}>
                 <button

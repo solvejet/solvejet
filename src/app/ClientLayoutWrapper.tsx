@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { SecurityProvider } from '@/components/SecurityProvider';
 
 // Define children prop type for consistent usage
 interface ChildrenProps {
@@ -94,16 +95,15 @@ export default function ClientLayoutWrapper({ children }: ChildrenProps): React.
     return <>{children}</>;
   }
 
-  // Always return children wrapped in a fragment to ensure they're visible
-  // This prevents the white screen issue
+  // Wrap children in SecurityProvider and keep existing provider structure
   return (
-    <>
+    <SecurityProvider>
       {children}
       {loadProviders && (
         <ClientProviders>
           <Providers>{null}</Providers>
         </ClientProviders>
       )}
-    </>
+    </SecurityProvider>
   );
 }

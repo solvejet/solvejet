@@ -122,93 +122,36 @@ export function ServiceSectionSkeleton(): React.ReactElement {
   );
 }
 
+/**
+ * Skeleton loader for the Trust Section
+ * Updated to match the new simplified marquee design
+ */
 export function TrustSectionSkeleton(): React.JSX.Element {
   return (
-    <section className="py-24 bg-white dark:bg-gray-900">
+    <section className="py-16 bg-gray-50 dark:bg-gray-800">
       <div className="container mx-auto px-4 max-w-[95rem]">
-        {/* Section Header skeleton */}
-        <div className="text-center mb-16">
-          <Skeleton className="h-6 w-40 mx-auto mb-3" />
-          <Skeleton className="h-12 w-96 mx-auto mb-4" />
-          <Skeleton className="h-6 w-2/3 mx-auto" />
+        {/* Left-aligned section title skeleton */}
+        <div className="mb-8">
+          <Skeleton className="h-6 w-32 mb-2" />
+          <Skeleton className="h-12 w-72" />
         </div>
+      </div>
 
-        {/* Filter tabs skeleton */}
-        <div className="flex justify-center flex-wrap gap-3 mb-12">
-          <Skeleton className="h-10 w-36 rounded-lg" />
-          <Skeleton className="h-10 w-36 rounded-lg" />
-          <Skeleton className="h-10 w-36 rounded-lg" />
-          <Skeleton className="h-10 w-36 rounded-lg" />
-        </div>
-
-        {/* Credentials Grid skeleton */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {Array(6)
+      {/* Full-width marquee skeleton */}
+      <div className="w-full py-2">
+        <div className="flex overflow-hidden">
+          {Array(8)
             .fill(0)
             .map((_, i) => (
-              <div
-                key={i}
-                className="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm h-64"
-              >
-                <div className="p-6 h-full">
-                  <div className="flex items-center mb-4">
-                    <Skeleton className="w-16 h-16 rounded-lg mr-4" />
-                    <div>
-                      <Skeleton className="h-6 w-32 mb-1" />
-                      <Skeleton className="h-4 w-24" />
-                    </div>
-                  </div>
-                  <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-5/6 mb-2" />
-                  <Skeleton className="h-4 w-4/6" />
-                  <div className="mt-auto pt-6">
-                    <Skeleton className="h-9 w-32 rounded-full" />
-                  </div>
-                </div>
+              <div key={i} className="mx-3 flex-shrink-0">
+                <Skeleton className="h-40 w-44 rounded-md" />
               </div>
             ))}
-        </div>
-
-        {/* Credentials Marquee skeleton */}
-        <div className="mt-16">
-          <div className="text-center mb-10">
-            <Skeleton className="h-8 w-64 mx-auto" />
-          </div>
-
-          <div className="relative overflow-hidden py-8">
-            <div className="flex space-x-6 overflow-hidden">
-              {Array(5)
-                .fill(0)
-                .map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-64 rounded-xl flex-shrink-0" />
-                ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Client logos section skeleton */}
-        <div className="mt-16">
-          <div className="text-center mb-10">
-            <Skeleton className="h-8 w-64 mx-auto mb-3" />
-            <Skeleton className="h-4 w-96 mx-auto" />
-          </div>
-
-          <div className="relative overflow-hidden py-4">
-            <div className="flex space-x-8 overflow-hidden">
-              {Array(6)
-                .fill(0)
-                .map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-48 rounded-md flex-shrink-0" />
-                ))}
-            </div>
-          </div>
         </div>
       </div>
     </section>
   );
 }
-
-// Add this to src/components/Home/skeletons.tsx
 
 export function CaseStudySectionSkeleton(): React.ReactElement {
   return (
@@ -307,42 +250,40 @@ export function CaseStudySectionSkeleton(): React.ReactElement {
  */
 export function AboutUsSectionSkeleton(): React.ReactElement {
   return (
-    <section className="py-24 bg-gray-50 dark:bg-gray-900">
+    <section className="py-24 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4 max-w-[95rem]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Left column - About content skeleton */}
+          {/* Left column - Tagline and image skeleton */}
           <div>
-            <Skeleton className="h-6 w-32 mb-2" />
-            <Skeleton className="h-12 w-3/4 mb-2" />
-            <Skeleton className="h-12 w-2/3 mb-6" />
+            <Skeleton className="h-10 w-4/5 mb-2" />
+            <Skeleton className="h-10 w-3/5 mb-12" />
 
-            <div className="space-y-6">
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-5/6 mb-2" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-full mb-2" />
-              <Skeleton className="h-4 w-4/5 mb-6" />
-
-              <div className="pt-4">
-                <Skeleton className="h-10 w-48 rounded-md" />
-              </div>
+            <div className="rounded-3xl overflow-hidden aspect-video">
+              <Skeleton className="h-full w-full" />
             </div>
           </div>
 
-          {/* Right column - Stats & Image skeleton */}
-          <div>
-            {/* Company image skeleton */}
-            <div className="mb-10 rounded-3xl overflow-hidden aspect-[16/9]">
-              <Skeleton className="h-full w-full" />
+          {/* Right column - Content and stats skeleton */}
+          <div className="flex flex-col space-y-16">
+            {/* Content paragraph skeleton */}
+            <div>
+              <Skeleton className="h-6 w-full mb-2" />
+              <Skeleton className="h-6 w-full mb-2" />
+              <Skeleton className="h-6 w-4/5" />
             </div>
 
-            {/* Stats grid skeleton */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {Array(3)
+            {/* Stats cards skeleton */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {Array(4)
                 .fill(0)
                 .map((_, i) => (
-                  <Skeleton key={i} className="h-36 rounded-3xl" />
+                  <div key={i} className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <Skeleton className="h-10 w-20" />
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                    </div>
+                    <Skeleton className="h-5 w-32" />
+                  </div>
                 ))}
             </div>
           </div>

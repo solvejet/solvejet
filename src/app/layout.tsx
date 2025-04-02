@@ -33,7 +33,11 @@ export default function RootLayout({
   children: ReactNode;
 }>): React.JSX.Element {
   return (
-    <html lang="en" className={`${poppins.variable} scroll-smooth hide-scrollbar`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${poppins.variable} scroll-smooth hide-scrollbar`}
+      suppressHydrationWarning
+    >
       <head>
         {/* Resource hints for important origins */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -43,13 +47,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
 
         {/* Preload LCP hero image with high priority */}
-        <link
-          rel="preload"
-          href="/images/industries/real-estate.webp"
-          as="image"
-          type="image/webp"
-          fetchPriority="high"
-        />
+        <link rel="preconnect" href="https://prod.spline.design" crossOrigin="anonymous" />
 
         {/* Add viewport-based preloads */}
         <script

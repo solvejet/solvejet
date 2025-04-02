@@ -1,4 +1,4 @@
-// src/hooks/useAuthAPI.ts - Fixed version
+// src/hooks/useAuthAPI.ts
 
 'use client';
 
@@ -42,7 +42,7 @@ export const useAuthAPI = (): AuthAPIResult => {
   ): Promise<LoginResponse> => {
     try {
       // Fix: Remove duplicate '/api' in the path
-      const response = await api.request<LoginResponse>('/admin/login', {
+      const response = await api.request<LoginResponse>('admin/login', {
         method: 'POST',
         body: JSON.stringify({
           email,
@@ -61,7 +61,7 @@ export const useAuthAPI = (): AuthAPIResult => {
   const logout = async (): Promise<void> => {
     try {
       // Fix: Remove duplicate '/api' in the path
-      await api.request('/admin/logout', {
+      await api.request('admin/logout', {
         method: 'POST',
         body: null,
         secure: false, // This parameter is accepted by request method
@@ -75,7 +75,7 @@ export const useAuthAPI = (): AuthAPIResult => {
   const verifyToken = async (token: string): Promise<VerifyTokenResponse> => {
     try {
       // Fix: Remove duplicate '/api' in the path
-      const response = await api.request<VerifyTokenResponse>('/admin/verify-token', {
+      const response = await api.request<VerifyTokenResponse>('admin/verify-token', {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
