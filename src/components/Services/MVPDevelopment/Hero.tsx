@@ -1,4 +1,4 @@
-// src/components/Services/CustomSoftwareDevelopment/Hero.tsx
+// src/components/Services/MVPDevelopment/Hero.tsx
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
@@ -35,19 +35,20 @@ export default function Hero({
   const textSwitcherRef = useRef<HTMLSpanElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
+  // Rotating text for the MVP page
   const rotatingTexts = [
-    'Tailored Solutions',
-    'Scalable Architecture',
-    'Custom Business Logic',
-    'Competitive Edge',
+    'Product Validation',
+    'Market Testing',
+    'Startup Growth',
+    'Investor Pitches',
   ];
 
   // Track component view
   useEffect(() => {
     trackEvent({
-      name: 'csd_hero_view',
+      name: 'mvp_hero_view',
       category: 'engagement',
-      label: 'custom_software_development_hero',
+      label: 'mvp_development_hero',
     });
 
     // Set loaded state after initial render for animations
@@ -104,7 +105,7 @@ export default function Hero({
       }
     }, 3000);
 
-    // Load the spline scene with a timeout to avoid blocking the main thread for too long
+    // Load the spline scene with a timeout to avoid blocking the main thread
     const initTimeout = setTimeout(() => {
       app
         .load('/models/titanium.splinecode')
@@ -194,7 +195,7 @@ export default function Hero({
     <section
       ref={heroRef}
       className={cn('relative w-full min-h-screen overflow-hidden bg-black', className)}
-      aria-label="Custom Software Development"
+      aria-label="MVP Development"
     >
       {/* Spline Background - Dynamically loaded */}
       <div className="absolute inset-0 w-full h-full z-0">
@@ -212,7 +213,7 @@ export default function Hero({
         {!isLoaded && <div className="absolute inset-0 bg-black" aria-hidden="true" />}
       </div>
 
-      {/* Static accent circles with reduced opacity for better visibility with Spline */}
+      {/* Static accent circles with reduced opacity for better visibility */}
       <div
         className="absolute opacity-30 rounded-full"
         style={{
@@ -220,7 +221,8 @@ export default function Hero({
           height: '500px',
           left: '15%',
           top: '30%',
-          background: 'radial-gradient(circle, rgba(0, 85, 184, 0.3) 0%, rgba(0, 85, 184, 0) 70%)',
+          background:
+            'radial-gradient(circle, rgba(238, 96, 156, 0.3) 0%, rgba(238, 96, 156, 0) 70%)',
           filter: 'blur(50px)',
           transform: 'translate(-50%, -50%)',
         }}
@@ -235,14 +237,14 @@ export default function Hero({
           right: '10%',
           bottom: '20%',
           background:
-            'radial-gradient(circle, rgba(255, 204, 0, 0.2) 0%, rgba(255, 204, 0, 0) 70%)',
+            'radial-gradient(circle, rgba(28, 204, 158, 0.2) 0%, rgba(28, 204, 158, 0) 70%)',
           filter: 'blur(50px)',
           transform: 'translate(50%, 50%)',
         }}
         aria-hidden="true"
       />
 
-      {/* Content container - no initial animations */}
+      {/* Content container - improved responsiveness */}
       <div className="container mx-auto px-4 sm:px-6 max-w-[95rem] relative z-10 h-full flex flex-col justify-center py-16 md:py-0">
         <div className="max-w-7xl sm:ml-0 ml-0 md:pt-0">
           {/* Main heading - render immediately */}
@@ -254,10 +256,10 @@ export default function Hero({
 
               {/* Subheading with highlighted text */}
               <div className="mt-4 md:mt-6 text-xl sm:text-2xl md:text-4xl font-normal">
-                <span className="text-white">Building </span>
+                <span className="text-white">Perfect for </span>
                 <span
                   ref={textSwitcherRef}
-                  className={`text-yellow-500 inline-block ${
+                  className={`text-pink-400 inline-block ${
                     isAnimating ? 'text-rotate-out' : 'text-rotate-in'
                   }`}
                 >
@@ -270,19 +272,19 @@ export default function Hero({
                 {description}
               </p>
 
-              {/* CTA buttons */}
+              {/* CTA buttons - improved responsive layout */}
               <div className="mt-8 md:mt-12 flex flex-wrap gap-3 md:gap-5">
                 <TrackedButton
                   variant="default"
                   size={isMobile ? 'default' : 'lg'}
-                  className="bg-element-500 hover:bg-element-600 text-white shadow-lg shadow-element-500/20 group w-full sm:w-auto"
+                  className="bg-pink-500 hover:bg-pink-600 text-white shadow-lg shadow-pink-500/20 group w-full sm:w-auto"
                   onClick={() => {
                     scrollToFeatures();
                   }}
                   trackingEvent={{
-                    name: 'csd_explore_button_click',
+                    name: 'mvp_explore_button_click',
                     category: 'navigation',
-                    label: 'csd_explore_features',
+                    label: 'mvp_explore_features',
                   }}
                 >
                   <span className="flex items-center justify-center">
@@ -297,9 +299,9 @@ export default function Hero({
                     size={isMobile ? 'default' : 'lg'}
                     className="border-white text-white hover:bg-white/10 group w-full"
                     trackingEvent={{
-                      name: 'csd_contact_button_click',
+                      name: 'mvp_contact_button_click',
                       category: 'conversion',
-                      label: 'csd_contact_button',
+                      label: 'mvp_contact_button',
                     }}
                   >
                     <span className="flex items-center justify-center">
@@ -335,7 +337,7 @@ export default function Hero({
           </div>
         </div>
 
-        {/* Benefits grid in the bottom section - make it responsive */}
+        {/* Benefits grid - improved responsive layout */}
         <div className="mt-auto w-full">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {benefits.map((benefit, index) => (

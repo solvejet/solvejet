@@ -1,4 +1,4 @@
-// src/app/(website)/services/custom-software-development/page.tsx
+// src/app/(website)/what-we-do/custom-software-development/page.tsx
 import React from 'react';
 import type { Metadata } from 'next';
 import { generateServiceDetailStructuredData } from '@/lib/seo/serviceDetailStructuredData';

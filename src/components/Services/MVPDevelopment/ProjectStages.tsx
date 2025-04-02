@@ -1,14 +1,14 @@
-// src/components/Services/CustomSoftwareDevelopment/ProjectStages.tsx
+// src/components/Services/MVPDevelopment/ProjectStages.tsx
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  FileSearch,
-  BarChart4,
+  Search,
+  Brush,
   Code,
-  Check,
+  Gauge,
   Rocket,
-  Zap,
+  LineChart,
   ArrowRight,
   ChevronRight,
 } from 'lucide-react';
@@ -18,25 +18,24 @@ import { TrackedButton } from '@/components/ui/Button/TrackedButton';
 import Link from 'next/link';
 import Image from 'next/image';
 
-interface ProjectApproachProps {
+interface ProjectStagesProps {
   className?: string;
 }
 
-export default function ProjectStages({ className }: ProjectApproachProps): React.ReactElement {
+export default function ProjectStages({ className }: ProjectStagesProps): React.ReactElement {
   const { trackEvent } = useAnalytics();
   const [activeStep, setActiveStep] = useState(1);
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
-  const [, setIsMobile] = useState(false);
 
   // Track section view on mount and handle visibility
   useEffect(() => {
     trackEvent({
-      name: 'csd_approach_view',
+      name: 'mvp_stages_view',
       category: 'engagement',
-      label: 'custom_software_development_approach',
+      label: 'mvp_development_stages',
     });
 
     // Set up intersection observer for animation triggers
@@ -54,20 +53,8 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
       observer.observe(sectionRef.current);
     }
 
-    // Check if device is mobile on mount and on resize
-    const checkMobile = (): void => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    // Initial check
-    checkMobile();
-
-    // Add resize listener
-    window.addEventListener('resize', checkMobile);
-
     return (): void => {
       observer.disconnect();
-      window.removeEventListener('resize', checkMobile);
     };
   }, [trackEvent]);
 
@@ -96,13 +83,13 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
     }
 
     trackEvent({
-      name: 'csd_approach_step_click',
+      name: 'mvp_stages_step_click',
       category: 'engagement',
-      label: `approach_step_${String(step)}`,
+      label: `stages_step_${String(step)}`,
     });
   };
 
-  // Enhanced step details with more engaging content
+  // MVP-specific step details with more engaging content
   const stepDetails: {
     icon: React.ReactNode;
     color: string;
@@ -115,87 +102,93 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
     outcomes: { icon: React.ReactNode; text: string }[];
   }[] = [
     {
-      icon: <FileSearch className="h-6 w-6" />,
-      color: 'from-blue-600 to-blue-400',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/10',
+      icon: <Search className="h-6 w-6" />,
+      color: 'from-pink-600 to-pink-400',
+      bgColor: 'bg-pink-50 dark:bg-pink-900/10',
       number: '01',
-      title: 'Discovery & Requirements',
+      title: 'Discovery & Validation',
       description:
-        'We immerse ourselves in your business ecosystem to thoroughly understand your objectives, user needs, and technical landscape. This foundational phase ensures we build solutions that truly solve your unique challenges.',
+        'We help you validate your idea through market research, competitor analysis, and user interviews. This critical phase ensures we`re building an MVP that solves real problems for your target audience.',
       image: '/images/services/discovery-phase.webp',
       bulletPoints: [
-        'Stakeholder interviews and collaborative workshops',
-        'User research and journey mapping sessions',
-        'Market analysis and competitive assessment',
-        'Technical feasibility evaluation',
+        'Problem statement definition and refinement',
+        'Target user identification and persona development',
+        'Market analysis and competitive landscaping',
+        'Value proposition crystallization',
       ],
       outcomes: [
-        { icon: <Check className="h-4 w-4" />, text: 'Comprehensive requirements documentation' },
-        { icon: <Check className="h-4 w-4" />, text: 'User personas and journey maps' },
-        { icon: <Check className="h-4 w-4" />, text: 'Project success metrics defined' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Validated business concept' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Clear user persona profiles' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Defined MVP success metrics' },
       ],
     },
     {
-      icon: <BarChart4 className="h-6 w-6" />,
-      color: 'from-purple-600 to-purple-400',
-      bgColor: 'bg-purple-50 dark:bg-purple-900/10',
+      icon: <Brush className="h-6 w-6" />,
+      color: 'from-indigo-600 to-indigo-400',
+      bgColor: 'bg-indigo-50 dark:bg-indigo-900/10',
       number: '02',
-      title: 'Planning & Architecture',
+      title: 'Feature Prioritization & Design',
       description:
-        'Our expert architects design a robust, future-proof system tailored to your needs. We develop comprehensive project plans with clear timelines, resource allocations, and risk mitigation strategies to ensure smooth execution.',
+        'We identify the core features that deliver maximum value with minimum development effort. Our design process focuses on creating intuitive workflows that highlight your product`s unique value proposition.',
       image: '/images/services/planning-architecture.webp',
       bulletPoints: [
-        'System architecture and technology stack selection',
-        'Data flow and security planning',
-        'Infrastructure and scalability design',
-        'Detailed project roadmap creation',
+        'Feature prioritization with MoSCoW methodology',
+        'User journey mapping and storyboarding',
+        'Low-fidelity wireframing and rapid prototyping',
+        'Interactive mockups and usability testing',
       ],
       outcomes: [
-        { icon: <Check className="h-4 w-4" />, text: 'Technical architecture blueprint' },
-        { icon: <Check className="h-4 w-4" />, text: 'Detailed project plan and timeline' },
-        { icon: <Check className="h-4 w-4" />, text: 'Risk assessment and mitigation strategy' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Focused MVP feature set' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'User-validated UI/UX designs' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Technical feasibility assessment' },
       ],
     },
     {
       icon: <Code className="h-6 w-6" />,
-      color: 'from-element-600 to-element-400',
-      bgColor: 'bg-element-50 dark:bg-element-900/10',
+      color: 'from-cyan-600 to-cyan-400',
+      bgColor: 'bg-cyan-50 dark:bg-cyan-900/10',
       number: '03',
-      title: 'Development & Implementation',
+      title: 'Rapid Development',
       description:
-        'Using agile methodologies, our engineering team builds your solution with a focus on quality, security, and maintainability. Regular iterations and demonstrations ensure you stay connected throughout the development process.',
+        'Using agile methodologies and modern tech stacks, we build your MVP with a focus on speed and quality. Our iterative approach allows for continuous feedback and adjustments throughout the development process.',
       image: '/images/services/development-phase.webp',
       bulletPoints: [
-        'Agile development cycles with continuous integration',
-        'Test-driven development practices',
-        'Regular code reviews and quality assurance',
-        'Iterative demonstrations and feedback implementation',
+        'Technology stack selection optimized for speed',
+        'Sprint-based development with weekly demos',
+        'Continuous integration and automated testing',
+        'Technical debt management and documentation',
       ],
       outcomes: [
-        { icon: <Check className="h-4 w-4" />, text: 'Production-ready codebase' },
-        { icon: <Check className="h-4 w-4" />, text: 'Comprehensive technical documentation' },
-        { icon: <Check className="h-4 w-4" />, text: 'Version-controlled repositories' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Functioning product within weeks' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Scalable, maintainable codebase' },
+        {
+          icon: <ChevronRight className="h-4 w-4" />,
+          text: 'Comprehensive development documentation',
+        },
       ],
     },
     {
-      icon: <Check className="h-6 w-6" />,
+      icon: <Gauge className="h-6 w-6" />,
       color: 'from-green-600 to-green-400',
       bgColor: 'bg-green-50 dark:bg-green-900/10',
       number: '04',
-      title: 'Quality Assurance',
+      title: 'Testing & Quality Assurance',
       description:
-        'Our rigorous testing protocols ensure your software operates flawlessly under all conditions. We verify functionality, performance, security, and user experience to deliver an exceptional product that exceeds expectations.',
+        'We ensure your MVP works flawlessly across devices and use cases. Our QA process combines automated testing with real user feedback to catch issues before launch.',
       image: '/images/services/quality-assurance.webp',
       bulletPoints: [
-        'Automated and manual testing across all components',
-        'Performance and load testing at scale',
-        'Security vulnerability assessment and penetration testing',
-        'User acceptance testing and feedback integration',
+        'Functional and non-functional testing',
+        'Cross-browser and device compatibility checks',
+        'Performance optimization and load testing',
+        'Beta testing with real users',
       ],
       outcomes: [
-        { icon: <Check className="h-4 w-4" />, text: 'Comprehensive test documentation' },
-        { icon: <Check className="h-4 w-4" />, text: 'Security compliance verification' },
-        { icon: <Check className="h-4 w-4" />, text: 'Performance optimization report' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Bug-free user experience' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Performance-optimized application' },
+        {
+          icon: <ChevronRight className="h-4 w-4" />,
+          text: 'Pre-launch user feedback and improvements',
+        },
       ],
     },
     {
@@ -203,41 +196,41 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
       color: 'from-amber-600 to-amber-400',
       bgColor: 'bg-amber-50 dark:bg-amber-900/10',
       number: '05',
-      title: 'Deployment & Launch',
+      title: 'Launch & User Acquisition',
       description:
-        'We execute a meticulously planned deployment strategy to ensure a seamless transition. Our team handles infrastructure configuration, data migration, and system integration while minimizing business disruption.',
+        'We help you deploy your MVP and implement strategies to attract early adopters. Our launch approach focuses on creating momentum and generating valuable user feedback from day one.',
       image: '/images/services/deployment-launch.webp',
       bulletPoints: [
-        'Production environment setup and configuration',
-        'Data migration with integrity validation',
-        'Phased rollout strategy implementation',
-        'Comprehensive user training and documentation',
+        'Deployment to production environments',
+        'Analytics and monitoring setup',
+        'Launch marketing strategy implementation',
+        'Early adopter onboarding and support',
       ],
       outcomes: [
-        { icon: <Check className="h-4 w-4" />, text: 'Stable production environment' },
-        { icon: <Check className="h-4 w-4" />, text: 'User adoption support materials' },
-        { icon: <Check className="h-4 w-4" />, text: 'Performance monitoring systems' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Successfully deployed MVP' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Initial user base acquisition' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Data collection infrastructure' },
       ],
     },
     {
-      icon: <Zap className="h-6 w-6" />,
-      color: 'from-red-600 to-red-400',
-      bgColor: 'bg-red-50 dark:bg-red-900/10',
+      icon: <LineChart className="h-6 w-6" />,
+      color: 'from-purple-600 to-purple-400',
+      bgColor: 'bg-purple-50 dark:bg-purple-900/10',
       number: '06',
-      title: 'Maintenance & Evolution',
+      title: 'Measure & Iterate',
       description:
-        'Our relationship continues well beyond launch. We provide proactive monitoring, regular updates, and strategic enhancements to ensure your software remains cutting-edge, secure, and aligned with your evolving business needs.',
+        'We help you analyze user data and feedback to identify improvement opportunities. This feedback loop drives the roadmap for future iterations, ensuring your product evolves based on real user needs.',
       image: '/images/services/maintenance-evolution.webp',
       bulletPoints: [
-        '24/7 monitoring and support with rapid response protocols',
-        'Regular security updates and vulnerability patching',
-        'Performance optimization and system health monitoring',
-        'Planned feature enhancements and capability expansion',
+        'Key metrics tracking and analysis',
+        'User feedback collection and synthesis',
+        'Feature performance evaluation',
+        'Roadmap planning for next iterations',
       ],
       outcomes: [
-        { icon: <Check className="h-4 w-4" />, text: 'Ongoing maintenance schedule' },
-        { icon: <Check className="h-4 w-4" />, text: 'Feature roadmap for future expansion' },
-        { icon: <Check className="h-4 w-4" />, text: 'Technology upgrade recommendations' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Data-driven insights report' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Validated/invalidated assumptions' },
+        { icon: <ChevronRight className="h-4 w-4" />, text: 'Prioritized enhancement roadmap' },
       ],
     },
   ];
@@ -246,7 +239,7 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
     <section
       ref={sectionRef}
       id="project-approach-section"
-      className={cn('py-16 md:py-24 bg-white dark:bg-gray-900 overflow-hidden', className)}
+      className={cn('py-24 bg-white dark:bg-gray-900 overflow-hidden', className)}
     >
       <div className="container mx-auto px-4 sm:px-6 max-w-[95rem]">
         <div className="max-w-7xl sm:ml-0 ml-0 md:pt-0">
@@ -257,40 +250,37 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
             )}
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-normal text-gray-900 dark:text-white mb-6 tracking-tight">
-              Our Project Approach
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal text-gray-900 dark:text-white mb-6 tracking-tight">
+              MVP Development Process
             </h2>
-            <p className="text-base md:text-lg text-gray-600 dark:text-gray-300 mb-10 md:mb-16 leading-relaxed max-w-3xl">
-              We follow a comprehensive, proven methodology that combines agile flexibility with
-              structured governance to ensure predictable outcomes, transparent communication, and
-              exceptional quality for your custom software project.
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-16 leading-relaxed max-w-3xl">
+              We follow a streamlined, focused process specifically designed for MVPs that
+              prioritizes speed to market while maintaining product quality and gathering actionable
+              user feedback.
             </p>
           </div>
         </div>
 
-        {/* Improved timeline with scroll container for mobile */}
+        {/* Improved timeline with animated indicator */}
         <div
           ref={timelineRef}
           className={cn(
-            'relative mb-10 md:mb-20 transition-all duration-700 ease-out overflow-x-auto pb-4 scrollbar-hide',
+            'relative mb-20 transition-all duration-700 ease-out',
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           )}
-          style={{
-            transitionDelay: '200ms',
-            scrollbarWidth: 'none', // For Firefox
-          }}
+          style={{ transitionDelay: '200ms' }}
         >
           {/* Timeline bar with gradient highlight for active segment */}
-          <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700 -translate-y-1/2 rounded-full overflow-hidden min-w-[600px]">
+          <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700 -translate-y-1/2 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-element-500 to-element-400 transition-all duration-500 ease-out"
+              className="h-full bg-gradient-to-r from-pink-500 to-purple-400 transition-all duration-500 ease-out"
               style={{
                 width: `${((activeStep / 6) * 100).toString()}%`,
               }}
             />
           </div>
 
-          <div className="relative flex justify-between min-w-[600px]">
+          <div className="relative flex justify-between">
             {stepDetails.map((step, index) => (
               <div
                 key={index}
@@ -305,7 +295,7 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                 {/* Enhanced circle with gradient and animation */}
                 <div
                   className={cn(
-                    'w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-500 shadow-lg',
+                    'w-16 h-16 rounded-full flex items-center justify-center transition-all duration-500 shadow-lg',
                     activeStep === index + 1
                       ? `bg-gradient-to-br ${step.color} text-white scale-110`
                       : 'bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400 group-hover:bg-gray-100 dark:group-hover:bg-gray-700'
@@ -313,7 +303,7 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                 >
                   {/* Pulsing ring animation for active step */}
                   {activeStep === index + 1 && (
-                    <span className="absolute w-full h-full rounded-full animate-ping opacity-30 bg-gradient-to-br from-element-500 to-element-400" />
+                    <span className="absolute w-full h-full rounded-full animate-ping opacity-30 bg-gradient-to-br from-pink-500 to-purple-400" />
                   )}
                   {step.icon}
                 </div>
@@ -326,12 +316,12 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                       : 'opacity-70 scale-95 group-hover:opacity-100'
                   )}
                 >
-                  <div className="text-xs md:text-sm font-medium text-element-600 dark:text-element-400">
+                  <div className="text-sm font-medium text-pink-600 dark:text-pink-400">
                     Phase {step.number}
                   </div>
                   <h3
                     className={cn(
-                      'text-sm md:text-lg font-medium transition-all duration-300',
+                      'text-lg font-medium transition-all duration-300',
                       activeStep === index + 1
                         ? 'text-gray-900 dark:text-white'
                         : 'text-gray-700 dark:text-gray-300'
@@ -346,7 +336,7 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                   className={cn(
                     'absolute -bottom-8 left-1/2 w-8 h-2 rounded-full transition-all duration-500 ease-out bg-gradient-to-r',
                     activeStep === index + 1
-                      ? 'from-element-500 to-element-400 scale-100 opacity-100'
+                      ? 'from-pink-500 to-purple-400 scale-100 opacity-100'
                       : 'from-transparent to-transparent scale-0 opacity-0'
                   )}
                   style={{ transform: 'translateX(-50%)' }}
@@ -365,9 +355,9 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
           )}
           style={{ transitionDelay: '400ms' }}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 md:gap-8 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-stretch">
             {/* Left column: Details (expanded to 3/5) */}
-            <div className="lg:col-span-3 order-2 lg:order-1">
+            <div className="lg:col-span-3">
               <div
                 className={cn(
                   'rounded-2xl overflow-hidden transition-all duration-500 ease-out transform hover:shadow-xl h-full',
@@ -375,11 +365,11 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                 )}
               >
                 {/* Content wrapper with padding */}
-                <div className="p-6 md:p-10 h-full flex flex-col">
+                <div className="p-8 md:p-10 h-full flex flex-col">
                   {/* Phase indicator with gradient text */}
                   <div
                     className={cn(
-                      'text-base md:text-lg font-medium mb-3 bg-gradient-to-r bg-clip-text text-transparent',
+                      'text-lg font-medium mb-3 bg-gradient-to-r bg-clip-text text-transparent',
                       stepDetails[activeStep - 1]?.color
                     )}
                   >
@@ -387,20 +377,20 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                   </div>
 
                   {/* Title with animation */}
-                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 md:mb-6 transition-all duration-300">
+                  <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 transition-all duration-300">
                     {stepDetails[activeStep - 1]?.title ?? ''}
                   </h3>
 
                   {/* Description with enhanced typography */}
-                  <p className="text-gray-700 dark:text-gray-300 mb-6 md:mb-8 leading-relaxed text-sm md:text-base">
+                  <p className="text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
                     {stepDetails[activeStep - 1]?.description ?? ''}
                   </p>
 
                   {/* Key Activities with improved visuals */}
-                  <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
-                    <h4 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-                      <span className="w-8 h-8 rounded-full bg-gradient-to-r from-element-500 to-element-400 flex items-center justify-center text-white mr-3">
-                        <Check className="h-4 w-4" />
+                  <div className="space-y-6 mb-8">
+                    <h4 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
+                      <span className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-400 flex items-center justify-center text-white mr-3">
+                        <ChevronRight className="h-4 w-4" />
                       </span>
                       Key Activities
                     </h4>
@@ -412,22 +402,22 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                           <div className="mr-3 p-2 rounded-full transition-all duration-300 group-hover:scale-110">
                             <ChevronRight
                               className={cn(
-                                'h-5 w-5 transition-all duration-300 group-hover:text-element-500',
-                                stepDetails[activeStep - 1]?.color.includes('blue')
-                                  ? 'text-blue-600 dark:text-blue-400'
-                                  : stepDetails[activeStep - 1]?.color.includes('purple')
-                                  ? 'text-purple-600 dark:text-purple-400'
-                                  : stepDetails[activeStep - 1]?.color.includes('element')
-                                  ? 'text-element-600 dark:text-element-400'
+                                'h-5 w-5 transition-all duration-300 group-hover:text-pink-500',
+                                stepDetails[activeStep - 1]?.color.includes('pink')
+                                  ? 'text-pink-600 dark:text-pink-400'
+                                  : stepDetails[activeStep - 1]?.color.includes('indigo')
+                                  ? 'text-indigo-600 dark:text-indigo-400'
+                                  : stepDetails[activeStep - 1]?.color.includes('cyan')
+                                  ? 'text-cyan-600 dark:text-cyan-400'
                                   : stepDetails[activeStep - 1]?.color.includes('green')
                                   ? 'text-green-600 dark:text-green-400'
                                   : stepDetails[activeStep - 1]?.color.includes('amber')
                                   ? 'text-amber-600 dark:text-amber-400'
-                                  : 'text-red-600 dark:text-red-400'
+                                  : 'text-purple-600 dark:text-purple-400'
                               )}
                             />
                           </div>
-                          <span className="text-gray-700 dark:text-gray-300 text-sm md:text-base transition-all duration-300 group-hover:text-gray-900 dark:group-hover:text-white">
+                          <span className="text-gray-700 dark:text-gray-300 transition-all duration-300 group-hover:text-gray-900 dark:group-hover:text-white">
                             {point}
                           </span>
                         </li>
@@ -436,9 +426,9 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                   </div>
 
                   {/* Outcomes section */}
-                  <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
-                    <h4 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-                      <span className="w-8 h-8 rounded-full bg-gradient-to-r from-element-500 to-element-400 flex items-center justify-center text-white mr-3">
+                  <div className="space-y-6 mb-8">
+                    <h4 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
+                      <span className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-purple-400 flex items-center justify-center text-white mr-3">
                         <Rocket className="h-4 w-4" />
                       </span>
                       Deliverables
@@ -455,22 +445,22 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                             <div
                               className={cn(
                                 'w-8 h-8 rounded-full flex items-center justify-center mr-3',
-                                stepDetails[activeStep - 1]?.color.includes('blue')
-                                  ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
-                                  : stepDetails[activeStep - 1]?.color.includes('purple')
-                                  ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
-                                  : stepDetails[activeStep - 1]?.color.includes('element')
-                                  ? 'bg-element-100 text-element-600 dark:bg-element-900/30 dark:text-element-400'
+                                stepDetails[activeStep - 1]?.color.includes('pink')
+                                  ? 'bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400'
+                                  : stepDetails[activeStep - 1]?.color.includes('indigo')
+                                  ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'
+                                  : stepDetails[activeStep - 1]?.color.includes('cyan')
+                                  ? 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400'
                                   : stepDetails[activeStep - 1]?.color.includes('green')
                                   ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
                                   : stepDetails[activeStep - 1]?.color.includes('amber')
                                   ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
-                                  : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                                  : 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400'
                               )}
                             >
                               {outcome.icon}
                             </div>
-                            <span className="text-gray-700 dark:text-gray-300 text-xs md:text-sm font-medium">
+                            <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">
                               {outcome.text}
                             </span>
                           </div>
@@ -480,8 +470,8 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                   </div>
 
                   {/* CTA with enhanced styling */}
-                  <div className="mt-auto pt-4 md:pt-6">
-                    <Link href="/contact" className="block w-full">
+                  <div className="mt-auto pt-6">
+                    <Link href="/contact">
                       <TrackedButton
                         variant="default"
                         className={cn(
@@ -492,12 +482,12 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
                           <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                         }
                         trackingEvent={{
-                          name: 'csd_approach_cta_click',
+                          name: 'mvp_stages_cta_click',
                           category: 'conversion',
-                          label: 'approach_contact_us',
+                          label: 'stages_contact_us',
                         }}
                       >
-                        Discuss Your Project Requirements
+                        Discuss Your MVP Requirements
                       </TrackedButton>
                     </Link>
                   </div>
@@ -506,29 +496,29 @@ export default function ProjectStages({ className }: ProjectApproachProps): Reac
             </div>
 
             {/* Right column: Image and overlay (reduced to 2/5) */}
-            <div className="lg:col-span-2 order-1 lg:order-2">
+            <div className="lg:col-span-2">
               <div className="rounded-2xl overflow-hidden h-full shadow-xl transition-all duration-500 transform hover:shadow-2xl group">
-                <div className="relative w-full h-64 md:h-80 lg:h-full min-h-[300px]">
+                <div className="relative w-full h-full min-h-[400px]">
                   <Image
                     src={stepDetails[activeStep - 1]?.image ?? '/images/services/default.webp'}
-                    alt={stepDetails[activeStep - 1]?.title ?? 'Project approach step'}
+                    alt={stepDetails[activeStep - 1]?.title ?? 'Project stage'}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    sizes="(max-width: 768px) 100vw, 40vw"
                   />
                   {/* Enhanced gradient overlay with animation */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent flex items-end transition-opacity duration-500 group-hover:opacity-90">
-                    <div className="p-6 md:p-8 text-white transform transition-transform duration-500 group-hover:translate-y-0 translate-y-2">
+                    <div className="p-8 text-white transform transition-transform duration-500 group-hover:translate-y-0 translate-y-2">
                       {/* Phase indicator with pulse animation */}
-                      <div className="inline-block px-3 py-1 bg-element-500/80 text-white text-xs md:text-sm font-medium rounded-full mb-3 md:mb-4 animate-pulse">
+                      <div className="inline-block px-3 py-1 bg-pink-500/80 text-white text-sm font-medium rounded-full mb-4 animate-pulse">
                         Phase {stepDetails[activeStep - 1]?.number}
                       </div>
                       {/* Title with enhanced typography */}
-                      <h4 className="text-xl md:text-3xl font-bold mb-2 md:mb-4 transition-all duration-300 group-hover:text-element-400">
+                      <h4 className="text-3xl font-bold mb-4 transition-all duration-300 group-hover:text-pink-400">
                         {stepDetails[activeStep - 1]?.title}
                       </h4>
                       {/* Concise description with better visibility */}
-                      <p className="text-white/90 text-sm md:text-lg max-w-md leading-relaxed">
+                      <p className="text-white/90 text-lg max-w-md leading-relaxed">
                         {(stepDetails[activeStep - 1]?.description?.split('.')[0] ?? '') + '.'}
                       </p>
                     </div>

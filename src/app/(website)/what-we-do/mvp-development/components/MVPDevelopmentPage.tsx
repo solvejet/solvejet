@@ -1,4 +1,4 @@
-// src/app/(website)/what-we-do/custom-software-development/components/CustomSoftwareDevelopmentPage.tsx
+// src/app/(website)/what-we-do/mvp-development/components/MVPDevelopmentPage.tsx
 'use client';
 
 import React, { Suspense, lazy } from 'react';
@@ -11,55 +11,47 @@ import {
 import { CaseStudySectionSkeleton } from '@/components/Home/skeletons';
 
 // Dynamic imports with suspense for performance
-const Hero = dynamic(() => import('@/components/Services/CustomSoftwareDevelopment/Hero'), {
+const Hero = dynamic(() => import('@/components/Services/MVPDevelopment/Hero'), {
   loading: () => <ServiceDetailHeroSkeleton />,
   ssr: true,
 });
 
-const Credentials = lazy(
-  () => import('@/components/Services/CustomSoftwareDevelopment/Credentials')
-);
+const Credentials = lazy(() => import('@/components/Services/MVPDevelopment/Credentials'));
 
-const ProjectApproach = lazy(
-  () => import('@/components/Services/CustomSoftwareDevelopment/ProjectApproach')
-);
+const ProjectApproach = lazy(() => import('@/components/Services/MVPDevelopment/ProjectApproach'));
 
-const ProjectStages = lazy(
-  () => import('@/components/Services/CustomSoftwareDevelopment/ProjectStages')
-);
+const ProjectStages = lazy(() => import('@/components/Services/MVPDevelopment/ProjectStages'));
 
-const CustomSoftwareCaseStudies = lazy(
-  () => import('@/components/Services/CustomSoftwareDevelopment/CustomSoftwareCaseStudies')
-);
+const MVPCaseStudies = lazy(() => import('@/components/Services/MVPDevelopment/MVPCaseStudies'));
 
-const FAQSection = lazy(() => import('@/components/Services/CustomSoftwareDevelopment/FAQSection'));
+const FAQSection = lazy(() => import('@/components/Services/MVPDevelopment/FAQSection'));
 
 const ContactFormSection = lazy(
-  () => import('@/components/Services/CustomSoftwareDevelopment/ContactFormSection')
+  () => import('@/components/Services/MVPDevelopment/ContactFormSection')
 );
 
-export default function CustomSoftwareDevelopmentPage(): React.ReactElement {
+export default function MVPDevelopmentPage(): React.ReactElement {
   // Hero section data
   const heroProps = {
-    title: 'Custom Software Development',
+    title: 'MVP Development',
     description:
-      'Transform your business with custom software solutions designed specifically to address your unique challenges and opportunities. We create scalable, secure, and innovative applications that align perfectly with your business processes and growth objectives.',
+      'Bring your ideas to market faster with our MVP development services. We help startups and enterprises build lean, market-ready minimum viable products that validate concepts, attract early adopters, and secure investor funding—all without overbuilding.',
     benefits: [
       {
-        title: 'Tailored Functionality',
-        description: 'Solutions built precisely to match your specific business requirements',
+        title: 'Faster Time-to-Market',
+        description: 'Launch your core product quickly to test market response',
       },
       {
-        title: 'Scalable Architecture',
-        description: 'Systems designed to grow alongside your business',
+        title: 'Reduced Initial Cost',
+        description: 'Minimize investment while validating your business model',
       },
       {
-        title: 'Seamless Integration',
-        description: 'Connect with your existing systems and third-party services',
+        title: 'User-Centered Design',
+        description: 'Focus on solving real problems for your target audience',
       },
       {
-        title: 'Performance Optimized',
-        description: 'Fast, responsive applications built for maximum efficiency',
+        title: 'Iterative Enhancement',
+        description: 'Data-driven improvement based on actual user feedback',
       },
     ],
   };
@@ -73,7 +65,7 @@ export default function CustomSoftwareDevelopmentPage(): React.ReactElement {
         benefits={heroProps.benefits}
       />
 
-      {/* Credentials Section - now using component with static data */}
+      {/* Credentials Section */}
       <Suspense fallback={<CredentialsSkeleton />}>
         <Credentials />
       </Suspense>
@@ -96,7 +88,7 @@ export default function CustomSoftwareDevelopmentPage(): React.ReactElement {
 
       {/* Case Studies Section */}
       <Suspense fallback={<CaseStudySectionSkeleton />}>
-        <CustomSoftwareCaseStudies />
+        <MVPCaseStudies />
       </Suspense>
 
       {/* FAQ Section */}
