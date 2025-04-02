@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-// src/components/ui/select.tsx
+// src/components/ui/Select.tsx
 "use client"
 
 import * as React from "react"

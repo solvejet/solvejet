@@ -16,7 +16,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/Select';
 import { useAPI } from '@/hooks/useAPI';
 import { Inbox, Search, Filter, ArrowUpDown, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 import type { JSX } from 'react';
