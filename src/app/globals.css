@@ -1,0 +1,731 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand Color System - Auto-generates bg-*, text-*, border-* utilities */
+  --color-brand-50: #f0f7ff;
+  --color-brand-100: #e0efff;
+  --color-brand-200: #baddff;
+  --color-brand-300: #7cc5ff;
+  --color-brand-400: #3fa0ff;
+  --color-brand-500: #3C86FF;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e1d28;
+  --color-brand-950: #0f0e14;
+
+  /* Semantic Brand Aliases */
+  --color-brand-light: var(--color-brand-500);
+  --color-brand-dark: var(--color-brand-900);
+  --color-brand-primary: var(--color-brand-500);
+
+  /* Primary Color (alias for brand-500) */
+  --color-primary: var(--color-brand-500);
+
+  /* Border Colors */
+  --color-border: #c7c7d6;
+  --color-border-light: #f3f4f6;
+  --color-border-dark: #d1d5db;
+
+  /* Input Border */
+  --color-input: var(--color-border);
+
+  /* Ring Colors (for focus states) */
+  --color-ring: var(--color-brand-500);
+
+  /* Muted Colors */
+  --color-muted: #f8fafc;
+  --color-muted-foreground: #64748b;
+
+  /* Accent Colors */
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #1e1d28;
+
+  /* Semantic Colors */
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-success: #10b981;
+  --color-success-foreground: #ffffff;
+  --color-warning: #f59e0b;
+  --color-warning-foreground: #ffffff;
+
+  /* Secondary Colors */
+  --color-secondary: #f8fafc;
+  --color-secondary-foreground: #1e1d28;
+
+  /* Custom Easing Functions */
+  --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
+  --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Typography */
+  --font-sans: var(--font-nunito), system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+/* Global Base Styles */
+* {
+  box-sizing: border-box;
+  border-style: solid;
+}
+
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+  font-family: var(--font-sans);
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  background: #ffffff;
+  color: #1e1d28;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus Management */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus,
+a:focus {
+  outline: none;
+}
+
+/* SCROLLBAR HIDING CLASSES FOR SERVICE SECTION */
+.scrollbar-none-mobile,
+.scrollbar-none-desktop {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.scrollbar-none-mobile::-webkit-scrollbar,
+.scrollbar-none-desktop::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}
+
+/* Legacy scrollbar-none class for compatibility */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animation Classes */
+.animate-brand-pulse {
+  animation: brand-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes brand-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Marquee Animation for Testimonials */
+.animate-marquee {
+  animation: marquee 60s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Pause marquee on hover */
+.pause-animation:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* Line clamp utility for testimonial cards */
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Advanced Gradient Animations for Buttons */
+.animate-gradient-x {
+  animation: gradient-x 3s ease infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes gradient-x {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* NEW: Smooth Flowing Gradient Animation (like your codepen example) */
+.animate-gradient-flow {
+  background: linear-gradient(-45deg, #3C86FF, #1e1d28, #2563eb, #1d4ed8, #3C86FF, #0f0e14);
+  background-size: 600% 600%;
+  animation: gradient-flow 16s linear infinite;
+}
+
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* NEW: Flowing Gradient with Glow Effect */
+.animate-gradient-flow-glow {
+  background: linear-gradient(-45deg, #3C86FF, #1e1d28, #2563eb, #1d4ed8, #3C86FF, #0f0e14);
+  background-size: 600% 600%;
+  animation: gradient-flow-glow 16s linear infinite;
+  position: relative;
+}
+
+.animate-gradient-flow-glow::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(-45deg, #3C86FF, #1e1d28, #2563eb, #1d4ed8, #3C86FF, #0f0e14);
+  background-size: 600% 600%;
+  border-radius: inherit;
+  filter: blur(15px);
+  opacity: 0.7;
+  z-index: -1;
+  animation: gradient-flow-glow 16s linear infinite;
+}
+
+@keyframes gradient-flow-glow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Smooth Interval-based Gradient Animation */
+.animate-gradient-interval {
+  background: linear-gradient(135deg, #3C86FF 0%, #1e1d28 50%, #2563eb 100%);
+  background-size: 300% 300%;
+  animation: gradient-interval 15s ease-in-out infinite;
+}
+
+@keyframes gradient-interval {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  13% {
+    background-position: 100% 100%;
+  }
+
+  20% {
+    background-position: 50% 50%;
+  }
+
+  26% {
+    background-position: 0% 100%;
+  }
+
+  33% {
+    background-position: 50% 50%;
+  }
+
+  35% {
+    background-position: 50% 50%;
+  }
+
+  93% {
+    background-position: 50% 50%;
+  }
+
+  97% {
+    background-position: 25% 25%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+/* Pulse version */
+.animate-gradient-pulse {
+  background: linear-gradient(45deg, #3C86FF 0%, #1e1d28 50%, #2563eb 100%);
+  background-size: 400% 400%;
+  animation: gradient-pulse 13s ease-in-out infinite;
+}
+
+@keyframes gradient-pulse {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  8% {
+    background-position: 100% 100%;
+  }
+
+  15% {
+    background-position: 0% 100%;
+  }
+
+  20% {
+    background-position: 100% 0%;
+  }
+
+  25% {
+    background-position: 50% 50%;
+  }
+
+  27% {
+    background-position: 50% 50%;
+  }
+
+  90% {
+    background-position: 50% 50%;
+  }
+
+  95% {
+    background-position: 25% 75%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+/* Breathe version */
+.animate-gradient-breathe {
+  background: linear-gradient(135deg, #3C86FF 0%, #1e1d28 30%, #2563eb 60%, #3C86FF 100%);
+  background-size: 250% 250%;
+  animation: gradient-breathe 14s ease-in-out infinite;
+}
+
+@keyframes gradient-breathe {
+  0% {
+    background-position: 0% 0%;
+    box-shadow: 0 4px 14px 0 rgba(60, 134, 255, 0.4);
+  }
+
+  10% {
+    background-position: 100% 100%;
+    box-shadow: 0 6px 20px 0 rgba(30, 29, 40, 0.4);
+  }
+
+  17% {
+    background-position: 50% 0%;
+    box-shadow: 0 5px 17px 0 rgba(60, 134, 255, 0.4);
+  }
+
+  21% {
+    background-position: 0% 50%;
+    box-shadow: 0 4px 14px 0 rgba(60, 134, 255, 0.4);
+  }
+
+  25% {
+    background-position: 25% 25%;
+    box-shadow: 0 4px 14px 0 rgba(60, 134, 255, 0.4);
+  }
+
+  28% {
+    background-position: 25% 25%;
+    box-shadow: 0 4px 14px 0 rgba(60, 134, 255, 0.4);
+  }
+
+  92% {
+    background-position: 25% 25%;
+    box-shadow: 0 4px 14px 0 rgba(60, 134, 255, 0.4);
+  }
+
+  96% {
+    background-position: 10% 10%;
+    box-shadow: 0 4px 14px 0 rgba(60, 134, 255, 0.4);
+  }
+
+  100% {
+    background-position: 0% 0%;
+    box-shadow: 0 4px 14px 0 rgba(60, 134, 255, 0.4);
+  }
+}
+
+/* Static version */
+.animate-gradient-static {
+  animation: gradient-static 15s ease-in-out infinite;
+}
+
+@keyframes gradient-static {
+  0% {
+    background: linear-gradient(135deg, #3C86FF 0%, #1e1d28 50%, #2563eb 100%);
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+  }
+
+  13% {
+    background: linear-gradient(135deg, #3C86FF 0%, #1e1d28 50%, #2563eb 100%);
+    background-size: 200% 200%;
+    background-position: 100% 100%;
+  }
+
+  20% {
+    background: linear-gradient(135deg, #1e1d28 0%, #2563eb 50%, #3C86FF 100%);
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+  }
+
+  26% {
+    background: linear-gradient(135deg, #1e1d28 0%, #2563eb 50%, #3C86FF 100%);
+    background-size: 200% 200%;
+    background-position: 100% 100%;
+  }
+
+  30% {
+    background: #3C86FF;
+    background-size: 100% 100%;
+    background-position: 0% 0%;
+  }
+
+  33% {
+    background: #3C86FF;
+    background-size: 100% 100%;
+    background-position: 0% 0%;
+  }
+
+  93% {
+    background: #3C86FF;
+    background-size: 100% 100%;
+    background-position: 0% 0%;
+  }
+
+  96% {
+    background: linear-gradient(135deg, #3C86FF 0%, #3C86FF 50%, #3C86FF 100%);
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+  }
+
+  98% {
+    background: linear-gradient(135deg, #3C86FF 0%, #1e1d28 50%, #2563eb 100%);
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background: linear-gradient(135deg, #3C86FF 0%, #1e1d28 50%, #2563eb 100%);
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+  }
+}
+
+/* Additional gradient utilities */
+.animate-gradient-xy {
+  animation: gradient-xy 4s ease infinite;
+  background-size: 400% 400%;
+}
+
+@keyframes gradient-xy {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  25% {
+    background-position: 100% 0%;
+  }
+
+  50% {
+    background-position: 100% 100%;
+  }
+
+  75% {
+    background-position: 0% 100%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.animate-gradient-shimmer {
+  animation: gradient-shimmer 2s linear infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes gradient-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Enhanced Scrollbar - Modern Design */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 8px;
+  margin: 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-radius: 8px;
+  border: 2px solid #f8fafc;
+  transition: all 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #3C86FF 0%, #2563eb 100%);
+  border-color: #f1f5f9;
+  transform: scale(1.1);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+}
+
+::-webkit-scrollbar-corner {
+  background: #f8fafc;
+}
+
+/* Thin scrollbar variant */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 6px;
+  margin: 1px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 6px;
+  border: 1px solid #f8fafc;
+  transition: all 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #3C86FF;
+  border-color: #f1f5f9;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #e2e8f0 #f8fafc;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 #f8fafc;
+}
+
+/* Custom scrollbar for specific components */
+.custom-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-dropdown::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.custom-dropdown::-webkit-scrollbar-thumb:hover {
+  background: #3C86FF;
+}
+
+/* Enhanced Selection Color */
+::selection {
+  background: var(--color-brand-500);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--color-brand-500);
+  color: white;
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  @theme {
+    --color-border: #000000;
+    --color-brand-primary: #0000ff;
+  }
+}
+
+/* Dark mode preparation */
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-background: var(--color-brand-950);
+    --color-foreground: #ffffff;
+    --color-muted: var(--color-brand-900);
+    --color-border: var(--color-border);
+  }
+}
+
+/* Print styles */
+@media print {
+
+  *,
+  *::before,
+  *::after {
+    background: transparent !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  img {
+    page-break-inside: avoid;
+  }
+
+  h2,
+  h3,
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}

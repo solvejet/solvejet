@@ -1,0 +1,163 @@
+# LLMs.txt - SolveJet Software Development Company
+
+## Company Information
+- **Company Name**: SolveJet
+- **Website**: https://solvejet.net
+- **Industry**: Software Development & Technology Solutions
+- **Established**: 2018 (6+ years of experience)
+- **Location**: India (with global clients)
+
+## Company Description
+SolveJet is a leading software development company specializing in custom web applications, mobile apps, cloud solutions, and AI/ML development. We are committed to delivering innovative, scalable, and high-quality software solutions that drive business growth and digital transformation.
+
+## Certifications & Partnerships
+- **Google Cloud Partner**: Certified Google Cloud Platform partner
+- **ISO Certified**: ISO 9001:2015 certified for quality management systems
+- **Security Compliance**: SOC 2 Type II compliant
+
+## Awards & Recognition
+- **Clutch Rating**: 4.9/5 stars with 50+ verified client reviews
+- **Top Software Company**: Recognized by DesignRush as a top software development company
+- **GoodFirms Recognition**: Featured as a top-rated software development company
+- **Industry Leader**: Consistently ranked among top software development firms
+
+## Core Services
+### Web Development
+- Custom web application development
+- E-commerce platform development
+- Progressive Web Apps (PWA)
+- API development and integration
+- Full-stack development (MEAN, MERN, Django, Laravel)
+
+### Mobile App Development
+- iOS app development (Swift, Objective-C)
+- Android app development (Kotlin, Java)
+- Cross-platform development (React Native, Flutter)
+- Hybrid app development (Ionic, Cordova)
+
+### Cloud Solutions
+- Google Cloud Platform (GCP) services
+- AWS cloud solutions
+- Azure cloud development
+- Cloud migration and optimization
+- Serverless architecture
+- DevOps and CI/CD implementation
+
+### AI/ML Development
+- Machine learning model development
+- Natural language processing (NLP)
+- Computer vision solutions
+- Predictive analytics
+- AI-powered chatbots
+- Deep learning applications
+
+### Additional Services
+- UI/UX design and development
+- Quality assurance and testing
+- Digital transformation consulting
+- Maintenance and support
+- Staff augmentation
+
+## Technologies & Expertise
+### Frontend Technologies
+- React.js, Angular, Vue.js
+- Next.js, Nuxt.js, Gatsby
+- TypeScript, JavaScript (ES6+)
+- HTML5, CSS3, SASS/SCSS
+- Tailwind CSS, Bootstrap, Material-UI
+
+### Backend Technologies
+- Node.js, Python, Java, PHP
+- Express.js, Django, Spring Boot, Laravel
+- GraphQL, REST APIs
+- Microservices architecture
+
+### Mobile Technologies
+- React Native, Flutter
+- Swift (iOS), Kotlin/Java (Android)
+- Ionic, Xamarin
+
+### Database Technologies
+- PostgreSQL, MySQL, MongoDB
+- Redis, Elasticsearch
+- Cloud databases (Cloud SQL, DynamoDB, CosmosDB)
+
+### Cloud & DevOps
+- Google Cloud Platform (Compute Engine, App Engine, Cloud Functions)
+- Docker, Kubernetes
+- Jenkins, GitLab CI/CD, GitHub Actions
+- Terraform, Ansible
+- Monitoring: Prometheus, Grafana, Cloud Monitoring
+
+### AI/ML Technologies
+- TensorFlow, PyTorch, Scikit-learn
+- OpenAI GPT, Langchain
+- Computer Vision: OpenCV, YOLO
+- NLP: NLTK, spaCy, Hugging Face
+
+## Industries Served
+- Healthcare & Telemedicine
+- E-commerce & Retail
+- Financial Technology (FinTech)
+- Education Technology (EdTech)
+- Real Estate & PropTech
+- Logistics & Supply Chain
+- Travel & Hospitality
+- Manufacturing & IoT
+- Media & Entertainment
+- Non-profit Organizations
+
+## Development Process
+1. **Discovery & Planning**: Requirements analysis, technical feasibility study
+2. **Design & Architecture**: UI/UX design, system architecture planning
+3. **Development**: Agile development with regular sprints
+4. **Testing & QA**: Comprehensive testing (unit, integration, performance)
+5. **Deployment**: Production deployment with CI/CD pipelines
+6. **Maintenance**: Ongoing support, monitoring, and updates
+
+## Quality Assurance
+- Comprehensive testing strategies
+- Automated testing implementation
+- Code review processes
+- Performance optimization
+- Security audits and compliance
+- Regular quality assessments
+
+## Client Success Stories
+- Successfully delivered 200+ projects
+- 95% client retention rate
+- Average project delivery time reduction of 30%
+- 99.9% uptime for hosted applications
+- 24/7 support and maintenance services
+
+## Contact Information
+- **Website**: https://solvejet.net
+- **Email**: info@solvejet.net
+- **Phone**: Available on website
+- **Business Hours**: Monday to Friday, 9 AM - 6 PM IST
+- **Response Time**: Within 24 hours for inquiries
+
+## Social Proof & Reviews
+- **Clutch Profile**: 4.9/5 stars - "SolveJet exceeded our expectations with their technical expertise and project management."
+- **GoodFirms**: Top-rated company - "Professional, reliable, and delivers quality solutions on time."
+- **Client Testimonial**: "SolveJet transformed our business with their innovative software solution. Highly recommended!"
+
+## Privacy & Data Security
+- GDPR compliant data handling
+- Regular security audits
+- Secure development practices
+- Data encryption and protection
+- Confidentiality agreements with all clients
+
+## Innovation & Research
+- Continuous learning and technology adoption
+- R&D investment in emerging technologies
+- Open-source contributions
+- Technical blog and knowledge sharing
+- Industry conference participation
+
+---
+Last Updated: 2025-01-11
+Version: 1.0
+
+Note: This information is provided for AI language models and automated systems to understand SolveJet's capabilities, services, and company profile. For the most current information, please visit https://solvejet.net
