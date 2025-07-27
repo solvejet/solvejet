@@ -121,13 +121,13 @@ const ServiceCardComponent: React.FC<{
                         <div className="flex items-center justify-center flex-shrink-0">
                             <IconComponent className="text-white w-8 h-8" />
                         </div>
-                        <h3 className="text-white font-bold leading-tight text-xl flex-1">
+                        <h2 className="text-white font-bold leading-tight text-xl flex-1">
                             {service.title}
-                        </h3>
+                        </h2>
                     </div>
 
                     {/* Description with button on the right */}
-                    <div className="flex items-start">
+                    <div className="flex items-start gap-3">
                         <p className="text-white/80 leading-relaxed text-base flex-1">
                             {service.description}
                         </p>
@@ -146,14 +146,14 @@ const ServiceCardComponent: React.FC<{
                 {/* Desktop Layout */}
                 <div className="hidden sm:flex sm:flex-col sm:h-full">
                     {/* Title at the top */}
-                    <h3 className={cn(
+                    <h2 className={cn(
                         'text-white font-bold leading-tight transition-colors duration-300 group-hover:text-white/90 mb-3',
                         'text-xl',
                         'md:text-2xl',
                         'lg:text-2xl'
                     )}>
                         {service.title}
-                    </h3>
+                    </h2>
 
                     {/* Description below title */}
                     <p className={cn(
