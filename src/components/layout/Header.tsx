@@ -1,12 +1,17 @@
 // src/components/layout/Header.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Menu, X } from 'lucide-react';
+import {
+    Search,
+    Menu,
+    X
+} from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Logo from '@/components/ui/Logo';
+import ServicesMegaMenu from '@/components/layout/megamenus/ServicesMegaMenu';
 import { cn } from '@/lib/utils';
 import { event } from '@/lib/analytics';
 
@@ -14,6 +19,7 @@ interface MenuItem {
     label: string;
     href: string;
     isActive?: boolean;
+    hasSubmenu?: boolean;
 }
 
 interface HeaderProps {
@@ -21,7 +27,7 @@ interface HeaderProps {
 }
 
 const navigationItems: MenuItem[] = [
-    { label: 'Services', href: '/services' },
+    { label: 'Services', href: '/services', hasSubmenu: true },
     { label: 'Industries', href: '/industries' },
     { label: 'About', href: '/about' },
     { label: 'Case Studies', href: '/case-studies' },
@@ -31,7 +37,10 @@ const navigationItems: MenuItem[] = [
 const Header: React.FC<HeaderProps> = ({ className }) => {
     const [isScrolled, setIsScrolled] = useState<boolean>(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+    const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
     const pathname = usePathname();
+    const headerRef = useRef<HTMLElement>(null);
+    const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         const handleScroll = (): void => {
@@ -45,6 +54,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
 
     useEffect(() => {
         setIsMobileMenuOpen(false);
+        setActiveSubmenu(null);
     }, [pathname]);
 
     useEffect(() => {
@@ -59,61 +69,105 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
         };
     }, [isMobileMenuOpen]);
 
-    const handleMobileMenuToggle = (): void => {
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (hoverTimeoutRef.current) {
+                clearTimeout(hoverTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    const handleMobileMenuToggle = useCallback((): void => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
+        setActiveSubmenu(null);
 
         event({
             action: isMobileMenuOpen ? 'close_mobile_menu' : 'open_mobile_menu',
             category: 'navigation',
             label: 'header_mobile_menu'
         });
-    };
+    }, [isMobileMenuOpen]);
 
-    const handleSearchClick = (): void => {
+    const handleSubmenuOpen = useCallback((label: string): void => {
+        // Clear any existing timeout
+        if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current);
+            hoverTimeoutRef.current = null;
+        }
+
+        setActiveSubmenu(label);
+
+        event({
+            action: 'hover_mega_menu',
+            category: 'navigation',
+            label: label.toLowerCase()
+        });
+    }, []);
+
+    const handleSubmenuClose = useCallback((): void => {
+        // Add small delay to prevent flickering when moving mouse between elements
+        hoverTimeoutRef.current = setTimeout(() => {
+            setActiveSubmenu(null);
+        }, 150);
+    }, []);
+
+    const handleSubmenuStay = useCallback((): void => {
+        // Cancel close timeout if mouse re-enters
+        if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current);
+            hoverTimeoutRef.current = null;
+        }
+    }, []);
+
+    const handleSearchClick = useCallback((): void => {
         event({
             action: 'click_search',
             category: 'navigation',
             label: 'header_search_button'
         });
-    };
+    }, []);
 
-    const handleLogoClick = (): void => {
+    const handleLogoClick = useCallback((): void => {
         event({
             action: 'click_logo',
             category: 'navigation',
             label: 'header_logo'
         });
-    };
+    }, []);
 
-    const handleNavItemClick = (item: MenuItem): void => {
-        event({
-            action: 'click_nav_item',
-            category: 'navigation',
-            label: item.label.toLowerCase(),
-            value: 1
-        });
-    };
+    const handleNavItemClick = useCallback((item: MenuItem): void => {
+        if (!item.hasSubmenu) {
+            event({
+                action: 'click_nav_item',
+                category: 'navigation',
+                label: item.label.toLowerCase(),
+                value: 1
+            });
+        }
+    }, []);
 
-    const handleContactClick = (): void => {
+    const handleContactClick = useCallback((): void => {
         event({
             action: 'click_contact_button',
             category: 'conversion',
             label: 'header_contact_cta'
         });
-    };
+    }, []);
 
-    const isActiveRoute = (href: string): boolean => {
+    const isActiveRoute = useCallback((href: string): boolean => {
         if (href === '/') {
             return pathname === '/';
         }
         return pathname.startsWith(href);
-    };
+    }, [pathname]);
 
     return (
         <>
             <header
+                ref={headerRef}
                 className={cn(
-                    'fixed top-0 left-0 right-0 z-50 w-full',
+                    'fixed top-0 left-0 right-0 z-40 w-full',
                     'transition-all duration-300 ease-out',
                     'backdrop-blur-md',
                     isScrolled && 'bg-white/15 supports-[backdrop-filter]:bg-white/10',
@@ -133,15 +187,64 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                             </Link>
                         </div>
 
-                        <nav className="hidden lg:flex items-center space-x-1">
+                        <nav className="hidden lg:flex items-center space-x-8">
                             {navigationItems.map((item) => {
                                 const isActive = isActiveRoute(item.href);
+                                const hasActiveSubmenu = activeSubmenu === item.label;
+
+                                if (item.hasSubmenu) {
+                                    return (
+                                        <div
+                                            key={item.href}
+                                            className="relative"
+                                            onMouseEnter={() => handleSubmenuOpen(item.label)}
+                                            onMouseLeave={handleSubmenuClose}
+                                        >
+                                            <Link
+                                                href={item.href}
+                                                className={cn(
+                                                    'relative px-4 py-2 text-base lg:text-lg font-medium rounded-full',
+                                                    'transition-all duration-200 ease-out',
+                                                    'flex items-center gap-1',
+                                                    isActive || hasActiveSubmenu
+                                                        ? isScrolled
+                                                            ? 'text-brand-600'
+                                                            : 'text-white'
+                                                        : isScrolled
+                                                            ? 'text-gray-700 hover:text-brand-600'
+                                                            : 'text-white/90 hover:text-white',
+                                                    'focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:ring-offset-2'
+                                                )}
+                                                onClick={() => handleNavItemClick(item)}
+                                                onMouseEnter={handleSubmenuStay}
+                                            >
+                                                {item.label}
+                                                {(isActive || hasActiveSubmenu) && (
+                                                    <span
+                                                        className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-brand-500 rounded-full"
+                                                        aria-hidden="true"
+                                                    />
+                                                )}
+                                                {/* Hover dot indicator */}
+                                                <span
+                                                    className={cn(
+                                                        'absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-brand-500 rounded-full transition-all duration-200',
+                                                        'opacity-0 scale-0',
+                                                        hasActiveSubmenu && !isActive && 'opacity-100 scale-100'
+                                                    )}
+                                                    aria-hidden="true"
+                                                />
+                                            </Link>
+                                        </div>
+                                    );
+                                }
+
                                 return (
                                     <Link
                                         key={item.href}
                                         href={item.href}
                                         className={cn(
-                                            'relative px-4 py-2 text-sm lg:text-md font-medium rounded-full',
+                                            'relative px-4 py-2 text-base lg:text-lg font-medium rounded-full',
                                             'transition-all duration-200 ease-out',
                                             isActive
                                                 ? isScrolled
@@ -158,7 +261,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                                         {item.label}
                                         {isActive && (
                                             <span
-                                                className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-brand-500 rounded-full"
+                                                className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-brand-500 rounded-full"
                                                 aria-hidden="true"
                                             />
                                         )}
@@ -220,10 +323,34 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                     </div>
                 </div>
 
+                {/* Mega Menu positioned at header level - outside the container */}
+                {navigationItems.map((item) => {
+                    const hasActiveSubmenu = activeSubmenu === item.label;
+
+                    if (item.hasSubmenu && item.label === 'Services') {
+                        return (
+                            <div
+                                key={`mega-${item.label}`}
+                                onMouseEnter={handleSubmenuStay}
+                                onMouseLeave={handleSubmenuClose}
+                            >
+                                <ServicesMegaMenu
+                                    isOpen={hasActiveSubmenu}
+                                    onClose={() => setActiveSubmenu(null)}
+                                    isScrolled={isScrolled}
+                                />
+                            </div>
+                        );
+                    }
+                    return null;
+                })}
+
+
+                {/* Mobile Menu */}
                 <div
                     id="mobile-menu"
                     className={cn(
-                        'lg:hidden fixed left-0 right-0 bottom-0 z-40',
+                        'lg:hidden fixed left-0 right-0 bottom-0 z-30',
                         'top-14 sm:top-16 lg:top-18',
                         'w-full',
                         'backdrop-blur-xl saturate-150',

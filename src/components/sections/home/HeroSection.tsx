@@ -106,8 +106,7 @@ const ServiceCardComponent: React.FC<{
 
     return (
         <div className={cn(
-            'group bg-white/10 backdrop-blur-md rounded-xl border border-white/20 transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:scale-105',
-            // Consistent sizing across all cards - increased desktop sizes
+            'group bg-white/10 backdrop-blur-lg rounded-xl',
             'p-5 h-40',
             'sm:p-6 sm:h-52',
             'md:p-7 md:h-60',
@@ -329,10 +328,10 @@ const HeroSection: React.FC = () => {
 
                     {/* Service Cards Grid - Consistent layout */}
                     <div className={cn(
-                        'grid gap-3 w-full',
+                        'grid gap-1 w-full',
                         'grid-cols-1',
-                        'sm:grid-cols-2 sm:gap-4',
-                        'md:grid-cols-3 md:gap-5'
+                        'sm:grid-cols-2 sm:gap-1',
+                        'md:grid-cols-3 md:gap-2'
                     )}>
                         {serviceCards.map((service) => (
                             <ServiceCardComponent
