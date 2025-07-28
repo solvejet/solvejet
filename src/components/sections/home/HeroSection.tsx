@@ -1,7 +1,7 @@
 // src/components/sections/home/HeroSection.tsx
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import { Shield, Users, Palette, Code, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
@@ -97,11 +97,11 @@ const serviceCards: ServiceCard[] = [
     }
 ];
 
-// Reusable Service Card Component with consistent design
-const ServiceCardComponent: React.FC<{
+// Optimized Service Card Component with reduced re-renders
+const ServiceCardComponent = React.memo<{
     service: ServiceCard;
     isMobile: boolean;
-}> = ({ service }) => {
+}>(({ service }) => {
     const IconComponent = service.icon;
 
     return (
@@ -110,12 +110,12 @@ const ServiceCardComponent: React.FC<{
             'p-5 h-40',
             'sm:p-6 sm:h-52',
             'md:p-7 md:h-60',
-            'lg:p-8 lg:h-64'
+            'lg:p-8 lg:h-64',
+            'will-change-transform' // GPU acceleration hint
         )}>
             <div className="h-full flex flex-col">
                 {/* Mobile Layout */}
                 <div className="sm:hidden h-full flex flex-col">
-                    {/* Top row: Icon and Title */}
                     <div className="flex items-center gap-4 mb-4">
                         <div className="flex items-center justify-center flex-shrink-0">
                             <IconComponent className="text-white w-8 h-8" />
@@ -125,7 +125,6 @@ const ServiceCardComponent: React.FC<{
                         </h2>
                     </div>
 
-                    {/* Description with button on the right */}
                     <div className="flex items-start gap-3">
                         <p className="text-white/80 leading-relaxed text-base flex-1">
                             {service.description}
@@ -144,7 +143,6 @@ const ServiceCardComponent: React.FC<{
 
                 {/* Desktop Layout */}
                 <div className="hidden sm:flex sm:flex-col sm:h-full">
-                    {/* Title at the top */}
                     <h2 className={cn(
                         'text-white font-bold leading-tight transition-colors duration-300 group-hover:text-white/90 mb-3',
                         'text-xl',
@@ -154,7 +152,6 @@ const ServiceCardComponent: React.FC<{
                         {service.title}
                     </h2>
 
-                    {/* Description below title */}
                     <p className={cn(
                         'text-white/80 leading-relaxed transition-colors duration-300 group-hover:text-white/70 flex-1',
                         'text-base mb-6',
@@ -163,9 +160,7 @@ const ServiceCardComponent: React.FC<{
                         {service.description}
                     </p>
 
-                    {/* Bottom section with icon and button */}
                     <div className="flex items-center justify-between">
-                        {/* Icon */}
                         <div className={cn(
                             'flex items-center justify-center transition-all duration-300',
                             'w-11 h-11',
@@ -178,7 +173,6 @@ const ServiceCardComponent: React.FC<{
                             )} />
                         </div>
 
-                        {/* Button with Link */}
                         <Link href={service.href}>
                             <button
                                 className={cn(
@@ -200,7 +194,9 @@ const ServiceCardComponent: React.FC<{
             </div>
         </div>
     );
-};
+});
+
+ServiceCardComponent.displayName = 'ServiceCardComponent';
 
 const HeroSection: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -210,16 +206,40 @@ const HeroSection: React.FC = () => {
     });
     const [isMobile, setIsMobile] = useState<boolean>(false);
 
-    useEffect(() => {
-        const checkMobile = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
+    // Debounce timer ref to prevent memory leaks
+    const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
+    // Memoize viewport detection to prevent unnecessary re-renders
+    const checkMobile = useMemo(() => {
+        return () => {
+            if (typeof window !== 'undefined') {
+                setIsMobile(window.innerWidth < 768);
+            }
+        };
     }, []);
 
+    useEffect(() => {
+        checkMobile();
+
+        // Use passive listener for better performance
+        const handleResize = () => {
+            // Debounce resize for better performance
+            if (resizeTimeoutRef.current) {
+                clearTimeout(resizeTimeoutRef.current);
+            }
+            resizeTimeoutRef.current = setTimeout(checkMobile, 150);
+        };
+
+        window.addEventListener('resize', handleResize, { passive: true });
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            if (resizeTimeoutRef.current) {
+                clearTimeout(resizeTimeoutRef.current);
+            }
+        };
+    }, [checkMobile]);
+
+    // Optimize video loading
     useEffect(() => {
         const video = videoRef.current;
         if (!video) return;
@@ -232,8 +252,9 @@ const HeroSection: React.FC = () => {
             setVideoState(prev => ({ ...prev, hasError: true }));
         };
 
-        video.addEventListener('loadeddata', handleLoadedData);
-        video.addEventListener('error', handleError);
+        // Use passive listeners for better performance
+        video.addEventListener('loadeddata', handleLoadedData, { passive: true });
+        video.addEventListener('error', handleError, { passive: true });
 
         return () => {
             video.removeEventListener('loadeddata', handleLoadedData);
@@ -241,14 +262,24 @@ const HeroSection: React.FC = () => {
         };
     }, []);
 
+    // Optimize video autoplay
     useEffect(() => {
         if (videoState.isLoaded && videoRef.current && !videoState.hasError) {
-            const playPromise = videoRef.current.play();
-            if (playPromise !== undefined) {
-                playPromise.catch((error) => {
-                    console.warn('Video autoplay failed:', error);
-                    setVideoState(prev => ({ ...prev, hasError: true }));
-                });
+            // Use requestIdleCallback if available for better performance
+            const playVideo = () => {
+                const playPromise = videoRef.current?.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch((error) => {
+                        console.warn('Video autoplay failed:', error);
+                        setVideoState(prev => ({ ...prev, hasError: true }));
+                    });
+                }
+            };
+
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(playVideo);
+            } else {
+                setTimeout(playVideo, 0);
             }
         }
     }, [videoState.isLoaded, videoState.hasError]);
@@ -258,7 +289,7 @@ const HeroSection: React.FC = () => {
             className="relative min-h-screen flex flex-col bg-gray-900 overflow-hidden"
             aria-labelledby="hero-heading"
         >
-            {/* Video Background */}
+            {/* Optimized Video Background */}
             <div className="absolute inset-0 z-0">
                 {!videoState.hasError ? (
                     <video
@@ -271,19 +302,28 @@ const HeroSection: React.FC = () => {
                         preload="metadata"
                         poster="/video-poster.jpg"
                         aria-hidden="true"
+                        style={{
+                            // GPU acceleration
+                            transform: 'translateZ(0)',
+                            willChange: 'auto'
+                        }}
                     >
                         <source src="/hero.mp4" type="video/mp4" />
                         Your browser does not support the video tag.
                     </video>
                 ) : (
-                    <div
-                        className="w-full h-full bg-cover bg-center bg-no-repeat"
-                        style={{
-                            backgroundImage: 'url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&h=1080&fit=crop&crop=center")'
-                        }}
-                        role="img"
-                        aria-label="Hero background image"
-                    />
+                    // Optimized fallback image with better sizing
+                    <div className="w-full h-full relative">
+                        <Image
+                            src="/video-poster.jpg"
+                            alt="Hero background"
+                            fill
+                            className="object-cover"
+                            priority
+                            sizes="100vw"
+                            quality={85}
+                        />
+                    </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
             </div>
@@ -305,7 +345,7 @@ const HeroSection: React.FC = () => {
                         <span>Trusted by 200+ Companies Worldwide</span>
                     </div>
 
-                    {/* Main Title */}
+                    {/* Main Title - Optimized for CLS */}
                     <h1
                         id="hero-heading"
                         className={cn(
@@ -317,6 +357,10 @@ const HeroSection: React.FC = () => {
                             'xl:text-6xl',
                             '2xl:text-7xl'
                         )}
+                        style={{
+                            // Prevent layout shift by reserving space
+                            minHeight: isMobile ? '120px' : '200px'
+                        }}
                     >
                         <span className="block text-white drop-shadow-lg mb-2 sm:mb-3 md:mb-4">
                             Engineered for Impact
@@ -326,7 +370,7 @@ const HeroSection: React.FC = () => {
                         </span>
                     </h1>
 
-                    {/* Service Cards Grid - Consistent layout */}
+                    {/* Service Cards Grid - Optimized layout */}
                     <div className={cn(
                         'grid gap-1 w-full',
                         'grid-cols-1',
@@ -344,17 +388,16 @@ const HeroSection: React.FC = () => {
                 </div>
             </div>
 
-            {/* Logo Section */}
+            {/* Optimized Logo Section - Reduced Height */}
             <div className="relative z-20 w-full bg-white/5 backdrop-blur-3xl border-t border-white/10">
                 <div className={cn(
                     'flex items-center w-full',
-                    'flex-col gap-3 py-4',
-                    'sm:flex-row sm:justify-between sm:gap-0 sm:px-6 sm:py-4',
-                    'md:px-8 md:py-5',
-                    'lg:px-12 lg:py-6',
-                    'xl:px-16 xl:py-6'
+                    'flex-col gap-2 py-3', // Reduced gap and padding
+                    'sm:flex-row sm:justify-between sm:gap-0 sm:px-6 sm:py-3', // Reduced padding
+                    'md:px-8 md:py-4', // Reduced padding
+                    'lg:px-12 lg:py-4', // Reduced padding
+                    'xl:px-16 xl:py-4' // Reduced padding
                 )}>
-                    {/* Text */}
                     <div className={cn(
                         'flex-shrink-0',
                         'text-center',
@@ -362,39 +405,47 @@ const HeroSection: React.FC = () => {
                     )}>
                         <p className={cn(
                             'text-white/80 font-medium uppercase tracking-wider leading-tight',
-                            'text-xs',
+                            'text-xs', // Keep small text
                             'sm:text-xs',
                             'md:text-sm'
                         )}>
                             Trusted by
                             <br />
-                            Leading Brands and Startups
+                            Leading Brands
                         </p>
                     </div>
 
-                    {/* Logo Grid */}
+                    {/* Optimized Logo Grid - Smaller Images */}
                     <div className={cn(
                         'opacity-70 transition-opacity duration-300 hover:opacity-90',
-                        'grid grid-cols-3 gap-4 w-full px-4',
-                        'sm:flex sm:items-center sm:justify-between sm:flex-1 sm:ml-8 sm:px-0',
-                        'md:ml-12',
-                        'lg:ml-16'
+                        'grid grid-cols-3 gap-3 w-full px-4', // Reduced gap
+                        'sm:flex sm:items-center sm:justify-between sm:flex-1 sm:ml-6 sm:px-0', // Reduced margin
+                        'md:ml-8', // Reduced margin
+                        'lg:ml-12' // Reduced margin
                     )}>
-                        {clientLogos.map((client) => (
-                            <div
-                                key={client.id}
-                                className="flex items-center justify-center transition-all duration-300 hover:opacity-100 hover:scale-110"
-                            >
-                                <Image
-                                    src={client.logo}
-                                    alt={`${client.name} logo`}
-                                    width={isMobile ? (client.width || 120) * 0.45 : (client.width || 120) * 0.7}
-                                    height={isMobile ? (client.height || 40) * 0.45 : (client.height || 40) * 0.7}
-                                    className="max-w-full h-auto filter brightness-0 invert opacity-60 transition-all duration-300 hover:opacity-80"
-                                    loading="lazy"
-                                />
-                            </div>
-                        ))}
+                        {clientLogos.map((client) => {
+                            // Further reduced logo sizes for better performance
+                            const logoWidth = isMobile ? (client.width || 120) * 0.35 : (client.width || 120) * 0.55;
+                            const logoHeight = isMobile ? (client.height || 40) * 0.35 : (client.height || 40) * 0.55;
+
+                            return (
+                                <div
+                                    key={client.id}
+                                    className="flex items-center justify-center transition-all duration-300 hover:opacity-100 hover:scale-110"
+                                >
+                                    <Image
+                                        src={client.logo}
+                                        alt={`${client.name} logo`}
+                                        width={Math.round(logoWidth)}
+                                        height={Math.round(logoHeight)}
+                                        className="max-w-full h-auto filter brightness-0 invert opacity-60 transition-all duration-300 hover:opacity-80"
+                                        loading="lazy"
+                                        sizes={isMobile ? "25vw" : "80px"} // Reduced sizes
+                                        quality={70} // Reduced quality for better performance
+                                    />
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

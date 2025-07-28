@@ -32,7 +32,7 @@ interface HeaderProps {
 const navigationItems: MenuItem[] = [
     { label: 'Services', href: '/services', hasSubmenu: true },
     { label: 'Industries', href: '/industries', hasSubmenu: true },
-    { label: 'About', href: '/about', hasSubmenu: true },
+    { label: 'About Us', href: '/about', hasSubmenu: true },
     { label: 'Case Studies', href: '/case-studies' },
     { label: 'How we work', href: '/how-we-work' },
 ];

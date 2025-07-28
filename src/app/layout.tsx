@@ -8,6 +8,7 @@ import AnalyticsComponent from '@/components/common/Analytics';
 import './globals.css';
 import Header from '@/components/layout/Header';
 
+// Optimize font loading with display swap and preload
 const nunito = Nunito({
   subsets: ['latin'],
   display: 'swap',
@@ -15,6 +16,7 @@ const nunito = Nunito({
   fallback: ['system-ui', 'arial'],
   adjustFontFallback: true,
   preload: true,
+  weight: ['400', '500', '600', '700'], // Only load needed weights
 });
 
 // Enhanced metadata for SEO
@@ -106,7 +108,7 @@ export const metadata: Metadata = {
     'theme-color': '#3C86FF',
     'msapplication-TileColor': '#3C86FF',
     'msapplication-config': '/browserconfig.xml',
-    'google-site-verification': 'your-google-verification-code', // Add your verification code
+    'google-site-verification': 'your-google-verification-code',
   },
 };
 
@@ -253,40 +255,52 @@ const createStructuredData = () => ({
   ]
 });
 
-const createPerformanceScript = () => `
-  // Performance monitoring
-  if (typeof window !== 'undefined' && 'performance' in window) {
-    window.addEventListener('load', () => {
-      const perfData = performance.getEntriesByType('navigation')[0];
-      if (perfData && process.env.NODE_ENV === 'development') {
-        console.log('Page load time:', perfData.loadEventEnd - perfData.loadEventStart, 'ms');
-      }
-    });
-  }
-`;
-
 export default function RootLayout({ children }: RootLayoutProps) {
+  const structuredData = createStructuredData();
+
   return (
     <html lang="en" className={nunito.variable} suppressHydrationWarning>
       <head>
-        {/* DNS prefetch for external resources */}
-        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-        <link rel="dns-prefetch" href="//www.google-analytics.com" />
-        <link rel="dns-prefetch" href="//www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="//clutch.co" />
-        <link rel="dns-prefetch" href="//goodfirms.co" />
-        <link rel="dns-prefetch" href="//designrush.com" />
+        {/* Critical resource hints - only for truly critical resources */}
+        <link
+          rel="preconnect"
+          href="https://fonts.googleapis.com"
+          crossOrigin=""
+        />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
 
-        {/* Preconnect to important third-party origins */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="" />
+        {/* Preload critical fonts */}
+        <link
+          rel="preload"
+          href="https://fonts.gstatic.com/s/nunito/v26/XRXI3I6Li01I-wYBV0brAA.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin=""
+        />
+
+        {/* Add Google Font preconnect */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+
+        {/* Only preload hero video poster for LCP improvement */}
+        <link
+          rel="preload"
+          href="/video-poster.jpg"
+          as="image"
+          type="image/jpeg"
+        />
+
+        {/* DNS prefetch for analytics only - non-critical */}
+        <link rel="dns-prefetch" href="//www.googletagmanager.com" />
 
         {/* Favicon and app icons */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/manifest.json" />
 
         {/* Additional SEO meta tags */}
         <meta name="format-detection" content="telephone=no" />
@@ -299,40 +313,25 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <meta name="industry" content="Information Technology" />
         <meta name="geo.region" content="US-WY" />
         <meta name="geo.placename" content="Wyoming" />
-        <meta name="geo.position" content="42.9957;-107.5512" />
-        <meta name="ICBM" content="42.9957, -107.5512" />
-
-        {/* Performance hints */}
-        <link rel="prefetch" href="/api/health" />
-        <link rel="prefetch" href="/services" />
-        <link rel="prefetch" href="/portfolio" />
-        <link rel="prefetch" href="/contact" />
 
         {/* Structured data for SEO */}
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(createStructuredData()),
+            __html: JSON.stringify(structuredData),
           }}
         />
       </head>
       <body className="antialiased min-h-screen bg-background text-foreground">
         <CSRFProvider>
-            <AnalyticsComponent />
-            <Header />
-            <div id="root" className="relative">
-              {children}
-            </div>
+          <Header />
+          <div id="root" className="relative">
+            {children}
+          </div>
+          {/* Load analytics after critical content - your existing optimized component */}
+          <AnalyticsComponent />
         </CSRFProvider>
-
-        {/* Performance monitoring */}
-        <script
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{
-            __html: createPerformanceScript(),
-          }}
-        />
       </body>
     </html>
   );

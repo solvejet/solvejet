@@ -97,7 +97,7 @@ const CustomerSuccessSection: React.FC = () => {
     const extendedTestimonials = [...testimonials, ...testimonials];
 
     return (
-        <section className="py-16 sm:py-20 lg:py-24 bg-gray-50 overflow-hidden" aria-labelledby="customer-success-heading">
+        <section className="py-16 sm:py-20 lg:py-24 overflow-hidden" aria-labelledby="customer-success-heading">
 
             {/* Header */}
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 mb-16">
@@ -129,7 +129,7 @@ const CustomerSuccessSection: React.FC = () => {
                     {extendedTestimonials.map((testimonial, index) => (
                         <div
                             key={`${testimonial.id}-${index}`}
-                            className="flex-shrink-0 w-72 sm:w-80 md:w-96 lg:w-[400px] mx-2 sm:mx-3 bg-white rounded-2xl border-2 border-gray-200 p-6 sm:p-8 lg:p-10 hover:border-brand-300 hover:shadow-lg transition-all duration-300 group min-h-[420px] sm:min-h-[460px] md:min-h-[520px] flex flex-col"
+                            className="flex-shrink-0 w-72 sm:w-80 md:w-96 lg:w-[400px] mx-2 sm:mx-3 bg-gray-50 rounded-2xl border-2 border-gray-200 p-6 sm:p-8 lg:p-10 hover:border-brand-300 hover:shadow-lg transition-all duration-300 group min-h-[420px] sm:min-h-[460px] md:min-h-[520px] flex flex-col"
                         >
                             {/* Quote Section */}
                             <div className="mb-6 sm:mb-8 flex-1">
