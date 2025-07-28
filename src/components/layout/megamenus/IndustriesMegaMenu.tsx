@@ -107,7 +107,6 @@ const industriesData: IndustryItem[] = [
 const IndustriesMegaMenu: React.FC<IndustriesMegaMenuProps> = React.memo(({
     isOpen,
     onClose,
-    isScrolled
 }) => {
     const handleIndustryClick = useCallback((industryId: string) => {
         event({

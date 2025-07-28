@@ -26,7 +26,6 @@ interface MobileSidebarProps {
 const MobileSidebar: React.FC<MobileSidebarProps> = ({
     isOpen,
     onClose,
-    isScrolled
 }) => {
     const pathname = usePathname();
 

@@ -4,7 +4,6 @@
 import React, { useCallback, useState } from 'react';
 import Link from 'next/link';
 import {
-    ArrowRight,
     Rocket,
     Smartphone,
     Palette,
@@ -19,7 +18,6 @@ import {
     Settings,
     Code
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { event } from '@/lib/analytics';
 
@@ -338,7 +336,6 @@ const servicesData: ServiceCategory[] = [
 const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = React.memo(({
     isOpen,
     onClose,
-    isScrolled
 }) => {
     const [activeCategory, setActiveCategory] = useState<string>('development');
 
@@ -360,14 +357,6 @@ const ServicesMegaMenu: React.FC<ServicesMegaMenuProps> = React.memo(({
         });
     }, []);
 
-    const handleGetStartedClick = useCallback(() => {
-        event({
-            action: 'click_mega_menu_get_started',
-            category: 'conversion',
-            label: 'services_get_started'
-        });
-        onClose();
-    }, [onClose]);
 
     const activeServices = servicesData.find(cat => cat.id === activeCategory)?.services || [];
 

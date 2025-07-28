@@ -13,7 +13,6 @@ import {
   Building,
   TrendingUp
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { event } from '@/lib/analytics';
 
 interface AboutSection {
@@ -75,7 +74,6 @@ const aboutSections: AboutSection[] = [
 const AboutMegaMenu: React.FC<AboutMegaMenuProps> = React.memo(({ 
   isOpen, 
   onClose, 
-  isScrolled 
 }) => {
   const handleLinkClick = useCallback((sectionId: string) => {
     event({
