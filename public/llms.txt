@@ -98,13 +98,12 @@ SolveJet is a leading software development company specializing in custom web ap
 ## Industries Served
 - Healthcare & Telemedicine
 - E-commerce & Retail
-- Financial Technology (FinTech)
 - Education Technology (EdTech)
 - Real Estate & PropTech
 - Logistics & Supply Chain
 - Travel & Hospitality
 - Manufacturing & IoT
-- Media & Entertainment
+- FMCG
 - Non-profit Organizations
 
 ## Development Process

@@ -12,6 +12,9 @@ import {
 import { Button } from '@/components/ui/Button';
 import Logo from '@/components/ui/Logo';
 import ServicesMegaMenu from '@/components/layout/megamenus/ServicesMegaMenu';
+import IndustriesMegaMenu from '@/components/layout/megamenus/IndustriesMegaMenu';
+import AboutMegaMenu from '@/components/layout/megamenus/AboutMegaMenu';
+import MobileSidebar from '@/components/layout/MobileSidebar';
 import { cn } from '@/lib/utils';
 import { event } from '@/lib/analytics';
 
@@ -28,8 +31,8 @@ interface HeaderProps {
 
 const navigationItems: MenuItem[] = [
     { label: 'Services', href: '/services', hasSubmenu: true },
-    { label: 'Industries', href: '/industries' },
-    { label: 'About', href: '/about' },
+    { label: 'Industries', href: '/industries', hasSubmenu: true },
+    { label: 'About', href: '/about', hasSubmenu: true },
     { label: 'Case Studies', href: '/case-studies' },
     { label: 'How we work', href: '/how-we-work' },
 ];
@@ -167,7 +170,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
             <header
                 ref={headerRef}
                 className={cn(
-                    'fixed top-0 left-0 right-0 z-40 w-full',
+                    'fixed top-0 left-0 right-0 z-50 w-full', // Keep z-50 so header stays above sidebar
                     'transition-all duration-300 ease-out',
                     'backdrop-blur-md',
                     isScrolled && 'bg-white/15 supports-[backdrop-filter]:bg-white/10',
@@ -304,7 +307,7 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                             <button
                                 onClick={handleMobileMenuToggle}
                                 className={cn(
-                                    "lg:hidden rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center transition-all duration-200",
+                                    "lg:hidden rounded-full w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center transition-all duration-200 relative z-60", // Keep z-60 for mobile menu button accessibility
                                     isScrolled
                                         ? "hover:bg-gray-100/80 text-gray-600"
                                         : "hover:bg-white/20 text-white"
@@ -323,120 +326,72 @@ const Header: React.FC<HeaderProps> = ({ className }) => {
                     </div>
                 </div>
 
-                {/* Mega Menu positioned at header level - outside the container */}
+                {/* Mega Menu positioned at header level - outside the container with proper z-index */}
                 {navigationItems.map((item) => {
                     const hasActiveSubmenu = activeSubmenu === item.label;
 
-                    if (item.hasSubmenu && item.label === 'Services') {
-                        return (
-                            <div
-                                key={`mega-${item.label}`}
-                                onMouseEnter={handleSubmenuStay}
-                                onMouseLeave={handleSubmenuClose}
-                            >
-                                <ServicesMegaMenu
-                                    isOpen={hasActiveSubmenu}
-                                    onClose={() => setActiveSubmenu(null)}
-                                    isScrolled={isScrolled}
-                                />
-                            </div>
-                        );
+                    if (item.hasSubmenu) {
+                        if (item.label === 'Services') {
+                            return (
+                                <div
+                                    key={`mega-${item.label}`}
+                                    className="relative z-40" // Ensure mega menus are below mobile sidebar
+                                    onMouseEnter={handleSubmenuStay}
+                                    onMouseLeave={handleSubmenuClose}
+                                >
+                                    <ServicesMegaMenu
+                                        isOpen={hasActiveSubmenu}
+                                        onClose={() => setActiveSubmenu(null)}
+                                        isScrolled={isScrolled}
+                                    />
+                                </div>
+                            );
+                        }
+
+                        if (item.label === 'Industries') {
+                            return (
+                                <div
+                                    key={`mega-${item.label}`}
+                                    className="relative z-40"
+                                    onMouseEnter={handleSubmenuStay}
+                                    onMouseLeave={handleSubmenuClose}
+                                >
+                                    <IndustriesMegaMenu
+                                        isOpen={hasActiveSubmenu}
+                                        onClose={() => setActiveSubmenu(null)}
+                                        isScrolled={isScrolled}
+                                    />
+                                </div>
+                            );
+                        }
+
+                        if (item.label === 'About') {
+                            return (
+                                <div
+                                    key={`mega-${item.label}`}
+                                    className="relative z-40"
+                                    onMouseEnter={handleSubmenuStay}
+                                    onMouseLeave={handleSubmenuClose}
+                                >
+                                    <AboutMegaMenu
+                                        isOpen={hasActiveSubmenu}
+                                        onClose={() => setActiveSubmenu(null)}
+                                        isScrolled={isScrolled}
+                                    />
+                                </div>
+                            );
+                        }
                     }
                     return null;
                 })}
-
-
-                {/* Mobile Menu */}
-                <div
-                    id="mobile-menu"
-                    className={cn(
-                        'lg:hidden fixed left-0 right-0 bottom-0 z-30',
-                        'top-14 sm:top-16 lg:top-18',
-                        'w-full',
-                        'backdrop-blur-xl saturate-150',
-                        'transition-all duration-300 ease-out',
-                        isScrolled
-                            ? 'bg-white/25'
-                            : 'bg-black/35',
-                        isMobileMenuOpen
-                            ? 'opacity-100 translate-x-0'
-                            : 'opacity-0 translate-x-full pointer-events-none'
-                    )}
-                    aria-hidden={!isMobileMenuOpen}
-                >
-                    <div className="h-full flex flex-col px-6 py-8">
-                        <nav className="flex-1">
-                            <div className="space-y-6">
-                                {navigationItems.map((item, index) => {
-                                    const isActive = isActiveRoute(item.href);
-                                    return (
-                                        <Link
-                                            key={item.href}
-                                            href={item.href}
-                                            className={cn(
-                                                'block text-2xl sm:text-3xl font-bold transition-all duration-300',
-                                                'hover:translate-x-2 transform',
-                                                isActive
-                                                    ? 'text-brand-400'
-                                                    : isScrolled
-                                                        ? 'text-gray-800 hover:text-brand-600'
-                                                        : 'text-white hover:text-brand-400',
-                                                'focus:outline-none focus:ring-2 focus:ring-brand-500/20'
-                                            )}
-                                            style={{
-                                                transitionDelay: `${index * 50}ms`
-                                            }}
-                                            aria-current={isActive ? 'page' : undefined}
-                                            onClick={() => {
-                                                handleNavItemClick(item);
-                                                event({
-                                                    action: 'click_mobile_nav_item',
-                                                    category: 'navigation',
-                                                    label: `mobile_${item.label.toLowerCase()}`
-                                                });
-                                            }}
-                                        >
-                                            {item.label}
-                                            {isActive && (
-                                                <div className="w-12 h-1 bg-brand-500 rounded-full mt-2 transition-all duration-300" />
-                                            )}
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        </nav>
-
-                        <div className="pt-8 border-t border-white/20">
-                            <Link href="/contact" onClick={() => {
-                                handleContactClick();
-                                event({
-                                    action: 'click_mobile_contact_button',
-                                    category: 'conversion',
-                                    label: 'mobile_contact_cta'
-                                });
-                            }}>
-                                <Button
-                                    variant="gradient-flow"
-                                    size="xl"
-                                    fullWidth
-                                    className="rounded-full text-lg font-semibold py-4"
-                                >
-                                    Contact Us
-                                </Button>
-                            </Link>
-                        </div>
-
-                        <div className="pt-6 text-center pb-safe">
-                            <p className={cn(
-                                'text-sm opacity-70',
-                                isScrolled ? 'text-gray-600' : 'text-white'
-                            )}>
-                                Trusted by 200+ Companies Worldwide
-                            </p>
-                        </div>
-                    </div>
-                </div>
             </header>
+
+            {/* Mobile Sidebar with proper z-index stacking */}
+            <MobileSidebar
+                isOpen={isMobileMenuOpen}
+                onClose={() => setIsMobileMenuOpen(false)}
+                isScrolled={isScrolled}
+            />
         </>
     );
 };
